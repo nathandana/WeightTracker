@@ -1,0 +1,191 @@
+{
+  "label": {
+    "app": {
+      "name": { "$value": "Journey Check-In", "locale": { "es": "Registro del Viaje" } },
+      "tagline": { "$value": "Your wellness, your pace.", "locale": { "es": "Tu bienestar, tu ritmo." } }
+    },
+    "nav": {
+      "today": { "$value": "Today", "locale": { "es": "Hoy" } },
+      "progress": { "$value": "Progress", "locale": { "es": "Progreso" } },
+      "profile": { "$value": "Profile", "locale": { "es": "Perfil" } }
+    },
+    "common": {
+      "continue": { "$value": "Continue", "locale": { "es": "Continuar" } },
+      "back": { "$value": "Back", "locale": { "es": "Atrás" } },
+      "save": { "$value": "Save", "locale": { "es": "Guardar" } },
+      "done": { "$value": "Done", "locale": { "es": "Listo" } },
+      "skip": { "$value": "Skip", "locale": { "es": "Omitir" } },
+      "yes": { "$value": "Yes", "locale": { "es": "Sí" } },
+      "no": { "$value": "No", "locale": { "es": "No" } },
+      "lbs": { "$value": "lbs", "locale": { "es": "lbs" } },
+      "kg": { "$value": "kg", "locale": { "es": "kg" } },
+      "cm": { "$value": "cm", "locale": { "es": "cm" } },
+      "feet": { "$value": "ft", "locale": { "es": "pies" } },
+      "inches": { "$value": "in", "locale": { "es": "pulg" } },
+      "calories": { "$value": "calories", "locale": { "es": "calorías" } },
+      "calDay": { "$value": "cal/day", "locale": { "es": "cal/día" } },
+      "perWeek": { "$value": "/ week", "locale": { "es": "/ semana" } },
+      "days": { "$value": "days", "locale": { "es": "días" } },
+      "weeks": { "$value": "weeks", "locale": { "es": "semanas" } },
+      "optional": { "$value": "Optional", "locale": { "es": "Opcional" } },
+      "required": { "$value": "Required", "locale": { "es": "Requerido" } },
+      "step": { "$value": "Step", "locale": { "es": "Paso" } },
+      "of": { "$value": "of", "locale": { "es": "de" } }
+    },
+    "onboarding": {
+      "step1Title": { "$value": "About You", "locale": { "es": "Sobre Ti" } },
+      "step1Sub": { "$value": "Let's start with the basics", "locale": { "es": "Empecemos con lo básico" } },
+      "step2Title": { "$value": "Your Habits", "locale": { "es": "Tus Hábitos" } },
+      "step2Sub": { "$value": "Help us understand your lifestyle", "locale": { "es": "Ayúdanos a entender tu estilo de vida" } },
+      "step3Title": { "$value": "Your Goal", "locale": { "es": "Tu Meta" } },
+      "step3Sub": { "$value": "What does success look like for you?", "locale": { "es": "¿Cómo luce el éxito para ti?" } },
+      "step4Title": { "$value": "You're All Set!", "locale": { "es": "¡Todo Listo!" } },
+      "step4Sub": { "$value": "Here's your personalized plan", "locale": { "es": "Aquí está tu plan personalizado" } },
+      "name": { "$value": "First Name", "locale": { "es": "Nombre" } },
+      "namePlaceholder": { "$value": "What should we call you?", "locale": { "es": "¿Cómo te llamamos?" } },
+      "startWeight": { "$value": "Current Weight", "locale": { "es": "Peso Actual" } },
+      "height": { "$value": "Height", "locale": { "es": "Estatura" } },
+      "heightFeet": { "$value": "Feet", "locale": { "es": "Pies" } },
+      "heightInches": { "$value": "Inches", "locale": { "es": "Pulgadas" } },
+      "heightCm": { "$value": "Height (cm)", "locale": { "es": "Estatura (cm)" } },
+      "age": { "$value": "Age", "locale": { "es": "Edad" } },
+      "sex": { "$value": "Biological Sex", "locale": { "es": "Sexo Biológico" } },
+      "sexHint": { "$value": "Used for accurate calorie calculations", "locale": { "es": "Usado para cálculos precisos de calorías" } },
+      "sexMale": { "$value": "Male", "locale": { "es": "Masculino" } },
+      "sexFemale": { "$value": "Female", "locale": { "es": "Femenino" } },
+      "weightUnit": { "$value": "Weight Unit", "locale": { "es": "Unidad de Peso" } },
+      "heightUnit": { "$value": "Height Unit", "locale": { "es": "Unidad de Estatura" } },
+      "activityLevel": { "$value": "Activity Level", "locale": { "es": "Nivel de Actividad" } },
+      "activitySedentary": { "$value": "Sedentary", "locale": { "es": "Sedentario" } },
+      "activitySedentarySub": { "$value": "Desk job", "locale": { "es": "Trabajo de escritorio, poco ejercicio" } },
+      "activityLight": { "$value": "Lightly Active", "locale": { "es": "Ligeramente Activo" } },
+      "activityLightSub": { "$value": "Exercise 1–3 days/week", "locale": { "es": "Ejercicio leve 1–3 días/semana" } },
+      "activityModerate": { "$value": "Moderately Active", "locale": { "es": "Moderadamente Activo" } },
+      "activityModerateSub": { "$value": "Exercise 3–5 days/week", "locale": { "es": "Ejercicio moderado 3–5 días/semana" } },
+      "activityActive": { "$value": "Very Active", "locale": { "es": "Muy Activo" } },
+      "activityActiveSub": { "$value": "Exercise 6–7 days/week", "locale": { "es": "Ejercicio intenso 6–7 días/semana" } },
+      "dailyCalories": { "$value": "Estimated Daily Calories", "locale": { "es": "Calorías Diarias Estimadas" } },
+      "dailyCalHint": { "$value": "Your typical daily food intake", "locale": { "es": "Tu ingesta diaria típica de alimentos" } },
+      "meds": { "$value": "Weight Loss Medications", "locale": { "es": "Medicamentos para Bajar de Peso" } },
+      "medsHint": { "$value": "Select any you're currently taking", "locale": { "es": "Selecciona los que estás tomando" } },
+      "medNone": { "$value": "None", "locale": { "es": "Ninguno" } },
+      "medSemaglutide": { "$value": "Semaglutide (Ozempic / Wegovy)", "locale": { "es": "Semaglutida (Ozempic / Wegovy)" } },
+      "medTirzepatide": { "$value": "Tirzepatide (Mounjaro / Zepbound)", "locale": { "es": "Tirzepatida (Mounjaro / Zepbound)" } },
+      "medOther": { "$value": "Other", "locale": { "es": "Otro" } },
+      "goalWeight": { "$value": "Goal Weight", "locale": { "es": "Peso Meta" } },
+      "goalDate": { "$value": "Target Date", "locale": { "es": "Fecha Objetivo" } },
+      "goalDateHint": { "$value": "When would you like to reach your goal?", "locale": { "es": "¿Cuándo te gustaría alcanzar tu meta?" } },
+      "startJourney": { "$value": "Start My Journey!", "locale": { "es": "¡Comenzar Mi Viaje!" } },
+      "bmiLabel": { "$value": "Your BMI", "locale": { "es": "Tu IMC" } },
+      "tdeeLabel": { "$value": "Daily Calorie Budget", "locale": { "es": "Presupuesto Diario de Calorías" } },
+      "deficitLabel": { "$value": "Daily Deficit", "locale": { "es": "Déficit Diario" } },
+      "weeklyLossLabel": { "$value": "Est. Weekly Loss", "locale": { "es": "Pérdida Semanal Est." } },
+      "daysLabel": { "$value": "Days to Goal", "locale": { "es": "Días para la Meta" } },
+      "feasibleNote": { "$value": "This is a healthy, achievable pace.", "locale": { "es": "Este es un ritmo saludable y alcanzable." } },
+      "aggressiveNote": { "$value": "Your goal is ambitious — that's great! Focus on consistency over speed.", "locale": { "es": "Tu meta es ambiciosa — ¡eso es genial! Enfócate en la consistencia sobre la velocidad." } }
+    },
+    "checkin": {
+      "greeting": {
+        "morning": { "$value": "Good morning", "locale": { "es": "Buenos días" } },
+        "afternoon": { "$value": "Good afternoon", "locale": { "es": "Buenas tardes" } },
+        "evening": { "$value": "Good evening", "locale": { "es": "Buenas noches" } }
+      },
+      "title": { "$value": "How are you today?", "locale": { "es": "¿Cómo estás hoy?" } },
+      "weightLabel": { "$value": "Today's Weight", "locale": { "es": "Peso de Hoy" } },
+      "lastEntry": { "$value": "Last logged", "locale": { "es": "Último registro" } },
+      "logWeight": { "$value": "Log Weight", "locale": { "es": "Registrar Peso" } },
+      "takeSurvey": { "$value": "Add a quick check-in", "locale": { "es": "Agregar un chequeo rápido" } },
+      "skipSurvey": { "$value": "I'm all done for today", "locale": { "es": "Ya terminé por hoy" } },
+      "alreadyLogged": { "$value": "You've already logged today!", "locale": { "es": "¡Ya registraste hoy!" } },
+      "alreadyLoggedSub": { "$value": "Come back tomorrow to keep your streak.", "locale": { "es": "Vuelve mañana para mantener tu racha." } },
+      "updateWeight": { "$value": "Update today's entry", "locale": { "es": "Actualizar entrada de hoy" } }
+    },
+    "survey": {
+      "title": { "$value": "Quick Check-In", "locale": { "es": "Chequeo Rápido" } },
+      "subtitle": { "$value": "Just a few taps — optional but helpful!", "locale": { "es": "Solo unos toques — ¡opcional pero útil!" } },
+      "mood": { "$value": "How are you feeling?", "locale": { "es": "¿Cómo te sientes?" } },
+      "moodGreat": { "$value": "Amazing", "locale": { "es": "Increíble" } },
+      "moodGood": { "$value": "Good", "locale": { "es": "Bien" } },
+      "moodOkay": { "$value": "Okay", "locale": { "es": "Regular" } },
+      "moodLow": { "$value": "Tough Day", "locale": { "es": "Día Difícil" } },
+      "activity": { "$value": "Activity Today", "locale": { "es": "Actividad Hoy" } },
+      "activityHigh": { "$value": "Intense", "locale": { "es": "Intenso" } },
+      "activityMed": { "$value": "Moderate", "locale": { "es": "Moderado" } },
+      "activityLow": { "$value": "Light", "locale": { "es": "Leve" } },
+      "activityNone": { "$value": "Rest Day", "locale": { "es": "Día de Descanso" } },
+      "calories": { "$value": "Calorie Intake", "locale": { "es": "Ingesta de Calorías" } },
+      "calUnder": { "$value": "Under goal", "locale": { "es": "Bajo la meta" } },
+      "calOnTrack": { "$value": "On track", "locale": { "es": "En camino" } },
+      "calOver": { "$value": "Slightly over", "locale": { "es": "Un poco más" } },
+      "calWayOver": { "$value": "Way over", "locale": { "es": "Muy por encima" } },
+      "submit": { "$value": "Submit Check-In", "locale": { "es": "Enviar Chequeo" } }
+    },
+    "progress": {
+      "title": { "$value": "Your Progress", "locale": { "es": "Tu Progreso" } },
+      "currentWeight": { "$value": "Current Weight", "locale": { "es": "Peso Actual" } },
+      "startWeight": { "$value": "Starting Weight", "locale": { "es": "Peso Inicial" } },
+      "goalWeight": { "$value": "Goal Weight", "locale": { "es": "Peso Meta" } },
+      "totalLost": { "$value": "Total Lost", "locale": { "es": "Total Perdido" } },
+      "toGo": { "$value": "To Go", "locale": { "es": "Por Perder" } },
+      "streak": { "$value": "Day Streak", "locale": { "es": "Racha de Días" } },
+      "daysIn": { "$value": "Days In", "locale": { "es": "Días en Camino" } },
+      "percentDone": { "$value": "Complete", "locale": { "es": "Completado" } },
+      "chartTitle": { "$value": "Weight Over Time", "locale": { "es": "Peso en el Tiempo" } },
+      "noData": { "$value": "Log your weight daily to see your chart.", "locale": { "es": "Registra tu peso diariamente para ver tu gráfica." } },
+      "share": { "$value": "Share My Progress", "locale": { "es": "Compartir Mi Progreso" } },
+      "shareTitle": { "$value": "My Journey Progress", "locale": { "es": "Mi Progreso en el Viaje" } },
+      "shareCopied": { "$value": "Copied to clipboard!", "locale": { "es": "¡Copiado al portapapeles!" } }
+    },
+    "profile": {
+      "title": { "$value": "My Profile", "locale": { "es": "Mi Perfil" } },
+      "language": { "$value": "Language", "locale": { "es": "Idioma" } },
+      "langEn": { "$value": "English", "locale": { "es": "Inglés" } },
+      "langEs": { "$value": "Español", "locale": { "es": "Español" } },
+      "editProfile": { "$value": "Edit Profile", "locale": { "es": "Editar Perfil" } },
+      "resetData": { "$value": "Reset All Data", "locale": { "es": "Restablecer Todo" } },
+      "resetConfirm": { "$value": "This will delete all your data. Are you sure?", "locale": { "es": "Esto eliminará todos tus datos. ¿Estás seguro?" } },
+      "bmi": { "$value": "BMI", "locale": { "es": "IMC" } },
+      "tdee": { "$value": "Daily Calorie Budget", "locale": { "es": "Presupuesto Diario" } },
+      "goalDate": { "$value": "Goal Date", "locale": { "es": "Fecha Meta" } },
+      "meds": { "$value": "Medications", "locale": { "es": "Medicamentos" } }
+    },
+    "encouragement": {
+      "justStarted": [
+        { "$value": "Every great journey starts with a single step. You just took yours! 🌟", "locale": { "es": "Todo gran viaje comienza con un solo paso. ¡Tú acabas de dar el tuyo! 🌟" } },
+        { "$value": "Day one is done. You showed up — that's everything. Keep going! 💪", "locale": { "es": "El primer día está hecho. Apareciste — eso es todo. ¡Sigue adelante! 💪" } },
+        { "$value": "The best time to start was yesterday. The second best time is right now. You're here! 🙌", "locale": { "es": "El mejor momento para empezar fue ayer. El segundo mejor momento es ahora mismo. ¡Estás aquí! 🙌" } }
+      ],
+      "earlyProgress": [
+        { "$value": "You're building momentum! Every check-in is a vote for the person you're becoming. 🌱", "locale": { "es": "¡Estás ganando impulso! Cada registro es un voto por la persona en que te estás convirtiendo. 🌱" } },
+        { "$value": "Consistency is your superpower. Look how far you've already come! ✨", "locale": { "es": "La consistencia es tu superpoder. ¡Mira lo lejos que has llegado! ✨" } },
+        { "$value": "Small steps every day add up to big changes. You're proving that right now! 🚀", "locale": { "es": "Pequeños pasos cada día se suman a grandes cambios. ¡Estás demostrando eso ahora mismo! 🚀" } }
+      ],
+      "goodProgress": [
+        { "$value": "Halfway there — and you're just getting started! The momentum is real. 🔥", "locale": { "es": "A mitad del camino — ¡y apenas estás comenzando! El impulso es real. 🔥" } },
+        { "$value": "You've come too far to stop now. Keep showing up for yourself! 💫", "locale": { "es": "Has llegado demasiado lejos para parar ahora. ¡Sigue apareciendo por ti mismo! 💫" } },
+        { "$value": "Look at you go! Your dedication is inspiring. Every day counts! 🌟", "locale": { "es": "¡Mírarte avanzar! Tu dedicación es inspiradora. ¡Cada día cuenta! 🌟" } }
+      ],
+      "almostThere": [
+        { "$value": "So close! You can practically see the finish line. Finish strong! 🏆", "locale": { "es": "¡Tan cerca! Casi puedes ver la meta. ¡Termina con fuerza! 🏆" } },
+        { "$value": "The final stretch is where champions are made. You've got this! 💪", "locale": { "es": "El tramo final es donde se hacen los campeones. ¡Puedes con esto! 💪" } }
+      ],
+      "goalReached": [
+        { "$value": "YOU DID IT! 🎉 This is your moment. Celebrate — you earned every bit of this!", "locale": { "es": "¡LO LOGRASTE! 🎉 Este es tu momento. Celébralo — ¡te ganaste cada parte de esto!" } },
+        { "$value": "Goal achieved! 🏆 You proved to yourself what's possible. What's next?", "locale": { "es": "¡Meta alcanzada! 🏆 Te demostraste a ti mismo lo que es posible. ¿Qué sigue?" } }
+      ],
+      "weightUp": [
+        { "$value": "Weight can fluctuate daily — don't let one number define your progress. You're still crushing it! 💙", "locale": { "es": "El peso puede fluctuar diariamente — no dejes que un número defina tu progreso. ¡Sigues logrando mucho! 💙" } },
+        { "$value": "Two steps forward, one step back — that's still progress. Keep going, you're doing amazing! 🌈", "locale": { "es": "Dos pasos adelante, uno atrás — eso sigue siendo progreso. ¡Sigue adelante, lo estás haciendo increíble! 🌈" } }
+      ],
+      "streak": [
+        { "$value": "🔥 Streak! Consistency is your secret weapon.", "locale": { "es": "🔥 ¡Racha! La consistencia es tu arma secreta." } }
+      ]
+    },
+    "bmiCategory": {
+      "underweight": { "$value": "Underweight", "locale": { "es": "Bajo peso" } },
+      "normal": { "$value": "Healthy Weight", "locale": { "es": "Peso saludable" } },
+      "overweight": { "$value": "Overweight", "locale": { "es": "Sobrepeso" } },
+      "obese": { "$value": "Obese", "locale": { "es": "Obesidad" } }
+    }
+  }
+}
