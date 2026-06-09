@@ -1,6 +1,6 @@
 {
   "name": "journey-checkin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,8 @@
   "dependencies": {
     "@gtivr4/a1-design-system-react": "^0.6.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",

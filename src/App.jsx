@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import {
-  LabelsProvider, PageLayout, TopHeader, Section,
+  LabelsProvider, PageLayout, TopHeader,
 } from '@gtivr4/a1-design-system-react';
 import { useStore } from './store/useStore.js';
 import { Onboarding } from './views/Onboarding.jsx';
 import { WelcomeResults } from './views/WelcomeResults.jsx';
 import { CheckIn } from './views/CheckIn.jsx';
-import { Progress } from './views/Progress.jsx';
-import { Profile } from './views/Profile.jsx';
+import { SettingsMenu } from './components/SettingsMenu.jsx';
 import { MOCK_SCENARIOS } from './dev/mockScenarios.js';
 import labels from './labels/labels.json';
 
@@ -47,7 +46,6 @@ const devSelectStyle = {
 
 export default function App() {
   const store = useStore();
-  const [view, setView] = useState('today');
   const [showWelcome, setShowWelcome] = useState(false);
   const [activeScenario, setActiveScenario] = useState('real');
 
@@ -59,7 +57,6 @@ export default function App() {
   function handleScenarioChange(e) {
     const id = e.target.value;
     setActiveScenario(id);
-    setView('today');
     if (id === 'real') {
       store.restoreRealData();
     } else {
@@ -68,38 +65,10 @@ export default function App() {
     }
   }
 
-  const appName = resolveLabel('app.name', store.locale, 'Journey Check-In');
-
-  const navItems = [
-    {
-      id: 'today',
-      label: resolveLabel('nav.today', store.locale, 'Today'),
-      icon: 'home',
-      active: view === 'today',
-      onClick: () => setView('today'),
-    },
-    {
-      id: 'progress',
-      label: resolveLabel('nav.progress', store.locale, 'Progress'),
-      icon: 'bar_chart',
-      active: view === 'progress',
-      onClick: () => setView('progress'),
-    },
-    {
-      id: 'profile',
-      label: resolveLabel('nav.profile', store.locale, 'Profile'),
-      icon: 'person',
-      active: view === 'profile',
-      onClick: () => setView('profile'),
-    },
-  ];
+  const appName = resolveLabel('app.name', store.locale, 'DownTrack');
 
   const header = store.profile && !showWelcome ? (
-    <TopHeader
-      logoText={appName}
-      logoHref="#"
-      navItems={navItems}
-    />
+    <TopHeader logoText={appName} logoHref="#" />
   ) : null;
 
   const devBar = (
@@ -116,15 +85,31 @@ export default function App() {
   return (
     <LabelsProvider labels={labels} locale={store.locale}>
       {import.meta.env.DEV && devBar}
+      {store.profile && !showWelcome && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          height: 'var(--component-top-header-height)',
+          display: 'flex',
+          alignItems: 'center',
+          paddingInlineEnd: '12px',
+          zIndex: 'calc(var(--component-top-header-z-index) + 1)',
+        }}>
+          <SettingsMenu
+            locale={store.locale}
+            setLocale={store.setLocale}
+            onReset={store.reset}
+          />
+        </div>
+      )}
       {!store.profile ? (
         <Onboarding onComplete={handleOnboardingComplete} />
       ) : showWelcome ? (
         <WelcomeResults profile={store.profile} onDone={() => setShowWelcome(false)} />
       ) : (
         <PageLayout header={header}>
-            {view === 'today'    && <CheckIn  store={store} navigate={setView} />}
-            {view === 'progress' && <Progress store={store} />}
-            {view === 'profile'  && <Profile  store={store} />}
+          <CheckIn store={store} />
         </PageLayout>
       )}
     </LabelsProvider>

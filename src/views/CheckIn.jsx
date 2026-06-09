@@ -1,292 +1,160 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Stack, Button, ButtonContainer, Heading, Paragraph,
-  Card, Inset, Icon, ChoiceGroup, Banner, MessageBadge,
-  Grid, Divider, Dialog,
-  Section,
+  Stack, Heading, Paragraph, Card,
+  Grid, Section, CircularProgress, DataTable, Icon,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { WeightStepper } from '../components/WeightStepper.jsx';
-import { getEncouragement } from '../utils/encouragement.js';
+import { ProgressChart } from '../components/ProgressChart.jsx';
 import { getProgressStats } from '../utils/calculations.js';
 
-const MOOD_OPTIONS = (l) => [
-  { value: 'great', label: '😊 ' + l('survey.moodGreat', 'Amazing') },
-  { value: 'good',  label: '🙂 ' + l('survey.moodGood', 'Good') },
-  { value: 'okay',  label: '😐 ' + l('survey.moodOkay', 'Okay') },
-  { value: 'low',   label: '😞 ' + l('survey.moodLow', 'Tough Day') },
-];
-
-const ACTIVITY_OPTIONS = (l) => [
-  { value: 'high',   label: '🏃 ' + l('survey.activityHigh', 'Intense') },
-  { value: 'medium', label: '🚶 ' + l('survey.activityMed', 'Moderate') },
-  { value: 'low',    label: '🧘 ' + l('survey.activityLow', 'Light') },
-  { value: 'none',   label: '🛋️ ' + l('survey.activityNone', 'Rest Day') },
-];
-
-const CALORIE_OPTIONS = (l) => [
-  { value: 'under',    label: '✅ ' + l('survey.calUnder', 'Under goal') },
-  { value: 'on_track', label: '🎯 ' + l('survey.calOnTrack', 'On track') },
-  { value: 'over',     label: '😅 ' + l('survey.calOver', 'Slightly over') },
-  { value: 'way_over', label: '🍕 ' + l('survey.calWayOver', 'Way over') },
-];
-
-const MOOD_EMOJI = { great: '😊', good: '🙂', okay: '😐', low: '😞' };
-
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'morning';
-  if (h < 17) return 'afternoon';
-  return 'evening';
+function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
+  return (
+    <Card icon={icon} iconDisplay="hero" heroColor={heroColor}>
+      <Heading as="h3" size="md" type="display">{value}{sub ? ` ${sub}` : ''}</Heading>
+      <Paragraph color="muted" size="md"><strong>{label}</strong></Paragraph>
+    </Card>
+  );
 }
 
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
-const SCREEN = { WEIGHT: 'weight', DONE: 'done' };
-
-export function CheckIn({ store, navigate }) {
+export function CheckIn({ store }) {
   const l = useLabel;
-  const { profile, checkins, todayCheckin, currentWeight, addCheckin, locale } = store;
+  const { profile, checkins, currentWeight, addCheckin } = store;
 
-  const [screen, setScreen] = useState(todayCheckin ? SCREEN.DONE : SCREEN.WEIGHT);
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
-  const [survey, setSurvey] = useState({ mood: null, activity: null, calories: null });
-  const [surveyOpen, setSurveyOpen] = useState(false);
-  const [loggedOpen, setLoggedOpen] = useState(false);
+  const isDirty = useRef(false);
 
-  const greetPeriod = greeting();
-  const name = profile?.name ? `, ${profile.name}` : '';
-  const stats = getProgressStats(profile, checkins);
-  const lastEntry  = store.latestCheckin;
-  const lastWeight = lastEntry?.weight;
-  const weightChange = lastWeight != null ? weight - lastWeight : null;
+  // Auto-save debounced — skip initial render
+  useEffect(() => {
+    if (!isDirty.current) { isDirty.current = true; return; }
+    const t = setTimeout(() => addCheckin({ weight: Number(weight) }), 600);
+    return () => clearTimeout(t);
+  }, [weight]);
 
-  const encouragement = stats
-    ? getEncouragement({ percent: stats.percent, streak: stats.streak, weightChange: weightChange ?? 0, locale, seed: checkins.length })
-    : null;
+  // Compute stats live from current weight (updates before save completes)
+  const today = new Date().toDateString();
+  const liveCheckins = [
+    ...checkins.filter(c => new Date(c.date).toDateString() !== today),
+    { date: new Date().toISOString(), weight: Number(weight) },
+  ];
+  const stats = getProgressStats(profile, liveCheckins);
 
-  function handleLogWeight() {
-    addCheckin({ weight: Number(weight) });
-    setLoggedOpen(true);
-  }
+  if (!profile) return null;
 
-  function handleSubmitSurvey() {
-    const today = new Date().toDateString();
-    store.update({
-      checkins: store.checkins.map(c =>
-        new Date(c.date).toDateString() === today ? { ...c, ...survey } : c
-      ),
-    });
-    setSurveyOpen(false);
-    setLoggedOpen(false);
-    navigate('progress');
-  }
+  const unit = profile.weightUnit;
 
-  function handleSkipSurvey() {
-    setSurveyOpen(false);
-    setLoggedOpen(false);
-    navigate('progress');
-  }
-
-  const canSubmit = survey.mood && survey.activity && survey.calories;
-
-  const StatMiniCards = () => stats ? (
-    <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="md">
-      {[
-        { icon: 'monitor_heart',        label: 'Lost',   value: `${Math.abs(stats.lost)} ${stats.unit}`, heroColor: 'success' },
-        { icon: 'flag',                  label: 'To Go',  value: `${stats.toGo} ${stats.unit}`,            heroColor: 'warn'    },
-        { icon: 'local_fire_department', label: 'Streak', value: `${stats.streak} day`,                    heroColor: 'action'  },
-        { icon: 'calendar_today',        label: 'Day',    value: `${stats.daysIn}`,                         heroColor: 'info'    },
-      ].map(({ icon, label, value, heroColor }) => (
-        <Card key={label} icon={icon} iconDisplay="hero" heroColor={heroColor}>
-          <Heading as="h3" size="md" type="display">{value}</Heading>
-          <Paragraph color="muted" size="md"><strong>{label}</strong></Paragraph>
-        </Card>
-      ))}
-    </Grid>
-  ) : null;
-
-  const ContextPanel = () => (
-    <Stack gap={16}>
-      {lastEntry && (
-        <Card icon="history">
-          <Heading as="p" size="lg">{lastWeight} {profile?.weightUnit}</Heading>
-          <Paragraph color="muted" size="sm">
-            {l('checkin.lastEntry', 'Last logged')} · {formatDate(lastEntry.date)}
-          </Paragraph>
-        </Card>
-      )}
-
-      {weightChange != null && Math.abs(weightChange) > 0.05 && (
-        <MessageBadge
-          status={weightChange <= 0 ? 'success' : 'warn'}
-          icon={weightChange <= 0 ? 'trending_down' : 'trending_up'}
-        >
-          {weightChange > 0 ? '+' : ''}{Math.round(weightChange * 10) / 10} {profile?.weightUnit} since last entry
-        </MessageBadge>
-      )}
-
-      <StatMiniCards />
-    </Stack>
-  );
-
-  const SurveyDialog = () => (
-    <Dialog
-      title={l('survey.title', 'Quick Check-In')}
-      open={surveyOpen}
-      onClose={handleSkipSurvey}
-      footer={
-        <ButtonContainer align="end">
-          <Button variant="tertiary" onClick={handleSkipSurvey}>
-            {l('common.skip', 'Skip')}
-          </Button>
-          <Button variant="primary" disabled={!canSubmit} onClick={handleSubmitSurvey}>
-            {l('survey.submit', 'Submit Check-In')}
-          </Button>
-        </ButtonContainer>
-      }
-    >
-      <Stack gap="lg">
-        <div className="jc-form-row-desktop">
-          <Stack gap={20}>
-            <ChoiceGroup
-              label={l('survey.mood', 'How are you feeling?')}
-              options={MOOD_OPTIONS(l)}
-              columns={2}
-              value={survey.mood}
-              onChange={v => setSurvey(s => ({ ...s, mood: v }))}
-            />
-            <ChoiceGroup
-              label={l('survey.activity', 'Activity Today')}
-              options={ACTIVITY_OPTIONS(l)}
-              columns={2}
-              value={survey.activity}
-              onChange={v => setSurvey(s => ({ ...s, activity: v }))}
-            />
-          </Stack>
-          <Stack gap={20}>
-            <ChoiceGroup
-              label={l('survey.calories', 'Calorie Intake')}
-              options={CALORIE_OPTIONS(l)}
-              columns={2}
-              value={survey.calories}
-              onChange={v => setSurvey(s => ({ ...s, calories: v }))}
-            />
-          </Stack>
-        </div>
-      </Stack>
-    </Dialog>
-  );
-
-  const LoggedDialog = () => (
-    <Dialog
-      title={l('checkin.weightLogged', 'Weight Logged!')}
-      status="success"
-      open={loggedOpen}
-      onClose={() => { setLoggedOpen(false); navigate('progress'); }}
-      footer={
-        <ButtonContainer align="end">
-          <Button variant="primary" onClick={() => { setLoggedOpen(false); setSurveyOpen(true); }}>
-            {l('checkin.takeSurvey', 'Add a quick check-in')}
-          </Button>
-          <Button variant="tertiary" onClick={() => { setLoggedOpen(false); navigate('progress'); }}>
-            {l('checkin.skipSurvey', "I'm all done for today")}
-          </Button>
-        </ButtonContainer>
-      }
-    >
-      <Stack gap="sm">
-        {encouragement?.message && (
-          <Paragraph size="lg" color="muted">{encouragement.message}</Paragraph>
-        )}
-        {encouragement?.streakMessage && (
-          <Paragraph size="lg" color="muted">{encouragement.streakMessage}</Paragraph>
-        )}
-      </Stack>
-    </Dialog>
-  );
-
-  // ── WEIGHT screen ──────────────────────────────────────────────────
-  if (screen === SCREEN.WEIGHT) {
-return (
-  <>
-    <LoggedDialog />
-    <SurveyDialog />
-    <Section contentWidth="md" padding="sm" surface="raised" gap="lg" align="center">
-      <div>
-        <Heading color="muted" size="sm" as="h2" align="center">
-          {l(`checkin.greeting.${greetPeriod}`, 'Hello')}{name}!
-        </Heading>
-
-        <Heading type="display" size="xl" as="h1" align="center">
-          {l('checkin.title', 'How are you today?')}
-        </Heading>
-      </div>
-
-      <Section surface="page" contentWidth="xs" padding="sm" align="center" gap="lg">
+  return (
+    <>
+      <Section padding="sm" contentWidth="sm" surface="raised" align="center" gap="md">
         <WeightStepper
           value={weight}
           onChange={setWeight}
-          unit={profile?.weightUnit ?? 'lbs'}
+          unit={unit}
+        />
+      </Section>
+
+      <Section padding="sm" contentWidth="lg" surface="page" gap="lg">
+        {stats && (
+          <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="md">
+            <StatCard
+              icon="monitor_heart"
+              heroColor={stats.lost >= 0 ? 'success' : 'warn'}
+              label={stats.lost >= 0 ? l('progress.lost', 'Lost') : l('progress.gained', 'Gained')}
+              value={Math.abs(stats.lost)}
+              sub={unit}
+            />
+            <StatCard icon="flag"                  heroColor="warn"   label={l('progress.toGo',   'To Go')}      value={stats.toGo}    sub={unit} />
+            <StatCard icon="local_fire_department" heroColor="action" label={l('progress.streak', 'Streak')}     value={`${stats.streak} day`} />
+            <StatCard icon="calendar_today"        heroColor="info"   label={l('progress.daysIn', 'Day')}        value={stats.daysIn} />
+          </Grid>
+        )}
+
+        {stats && (
+          <Card>
+            <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="lg">
+              <CircularProgress value={stats.percent} max={100} size="md" aria-label={`${stats.percent}% complete`}>
+                <span style={{ color: 'var(--semantic-color-text-default)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-lg)', fontWeight: 'var(--base-font-weight-bold)', lineHeight: 1 }}>
+                  {stats.percent}%
+                </span>
+                <span style={{ color: 'var(--semantic-color-text-muted)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-xs)', marginTop: 'var(--base-spacing-4)' }}>
+                  complete
+                </span>
+              </CircularProgress>
+              {[
+                { label: l('progress.daysIn',    'Days In'),     value: stats.daysIn,                icon: 'calendar_today' },
+                { label: l('progress.streak',    'Day Streak'),  value: `${stats.streak} 🔥`,        icon: 'local_fire_department' },
+                { label: l('progress.totalLost', 'Total Lost'),  value: `${Math.abs(stats.lost)} ${unit}`, icon: 'trending_down' },
+              ].map(({ label, value, icon }) => (
+                <Stack key={label} direction="row" gap="sm">
+                  <Icon name={icon} size="xl" />
+                  <Stack gap="none">
+                    <Heading as="h6" size="xl">{value}</Heading>
+                    <Paragraph color="muted" size="sm"><strong>{label}</strong></Paragraph>
+                  </Stack>
+                </Stack>
+              ))}
+            </Grid>
+          </Card>
+        )}
+
+        <ProgressChart
+          data={stats?.weightHistory ?? []}
+          unit={unit}
+          goalWeight={profile.goalWeight}
         />
 
-        <ButtonContainer>
-          <Button variant="primary" size='lg' onClick={handleLogWeight}>
-            {l('checkin.logWeight', 'Log Weight')}
-          </Button>
-        </ButtonContainer>
+        {checkins.length > 0 && (
+          <Stack gap="md">
+            <Heading as="h3">Recent Check-ins</Heading>
+            <DataTable
+              size="comfortable"
+              pageSize={15}
+              defaultSort={{ key: 'date', direction: 'desc' }}
+              columns={[
+                {
+                  key: 'date',
+                  label: 'Date',
+                  sortable: true,
+                  sortAccessor: row => row._rawDate,
+                },
+                {
+                  key: 'weight',
+                  label: `Weight (${unit})`,
+                  type: 'number',
+                  sortable: true,
+                },
+                {
+                  key: 'mood',
+                  label: 'Mood',
+                  type: 'badge',
+                  statusMap: { '😊 Amazing': 'success', '🙂 Good': 'success', '😐 Okay': 'neutral', '😞 Tough Day': 'warn' },
+                },
+                {
+                  key: 'activity',
+                  label: 'Activity',
+                  type: 'badge',
+                  statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' },
+                },
+                {
+                  key: 'calories',
+                  label: 'Calories',
+                  type: 'badge',
+                  statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' },
+                },
+              ]}
+              rows={[...checkins].reverse().map((c, i) => ({
+                id: i,
+                _rawDate: c.date,
+                date: new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+                weight: c.weight,
+                mood: c.mood ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
+                activity: c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
+                calories: c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
+              }))}
+            />
+          </Stack>
+        )}
       </Section>
-    </Section>
-
-    <Section contentWidth="lg" padding="sm" surface="page" gap="lg">
-      <ContextPanel />
-    </Section>
-  </>
-);
-  }
-
-  // ── DONE ──────────────────────────────────────────────────────────
-  const todayEntry = store.checkins.find(
-    c => new Date(c.date).toDateString() === new Date().toDateString()
-  );
-
-  return (
-    <Section contentWidth="lg" padding='sm' gap="lg">
-        <div>
-          <Heading as='h1' type='display' size="xl">{l('checkin.alreadyLogged', "You've already logged today!")}</Heading>
-          <Paragraph color="muted" size="lg">
-            {l('checkin.alreadyLoggedSub', 'Come back tomorrow to keep your streak.')}
-          </Paragraph>
-        </div>
-            {todayEntry && (
-              <Card icon="monitor_weight">
-                <Heading as="p" size="xl">{todayEntry.weight} {profile?.weightUnit}</Heading>
-                {todayEntry.mood && <Heading size='xxl'>{MOOD_EMOJI[todayEntry.mood]}</Heading>}
-                {todayEntry.activity && (
-                  <Paragraph color="muted">
-                    {todayEntry.activity} · {(todayEntry.calories ?? '').replace('_', ' ')}
-                  </Paragraph>
-                )}
-            <Button variant="tertiary" icon="edit" onClick={() => setScreen(SCREEN.WEIGHT)}>
-              {l('checkin.updateWeight', "Update today's entry")}
-            </Button>
-            {encouragement?.message && (
-              <Banner status="info" icon="favorite">{encouragement.message}</Banner>
-            )}
-
-              </Card>
-            )}
-
-
-
-          {stats && (
-            <Stack gap={12}>
-              <Heading as="h3" size="md">Today's Snapshot</Heading>
-                <StatMiniCards />
-            </Stack>
-          )}
-    </Section>
+    </>
   );
 }

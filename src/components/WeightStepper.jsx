@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import {  Heading, IconButton, Paragraph, Stack } from '@gtivr4/a1-design-system-react';
 
-const STEP = 1;
+const STEP = 0.5;
 const FAST_STEP = 5;
 const HOLD_DELAY = 400;
 const HOLD_INTERVAL = 80;
@@ -11,7 +11,7 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
   const timeoutRef = useRef(null);
 
   function clamp(v) {
-    return Math.max(min, Math.min(max, Math.round(v)));
+    return Math.max(min, Math.min(max, Math.round(v * 10) / 10));
   }
 
   function adjust(delta) {
@@ -34,7 +34,7 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
   useEffect(() => () => stopHold(), []);
 
   const display = value != null && !Number.isNaN(Number(value))
-    ? String(Math.round(Number(value)))
+    ? Number(value).toFixed(1)
     : '—';
 
   return (
@@ -54,9 +54,12 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
       />
 
       
-        <Heading size="jumbo" type='display'>
-          {display}
-        </Heading>
+        <div style={{ width: '16rem', display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--base-spacing-8)' }}>
+          <Heading size={{ xs: 'xxl', sm: 'jumbo' }} type='display'>
+            {display}
+          </Heading>
+          <Heading size="lg" type='display' color="muted">{unit}</Heading>
+        </div>
        
       <IconButton
         icon="add"

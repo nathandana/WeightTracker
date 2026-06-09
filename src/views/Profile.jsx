@@ -49,7 +49,7 @@ export function Profile({ store }) {
           title={l('profile.resetConfirm', 'This will delete all your data. Are you sure?')}
           onDismiss={() => setConfirmReset(false)}
           action={
-            <Button variant="secondary" onClick={reset}>
+            <Button variant="destructive" onClick={reset}>
               Yes, reset everything
             </Button>
           }

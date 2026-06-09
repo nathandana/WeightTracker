@@ -1,7 +1,7 @@
 {
   "label": {
     "app": {
-      "name": { "$value": "Journey Check-In", "locale": { "es": "Registro del Viaje" } },
+      "name": { "$value": "DownTrack", "locale": { "es": "DownTrack" } },
       "tagline": { "$value": "Your wellness, your pace.", "locale": { "es": "Tu bienestar, tu ritmo." } }
     },
     "nav": {
@@ -43,7 +43,7 @@
       "step4Sub": { "$value": "Here's your personalized plan", "locale": { "es": "Aquí está tu plan personalizado" } },
       "name": { "$value": "First Name", "locale": { "es": "Nombre" } },
       "namePlaceholder": { "$value": "What should we call you?", "locale": { "es": "¿Cómo te llamamos?" } },
-      "startWeight": { "$value": "Current Weight", "locale": { "es": "Peso Actual" } },
+      "startWeight": { "$value": "Starting weight", "locale": { "es": "Peso Actual" } },
       "height": { "$value": "Height", "locale": { "es": "Estatura" } },
       "heightFeet": { "$value": "Feet", "locale": { "es": "Pies" } },
       "heightInches": { "$value": "Inches", "locale": { "es": "Pulgadas" } },
@@ -72,7 +72,7 @@
       "medSemaglutide": { "$value": "Semaglutide (Ozempic / Wegovy)", "locale": { "es": "Semaglutida (Ozempic / Wegovy)" } },
       "medTirzepatide": { "$value": "Tirzepatide (Mounjaro / Zepbound)", "locale": { "es": "Tirzepatida (Mounjaro / Zepbound)" } },
       "medOther": { "$value": "Other", "locale": { "es": "Otro" } },
-      "goalWeight": { "$value": "Goal Weight", "locale": { "es": "Peso Meta" } },
+      "goalWeight": { "$value": "Goal weight", "locale": { "es": "Peso Meta" } },
       "goalDate": { "$value": "Target Date", "locale": { "es": "Fecha Objetivo" } },
       "goalDateHint": { "$value": "When would you like to reach your goal?", "locale": { "es": "¿Cuándo te gustaría alcanzar tu meta?" } },
       "startJourney": { "$value": "Start My Journey!", "locale": { "es": "¡Comenzar Mi Viaje!" } },

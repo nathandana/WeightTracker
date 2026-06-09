@@ -1,4 +1,4 @@
-# Journey Check-In
+# DownTrack
 
 A personal weight tracking app for monitoring progress on a GLP-1 medication journey. Log daily weight, complete optional mood/activity check-ins, and visualize progress toward a goal weight.
 
