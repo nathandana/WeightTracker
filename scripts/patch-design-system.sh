@@ -14,9 +14,12 @@ else
   SRC="$VENDOR"
 fi
 
-cp "$SRC/components/structure-utils.js"         "$PKG/components/structure-utils.js"
-cp "$SRC/components/field/maskUtils.js"          "$PKG/components/field/maskUtils.js"
-cp "$SRC/components/fieldset/FieldsetContext.js" "$PKG/components/fieldset/FieldsetContext.js"
+cp "$SRC/components/structure-utils.js"                          "$PKG/components/structure-utils.js"
+cp "$SRC/components/field/maskUtils.js"                          "$PKG/components/field/maskUtils.js"
+cp "$SRC/components/fieldset/FieldsetContext.js"                  "$PKG/components/fieldset/FieldsetContext.js"
+mkdir -p "$PKG/components/definition-list"
+cp "$SRC/components/definition-list/DefinitionList.jsx"          "$PKG/components/definition-list/DefinitionList.jsx"
+cp "$SRC/components/definition-list/definition-list.css"         "$PKG/components/definition-list/definition-list.css"
 
 # Expand @custom-media queries in side-nav.css — browsers don't support them natively
 SIDENAV="$PKG/components/side-nav/side-nav.css"

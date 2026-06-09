@@ -1,0 +1,111 @@
+.a1-definition-list {
+  container-type: inline-size;
+  margin: 0;
+  font-family: var(--component-paragraph-font-family);
+  color: var(--semantic-color-text-default);
+}
+
+.a1-definition-list--sm {
+  --a1-definition-list-gap: var(--component-definition-list-gap-sm);
+  --a1-definition-list-row-gap: var(--component-definition-list-row-gap-sm);
+  --a1-definition-list-column-gap: var(--component-definition-list-column-gap-sm);
+  --a1-definition-list-font-size: var(--semantic-font-size-body-sm);
+}
+
+.a1-definition-list--md {
+  --a1-definition-list-gap: var(--component-definition-list-gap-md);
+  --a1-definition-list-row-gap: var(--component-definition-list-row-gap-md);
+  --a1-definition-list-column-gap: var(--component-definition-list-column-gap-md);
+  --a1-definition-list-font-size: var(--semantic-font-size-body-md);
+}
+
+.a1-definition-list--lg {
+  --a1-definition-list-gap: var(--component-definition-list-gap-lg);
+  --a1-definition-list-row-gap: var(--component-definition-list-row-gap-lg);
+  --a1-definition-list-column-gap: var(--component-definition-list-column-gap-lg);
+  --a1-definition-list-font-size: var(--semantic-font-size-body-lg);
+}
+
+.a1-definition-list__item {
+  min-inline-size: 0;
+}
+
+.a1-definition-list__label,
+.a1-definition-list__value {
+  min-inline-size: 0;
+  margin: 0;
+  font-size: var(--a1-definition-list-font-size);
+  line-height: var(--semantic-font-line-height-body);
+}
+
+.a1-definition-list__label {
+  font-weight: var(--component-definition-list-label-font-weight);
+  color: var(--semantic-color-text-muted);
+}
+
+.a1-definition-list__value {
+  color: var(--semantic-color-text-default);
+}
+
+.a1-definition-list__value-content {
+  min-inline-size: 0;
+}
+
+.a1-definition-list__copy {
+  margin-block-start: calc((1lh - var(--component-icon-button-size)) / 2);
+}
+
+.a1-definition-list--column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a1-definition-list-gap);
+}
+
+.a1-definition-list--column .a1-definition-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a1-definition-list-row-gap);
+}
+
+.a1-definition-list--row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--a1-definition-list-row-gap);
+}
+
+.a1-definition-list--row .a1-definition-list__item {
+  display: grid;
+  grid-template-columns: var(--a1-definition-list-label-column) minmax(0, 1fr);
+  column-gap: var(--a1-definition-list-column-gap);
+  align-items: start;
+}
+
+.a1-definition-list--row.a1-definition-list--label-auto {
+  --a1-definition-list-label-column: max-content;
+}
+
+.a1-definition-list--row.a1-definition-list--label-fixed {
+  --a1-definition-list-label-column: clamp(
+    var(--component-definition-list-label-width-min),
+    var(--component-definition-list-label-width-preferred),
+    var(--component-definition-list-label-width-max)
+  );
+}
+
+.a1-definition-list__value {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--component-definition-list-copy-gap);
+}
+
+.a1-definition-list__value-content {
+  flex: 1 1 auto;
+}
+
+@container (max-width: 360px) {
+  .a1-definition-list--row .a1-definition-list__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--a1-definition-list-row-gap);
+  }
+}
