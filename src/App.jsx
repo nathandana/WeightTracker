@@ -115,7 +115,7 @@ export default function App() {
 
   return (
     <LabelsProvider labels={labels} locale={store.locale}>
-      {devBar}
+      {import.meta.env.DEV && devBar}
       {!store.profile ? (
         <Onboarding onComplete={handleOnboardingComplete} />
       ) : showWelcome ? (

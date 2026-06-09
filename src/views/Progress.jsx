@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Stack, Heading, Paragraph, Card, Inset, Button, Icon, Banner, Grid,
-  Section,
+  Section, CircularProgress,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ProgressChart } from '../components/ProgressChart.jsx';
@@ -19,25 +19,6 @@ function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
   );
 }
 
-function ProgressRing({ percent }) {
-  const r = 54;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - Math.min(1, percent / 100));
-  return (
-    <svg width={130} height={130} viewBox="0 0 130 130" aria-hidden="true">
-      <circle cx={65} cy={65} r={r} fill="none" stroke="var(--semantic-color-border-subtle)" strokeWidth={10} />
-      <circle
-        cx={65} cy={65} r={r} fill="none"
-        stroke="var(--semantic-color-action-background)" strokeWidth={10}
-        strokeDasharray={circ} strokeDashoffset={offset}
-        strokeLinecap="round" transform="rotate(-90 65 65)"
-        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-      />
-      <text x="65" y="58" textAnchor="middle" fill="var(--semantic-color-text-default)" fontSize={24} fontWeight={700} dominantBaseline="middle">{percent}%</text>
-      <text x="65" y="80" textAnchor="middle" fill="var(--semantic-color-text-subtle)" fontSize={12} dominantBaseline="middle">complete</text>
-    </svg>
-  );
-}
 
 export function Progress({ store }) {
   const l = useLabel;
@@ -97,7 +78,14 @@ export function Progress({ store }) {
           {stats && (
             <Card>
               <Stack direction="row" gap={24} align="center" wrap>
-                <ProgressRing percent={stats.percent} />
+                <CircularProgress value={stats.percent} max={100} size="md" aria-label={`${stats.percent}% complete`}>
+                  <span style={{ color: 'var(--semantic-color-text-default)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-lg)', fontWeight: 'var(--base-font-weight-bold)', lineHeight: 1 }}>
+                    {stats.percent}%
+                  </span>
+                  <span style={{ color: 'var(--semantic-color-text-muted)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-xs)', marginTop: 'var(--base-spacing-4)' }}>
+                    complete
+                  </span>
+                </CircularProgress>
                 <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="lg">
                   {[
                     { label: l('progress.daysIn', 'Days In'),       value: stats.daysIn,                            icon: 'calendar_today' },
