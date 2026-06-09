@@ -1,0 +1,31 @@
+.a1-icon {
+  font-size: var(--a1-icon-size, inherit);
+  line-height: 1;
+  user-select: none;
+  font-family: var(--a1-icon-font-family, 'Material Symbols Outlined');
+  font-variation-settings:
+    "FILL" var(--a1-icon-fill, 0),
+    "wght" var(--a1-icon-weight, var(--base-font-weight-regular)),
+    "GRAD" var(--a1-icon-grade, 0),
+    "opsz" var(--a1-icon-opsz, var(--base-icon-optical-size));
+}
+
+/* ─── Sizes ───────────────────────────────────────────────────────────────── */
+
+.a1-icon-xs    { --a1-icon-size: var(--base-spacing-16); --a1-icon-opsz: 20; }
+.a1-icon-sm    { --a1-icon-size: var(--base-spacing-20); --a1-icon-opsz: 20; }
+/* md = default (inherits from parent, ~24px) */
+.a1-icon-lg    { --a1-icon-size: var(--base-spacing-32); --a1-icon-opsz: 40; }
+.a1-icon-xl    { --a1-icon-size: var(--base-spacing-40); --a1-icon-opsz: 48; }
+.a1-icon-jumbo { --a1-icon-size: var(--base-spacing-64); --a1-icon-opsz: 48; }
+.a1-icon-xjumbo { --a1-icon-size: var(--base-spacing-96); --a1-icon-opsz: 48; }
+
+/* ─── Colors ──────────────────────────────────────────────────────────────── */
+
+.a1-icon-muted   { color: var(--semantic-color-text-muted); }
+.a1-icon-accent  { color: var(--semantic-color-text-accent); }
+.a1-icon-inverse { color: var(--semantic-color-text-inverse); }
+.a1-icon-success { color: var(--semantic-color-status-success-background); }
+.a1-icon-error   { color: var(--semantic-color-status-error-background); }
+.a1-icon-warn    { color: var(--semantic-color-status-warn-background); }
+.a1-icon-info    { color: var(--semantic-color-status-info-background); }

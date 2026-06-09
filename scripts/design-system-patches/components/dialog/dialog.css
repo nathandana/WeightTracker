@@ -1,0 +1,100 @@
+.a1-dialog {
+  --a1-dialog-padding-inline: var(--component-dialog-padding);
+  box-sizing: border-box;
+  border: var(--component-dialog-border-width) solid var(--semantic-color-border-strong);
+  border-radius: var(--component-dialog-border-radius);
+  padding: var(--component-dialog-padding);
+  background: var(--semantic-color-surface-page);
+  box-shadow: var(--component-dialog-shadow);
+  color: var(--semantic-color-text-default);
+  width: min(var(--component-dialog-width), calc(100vw - var(--base-spacing-64)));
+  max-height: calc(100dvh - var(--base-spacing-64));
+  overflow: hidden;
+}
+
+.a1-dialog[open] {
+  /* CSS Grid instead of Flex: Safari collapses flex: 1 children when the
+     container has only max-height but no explicit height. Grid resolves
+     track sizes against the constrained container first, so 1fr works. */
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-auto-rows: auto;
+  gap: var(--base-spacing-16);
+}
+
+.a1-dialog::backdrop {
+  background: var(--component-scrim-color);
+  backdrop-filter: blur(var(--component-scrim-blur));
+}
+
+.a1-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--base-spacing-16);
+}
+
+.a1-dialog__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--component-heading-font-family-heading);
+  font-size: var(--semantic-font-size-heading-sm);
+  font-weight: var(--component-heading-font-weight-heading);
+  line-height: var(--component-heading-font-line-height-heading);
+  color: var(--semantic-color-text-default);
+}
+
+.a1-dialog__close {
+  flex-shrink: 0;
+  margin-top: var(--component-dialog-close-offset);
+  margin-right: var(--component-dialog-close-offset);
+}
+
+.a1-dialog__body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.a1-dialog__footer {
+  padding-top: var(--base-spacing-16);
+  border-top: var(--component-dialog-footer-border-width) solid var(--semantic-color-border-subtle);
+}
+
+/* ─── Hero icon (status variant) ─────────────────────────────────────────── */
+
+.a1-dialog--has-hero {
+  overflow: hidden;
+}
+
+.a1-dialog--has-hero[open] {
+  /* Body is the 3rd child when a hero is present, so needs an extra auto row */
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.a1-dialog__hero {
+  margin-top: calc(-1 * var(--component-dialog-padding));
+  margin-inline: calc(-1 * var(--a1-dialog-padding-inline, var(--component-dialog-padding)));
+  padding: var(--base-spacing-32) 0;
+  background: var(--a1-dialog-hero-bg, var(--semantic-color-action-background));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  --a1-icon-opsz: 48;
+}
+
+.a1-dialog__hero .a1-icon {
+  font-size: var(--base-spacing-64);
+  color: var(--semantic-color-text-inverse);
+}
+
+@media (--bp-sm-down) {
+  .a1-dialog {
+    --a1-dialog-padding-inline: var(--base-spacing-20);
+    padding-inline: var(--base-spacing-20);
+  }
+}
+
+@media (--bp-xs) {
+  .a1-dialog {
+    width: calc(100vw - var(--base-spacing-32));
+  }
+}

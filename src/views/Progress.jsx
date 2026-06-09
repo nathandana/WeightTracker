@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import {
   Stack, Heading, Paragraph, Card, Inset, Button, Icon, Banner, Grid,
-  Section, CircularProgress,
+  Section, CircularProgress, DataTable,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ProgressChart } from '../components/ProgressChart.jsx';
 import { getProgressStats } from '../utils/calculations.js';
 import { getEncouragement } from '../utils/encouragement.js';
 
-const MOOD_EMOJI = { great: '😊', good: '🙂', okay: '😐', low: '😞' };
 
 function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
   return (
@@ -59,7 +58,7 @@ export function Progress({ store }) {
   if (!profile) return null;
 
   return (
-    <Section padding='md' contentWidth="lg" gap="lg">
+    <Section padding='sm' contentWidth="lg" gap="lg">
       
           <Stack direction='row' align='center' wrap justify='between'>
             
@@ -77,7 +76,8 @@ export function Progress({ store }) {
 
           {stats && (
             <Card>
-              <Stack direction="row" gap={24} align="center" wrap>
+              
+                <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="lg">
                 <CircularProgress value={stats.percent} max={100} size="md" aria-label={`${stats.percent}% complete`}>
                   <span style={{ color: 'var(--semantic-color-text-default)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-lg)', fontWeight: 'var(--base-font-weight-bold)', lineHeight: 1 }}>
                     {stats.percent}%
@@ -86,14 +86,13 @@ export function Progress({ store }) {
                     complete
                   </span>
                 </CircularProgress>
-                <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="lg">
                   {[
                     { label: l('progress.daysIn', 'Days In'),       value: stats.daysIn,                            icon: 'calendar_today' },
                     { label: l('progress.streak', 'Day Streak'),    value: `${stats.streak} 🔥`,                    icon: 'local_fire_department' },
                     { label: l('progress.totalLost', 'Total Lost'), value: `${Math.abs(stats.lost)} ${stats.unit}`, icon: 'trending_down' },
                   ].map(({ label, value, icon }) => (
                     <Stack  key={label} direction='row' gap="sm">
-                      <Icon name={icon} style={{ fontSize: 40 }} />
+                      <Icon name={icon} size="xl" />
                       <Stack gap="none">
                         <Heading as="h6" size="xl">{value}</Heading>
                         <Paragraph color="muted" size="sm"><strong>{label}</strong></Paragraph>
@@ -101,7 +100,6 @@ export function Progress({ store }) {
                     </Stack>
                   ))}
                 </Grid>
-              </Stack>
             </Card>
           )}
 
@@ -121,27 +119,54 @@ export function Progress({ store }) {
               />
 
             {checkins.length > 0 && (
-              <Stack gap={10}>
+              <Stack gap="md">
                 <Heading as="h3">Recent Check-ins</Heading>
-                {[...checkins].reverse().slice(0, 10).map((c, i) => (
-                  <Card key={i} bare>
-                    <Stack direction="row" justify="between" align="center" wrap gap="sm">
-                      <Stack gap="none">
-                        <Heading as="p" size="sm">{c.weight} {profile.weightUnit}</Heading>
-                        <Paragraph color="muted" size="sm">
-                          {new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </Paragraph>
-                      </Stack>
-                      {(c.mood || c.activity || c.calories) && (
-                        <Stack direction="row" gap="sm" wrap>
-                          {c.mood     && <Paragraph size="sm">{MOOD_EMOJI[c.mood]}</Paragraph>}
-                          {c.activity && <Paragraph size="sm" color="muted">{c.activity}</Paragraph>}
-                          {c.calories && <Paragraph size="sm" color="muted">{c.calories.replace('_', ' ')}</Paragraph>}
-                        </Stack>
-                      )}
-                    </Stack>
-                  </Card>
-                ))}
+                <DataTable
+                  size="comfortable"
+                  pageSize={15}
+                  defaultSort={{ key: 'date', direction: 'desc' }}
+                  columns={[
+                    {
+                      key: 'date',
+                      label: 'Date',
+                      sortable: true,
+                      sortAccessor: row => row._rawDate,
+                    },
+                    {
+                      key: 'weight',
+                      label: `Weight (${profile.weightUnit})`,
+                      type: 'number',
+                      sortable: true,
+                    },
+                    {
+                      key: 'mood',
+                      label: 'Mood',
+                      type: 'badge',
+                      statusMap: { '😊 Amazing': 'success', '🙂 Good': 'success', '😐 Okay': 'neutral', '😞 Tough Day': 'warn' },
+                    },
+                    {
+                      key: 'activity',
+                      label: 'Activity',
+                      type: 'badge',
+                      statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' },
+                    },
+                    {
+                      key: 'calories',
+                      label: 'Calories',
+                      type: 'badge',
+                      statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' },
+                    },
+                  ]}
+                  rows={[...checkins].reverse().map((c, i) => ({
+                    id: i,
+                    _rawDate: c.date,
+                    date: new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+                    weight: c.weight,
+                    mood: c.mood ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
+                    activity: c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
+                    calories: c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
+                  }))}
+                />
               </Stack>
             )}
 

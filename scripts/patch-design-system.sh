@@ -20,6 +20,12 @@ cp "$SRC/components/fieldset/FieldsetContext.js"                  "$PKG/componen
 mkdir -p "$PKG/components/definition-list"
 cp "$SRC/components/definition-list/DefinitionList.jsx"          "$PKG/components/definition-list/DefinitionList.jsx"
 cp "$SRC/components/definition-list/definition-list.css"         "$PKG/components/definition-list/definition-list.css"
+# Icon: size + color props (unpublished)
+cp "$SRC/components/icon/Icon.jsx"                               "$PKG/components/icon/Icon.jsx"
+cp "$SRC/components/icon/icon.css"                               "$PKG/components/icon/icon.css"
+# Dialog: status/hero variant (unpublished)
+cp "$SRC/components/dialog/Dialog.jsx"                           "$PKG/components/dialog/Dialog.jsx"
+cp "$SRC/components/dialog/dialog.css"                           "$PKG/components/dialog/dialog.css"
 
 # Expand @custom-media queries in side-nav.css — browsers don't support them natively
 SIDENAV="$PKG/components/side-nav/side-nav.css"

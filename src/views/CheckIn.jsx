@@ -44,7 +44,7 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-const SCREEN = { WEIGHT: 'weight', SURVEY_PROMPT: 'survey_prompt', DONE: 'done' };
+const SCREEN = { WEIGHT: 'weight', DONE: 'done' };
 
 export function CheckIn({ store, navigate }) {
   const l = useLabel;
@@ -54,6 +54,7 @@ export function CheckIn({ store, navigate }) {
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
   const [survey, setSurvey] = useState({ mood: null, activity: null, calories: null });
   const [surveyOpen, setSurveyOpen] = useState(false);
+  const [loggedOpen, setLoggedOpen] = useState(false);
 
   const greetPeriod = greeting();
   const name = profile?.name ? `, ${profile.name}` : '';
@@ -68,7 +69,7 @@ export function CheckIn({ store, navigate }) {
 
   function handleLogWeight() {
     addCheckin({ weight: Number(weight) });
-    setScreen(SCREEN.SURVEY_PROMPT);
+    setLoggedOpen(true);
   }
 
   function handleSubmitSurvey() {
@@ -79,11 +80,13 @@ export function CheckIn({ store, navigate }) {
       ),
     });
     setSurveyOpen(false);
+    setLoggedOpen(false);
     navigate('progress');
   }
 
   function handleSkipSurvey() {
     setSurveyOpen(false);
+    setLoggedOpen(false);
     navigate('progress');
   }
 
@@ -92,12 +95,12 @@ export function CheckIn({ store, navigate }) {
   const StatMiniCards = () => stats ? (
     <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="md">
       {[
-        { icon: 'monitor_heart',        label: 'Lost',   value: `${Math.abs(stats.lost)} ${stats.unit}` },
-        { icon: 'flag',                  label: 'To Go',  value: `${stats.toGo} ${stats.unit}` },
-        { icon: 'local_fire_department', label: 'Streak', value: `${stats.streak} day` },
-        { icon: 'calendar_today',        label: 'Day',    value: `${stats.daysIn}` },
-      ].map(({ icon, label, value }) => (
-        <Card key={label} icon={icon} iconDisplay="hero" heroColor="info">
+        { icon: 'monitor_heart',        label: 'Lost',   value: `${Math.abs(stats.lost)} ${stats.unit}`, heroColor: 'success' },
+        { icon: 'flag',                  label: 'To Go',  value: `${stats.toGo} ${stats.unit}`,            heroColor: 'warn'    },
+        { icon: 'local_fire_department', label: 'Streak', value: `${stats.streak} day`,                    heroColor: 'action'  },
+        { icon: 'calendar_today',        label: 'Day',    value: `${stats.daysIn}`,                         heroColor: 'info'    },
+      ].map(({ icon, label, value, heroColor }) => (
+        <Card key={label} icon={icon} iconDisplay="hero" heroColor={heroColor}>
           <Heading as="h3" size="md" type="display">{value}</Heading>
           <Paragraph color="muted" size="md"><strong>{label}</strong></Paragraph>
         </Card>
@@ -177,10 +180,40 @@ export function CheckIn({ store, navigate }) {
     </Dialog>
   );
 
+  const LoggedDialog = () => (
+    <Dialog
+      title={l('checkin.weightLogged', 'Weight Logged!')}
+      status="success"
+      open={loggedOpen}
+      onClose={() => { setLoggedOpen(false); navigate('progress'); }}
+      footer={
+        <ButtonContainer align="end">
+          <Button variant="primary" onClick={() => { setLoggedOpen(false); setSurveyOpen(true); }}>
+            {l('checkin.takeSurvey', 'Add a quick check-in')}
+          </Button>
+          <Button variant="tertiary" onClick={() => { setLoggedOpen(false); navigate('progress'); }}>
+            {l('checkin.skipSurvey', "I'm all done for today")}
+          </Button>
+        </ButtonContainer>
+      }
+    >
+      <Stack gap="sm">
+        {encouragement?.message && (
+          <Paragraph size="lg" color="muted">{encouragement.message}</Paragraph>
+        )}
+        {encouragement?.streakMessage && (
+          <Paragraph size="lg" color="muted">{encouragement.streakMessage}</Paragraph>
+        )}
+      </Stack>
+    </Dialog>
+  );
+
   // ── WEIGHT screen ──────────────────────────────────────────────────
   if (screen === SCREEN.WEIGHT) {
 return (
   <>
+    <LoggedDialog />
+    <SurveyDialog />
     <Section contentWidth="md" padding="sm" surface="raised" gap="lg" align="center">
       <div>
         <Heading color="muted" size="sm" as="h2" align="center">
@@ -208,42 +241,10 @@ return (
     </Section>
 
     <Section contentWidth="lg" padding="sm" surface="page" gap="lg">
-                              <ContextPanel />
-
+      <ContextPanel />
     </Section>
   </>
 );
-  }
-
-  // ── SURVEY PROMPT ─────────────────────────────────────────────────
-  if (screen === SCREEN.SURVEY_PROMPT) {
-    return (
-      <>
-        <SurveyDialog />
-        <Section padding='lg' surface="raised" gap="lg" align="center" contentWidth="sm" height="hero">
-        <Stack justify='center' align='center'>
-            <Icon name="check_circle" style={{ fontSize: 96 }} fill/>
-            <Stack gap={8} align="center">
-              <Heading type='display' align="center" size="jumbo">Weight logged!</Heading>
-              {encouragement?.message && (
-                <Paragraph align="center" size='lg' color="muted">{encouragement.message}</Paragraph>
-              )}
-              {encouragement?.streakMessage && (
-                <Paragraph align="center" size='lg' color="muted">{encouragement.streakMessage}</Paragraph>
-              )}
-            </Stack>
-            <ButtonContainer align='center' size="lg">
-              <Button variant="primary" onClick={() => setSurveyOpen(true)}>
-                {l('checkin.takeSurvey', 'Add a quick check-in')}
-              </Button>
-              <Button variant="tertiary" onClick={() => navigate('progress')}>
-                {l('checkin.skipSurvey', "I'm all done for today")}
-              </Button>
-            </ButtonContainer>
-            </Stack>
-        </Section>
-      </>
-    );
   }
 
   // ── DONE ──────────────────────────────────────────────────────────
@@ -254,7 +255,7 @@ return (
   return (
     <Section contentWidth="lg" padding='sm' gap="lg">
         <div>
-          <Heading as='h1'>{l('checkin.alreadyLogged', "You've already logged today!")}</Heading>
+          <Heading as='h1' type='display' size="xl">{l('checkin.alreadyLogged', "You've already logged today!")}</Heading>
           <Paragraph color="muted" size="lg">
             {l('checkin.alreadyLoggedSub', 'Come back tomorrow to keep your streak.')}
           </Paragraph>
