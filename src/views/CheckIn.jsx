@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  Stack, Heading, Paragraph, Card,
+  Button, Stack, Heading, Paragraph, Card,
   Grid, Section, CircularProgress, DataTable, Icon,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
@@ -51,57 +51,58 @@ export function CheckIn({ store }) {
           onChange={setWeight}
           unit={unit}
         />
+
+        <Button variant="secondary" icon="mood">Mood Check In</Button>
       </Section>
 
       <Section padding="sm" contentWidth="lg" surface="page" gap="lg">
         {stats && (
           <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="md">
-            <StatCard
-              icon="monitor_heart"
-              heroColor={stats.lost >= 0 ? 'success' : 'warn'}
-              label={stats.lost >= 0 ? l('progress.lost', 'Lost') : l('progress.gained', 'Gained')}
-              value={Math.abs(stats.lost)}
-              sub={unit}
-            />
-            <StatCard icon="flag"                  heroColor="warn"   label={l('progress.toGo',   'To Go')}      value={stats.toGo}    sub={unit} />
-            <StatCard icon="local_fire_department" heroColor="action" label={l('progress.streak', 'Streak')}     value={`${stats.streak} day`} />
-            <StatCard icon="calendar_today"        heroColor="info"   label={l('progress.daysIn', 'Day')}        value={stats.daysIn} />
+            <Card>
+              <Section gap="lg" padding="none" align="center">
+              <CircularProgress value={stats.percent} max={100} size="lg" aria-label={`${stats.percent}% complete`}>
+                <Heading type='display'>
+                  {stats.percent}%
+                </Heading>
+                <Paragraph size="sm" color='muted'>
+                  complete
+                </Paragraph>
+              </CircularProgress>
+              </Section>
+              </Card>
+              <Card icon='flag'>
+                <Stack direction="column" gap="none">
+                <Stack direction="row" align='baseline' gap="xs">
+                  <Heading type='display'  color='accent' size="xxl">{stats.toGo}</Heading>
+                  <Heading size="md" color="muted">{unit}</Heading>
+                </Stack>
+                <Heading color='muted'>{l('progress.toGo',   'To Go')}</Heading>
+                </Stack>
+              </Card>
+              <Card icon='local_fire_department'>
+                <Stack direction="column" gap="none">
+                  <Heading type='display' color='accent' size="xxl">{stats.streak}</Heading>
+                <Heading color='muted'>{l('progress.streak', 'Streak')}</Heading>
+                </Stack>
+              </Card>
+              <Card icon='calendar_today'>
+                <Stack direction="column" gap="none">
+                  <Heading type='display' color='accent' size="xxl">{stats.daysIn}</Heading>
+                <Heading color='muted'>{l('progress.daysIn', 'Day')}</Heading>
+                </Stack>
+              </Card>
           </Grid>
         )}
 
-        {stats && (
-          <Card>
-            <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="lg">
-              <CircularProgress value={stats.percent} max={100} size="md" aria-label={`${stats.percent}% complete`}>
-                <span style={{ color: 'var(--semantic-color-text-default)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-lg)', fontWeight: 'var(--base-font-weight-bold)', lineHeight: 1 }}>
-                  {stats.percent}%
-                </span>
-                <span style={{ color: 'var(--semantic-color-text-muted)', fontFamily: 'var(--component-paragraph-font-family)', fontSize: 'var(--semantic-font-size-body-xs)', marginTop: 'var(--base-spacing-4)' }}>
-                  complete
-                </span>
-              </CircularProgress>
-              {[
-                { label: l('progress.daysIn',    'Days In'),     value: stats.daysIn,                icon: 'calendar_today' },
-                { label: l('progress.streak',    'Day Streak'),  value: `${stats.streak} 🔥`,        icon: 'local_fire_department' },
-                { label: l('progress.totalLost', 'Total Lost'),  value: `${Math.abs(stats.lost)} ${unit}`, icon: 'trending_down' },
-              ].map(({ label, value, icon }) => (
-                <Stack key={label} direction="row" gap="sm">
-                  <Icon name={icon} size="xl" />
-                  <Stack gap="none">
-                    <Heading as="h6" size="xl">{value}</Heading>
-                    <Paragraph color="muted" size="sm"><strong>{label}</strong></Paragraph>
-                  </Stack>
-                </Stack>
-              ))}
-            </Grid>
-          </Card>
-        )}
 
+        <Section padding="sm" surface='raised' gap='lg'>
+          <Heading size="md">Track Your Progress</Heading>
         <ProgressChart
           data={stats?.weightHistory ?? []}
           unit={unit}
           goalWeight={profile.goalWeight}
         />
+        </Section>
 
         {checkins.length > 0 && (
           <Stack gap="md">
@@ -120,14 +121,13 @@ export function CheckIn({ store }) {
                 {
                   key: 'weight',
                   label: `Weight (${unit})`,
-                  type: 'number',
                   sortable: true,
                 },
                 {
                   key: 'mood',
                   label: 'Mood',
                   type: 'badge',
-                  statusMap: { '😊 Amazing': 'success', '🙂 Good': 'success', '😐 Okay': 'neutral', '😞 Tough Day': 'warn' },
+                  statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' },
                 },
                 {
                   key: 'activity',

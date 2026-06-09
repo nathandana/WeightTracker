@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import {
   IconButton, Menu, MenuSection, MenuItem,
   RadioGroup, Dialog, Button, ButtonContainer, Paragraph,
+  Divider,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 
@@ -36,9 +37,8 @@ export function SettingsMenu({ locale, setLocale, onReset }) {
         anchorRef={btnRef}
         aria-label={l('settings.label', 'Settings')}
       >
-        <MenuSection label={l('settings.language', 'Language')}>
-          <div style={menuContentStyle}>
             <RadioGroup
+            label={l('settings.language', 'Language')}
               options={[
                 { value: 'en', label: l('profile.langEn', 'English') },
                 { value: 'es', label: l('profile.langEs', 'Español') },
@@ -46,9 +46,7 @@ export function SettingsMenu({ locale, setLocale, onReset }) {
               value={locale}
               onChange={(v) => { setLocale(v); setOpen(false); }}
             />
-          </div>
-        </MenuSection>
-        <MenuSection>
+            <Divider></Divider>
           <MenuItem
             icon="delete_forever"
             variant="destructive"
@@ -56,7 +54,6 @@ export function SettingsMenu({ locale, setLocale, onReset }) {
           >
             {l('profile.resetData', 'Reset All Data')}
           </MenuItem>
-        </MenuSection>
       </Menu>
 
       <Dialog

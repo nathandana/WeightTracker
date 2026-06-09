@@ -49,26 +49,26 @@ export function ProgressChart({ data = [], unit = 'lbs', goalWeight }) {
   const maxW = Math.ceil(Math.max(...allWeights) + 2);
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={320}>
       <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
         <CartesianGrid
           strokeDasharray="4 4"
-          stroke="var(--semantic-color-border-subtle)"
+          stroke="var(--semantic-color-border-default)"
           vertical={false}
         />
         <XAxis
           dataKey="date"
-          tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 11 }}
+          tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 12 }}
           tickLine={false}
           axisLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
           domain={[minW, maxW]}
-          tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 11 }}
+          tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 12 }}
           tickLine={false}
           axisLine={false}
-          width={38}
+          width={48}
           tickFormatter={v => `${v}`}
         />
         <Tooltip content={<CustomTooltip unit={unit} />} />

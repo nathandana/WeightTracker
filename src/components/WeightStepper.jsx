@@ -4,7 +4,7 @@ import {  Heading, IconButton, Paragraph, Stack } from '@gtivr4/a1-design-system
 const STEP = 0.5;
 const FAST_STEP = 5;
 const HOLD_DELAY = 400;
-const HOLD_INTERVAL = 80;
+const HOLD_INTERVAL = 100;
 
 export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 700 }) {
   const intervalRef = useRef(null);
@@ -38,7 +38,7 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
     : '—';
 
   return (
-    <Stack direction="row" gap="lg" align='center'>
+    <Stack direction="row" gap="lg" align='center' wrap>
 
       
 
@@ -54,12 +54,12 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
       />
 
       
-        <div style={{ width: '16rem', display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: 'var(--base-spacing-8)' }}>
+        <Stack direction="row" align='baseline' gap="xs">
           <Heading size={{ xs: 'xxl', sm: 'jumbo' }} type='display'>
             {display}
           </Heading>
           <Heading size="lg" type='display' color="muted">{unit}</Heading>
-        </div>
+        </Stack>
        
       <IconButton
         icon="add"
