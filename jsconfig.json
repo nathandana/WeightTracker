@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@gtivr4/a1-design-system-react": [
+        "../A1DesignSystem/packages/react/src/index.js"
+      ]
+    },
+    "allowJs": true,
+    "checkJs": false,
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "strict": false
+  },
+  "include": ["src"]
+}

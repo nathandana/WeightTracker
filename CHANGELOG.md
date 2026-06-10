@@ -1,5 +1,35 @@
 # Changelog
 
+## [Unreleased] 2026-06-10 (3)
+
+### Changed
+- Bumped `@gtivr4/a1-design-system-react` to `0.6.2` (pinned exact; 0.6.2 includes fresh theme fix)
+- Applied "fresh" theme: `data-theme="fresh"` on `<html>` in `index.html` + `document.documentElement.setAttribute('data-theme', 'fresh')` in `main.jsx` as runtime guarantee; loaded Nunito + Libre Baskerville from Google Fonts
+
+## [Unreleased] 2026-06-10 (2)
+
+### Added
+- `StepProgress` component (`src/components/StepProgress.jsx`): shared step progress bar + "Step X of Y" counter used across the onboarding + All Set flow
+
+### Changed
+- **Onboarding flow**: "All Set" screen is now step 5 of 5 inside `Onboarding.jsx` (rendered via `WelcomeResults`) so the Back button on that screen returns to step 4 without losing form state; `onComplete` is only called once the user confirms "Start My Journey!" on step 5
+- **Onboarding step bar**: `StepProgress` shown at top of steps 1–4 (5 total including All Set)
+- **Onboarding step 2**: inches field is now required; `missingInches` check added to `isStepValid` (allows 0 for e.g. 5′0″)
+- **Onboarding step 4**: quick timeline presets auto-select the best pace when entering the step for the first time; each option now has a Material icon (`bolt`, `trending_down`, `calendar_month`, `self_improvement`)
+- **Onboarding calendar fix**: goal-date `Calendar` now receives `initialMonth={goalDateObj}` so it opens to the preset's month, not today
+- **WelcomeResults**: accepts `onBack`, `currentStep`, `totalSteps` props; `StepProgress` shown at top (step 5 of 5); Back + "Start My Journey!" share a `ButtonContainer`; stat cards now have icons (`restaurant`, `trending_down`, `bolt`, `flag`); target date abbreviated to 3-letter month
+- **BmiRangeChart**: rewritten using stacked `BarChart` + `Bar` components — fixes invisible chart caused by recharts not establishing a coordinate system with `ReferenceArea`-only `ComposedChart`
+- **App.jsx**: removed `showWelcome` state and separate `WelcomeResults` rendering; `handleOnboardingComplete` now just saves profile and goes straight to CheckIn
+
+## [Unreleased] 2026-06-10
+
+### Added
+- `BmiRangeChart` component (`src/components/BmiRangeChart.jsx`): horizontal recharts gauge showing Underweight / Healthy / Overweight / Obese bands with a marker at the user's current BMI value
+- `WelcomeResults`: BMI range chart added inside the "Your BMI" card beneath the number and badge
+- `WelcomeResults`: "Days to Goal" stat card replaced with a "Target Date" card showing the goal date prominently and days-to-go as a secondary figure
+- `Onboarding` step 4: quick timeline presets now show dynamic subtext computed from the user's weight-to-lose, activity level, and medication status, guiding toward a sustainable pace
+- `labels.json`: added `onboarding.daysToGoLabel` ("days to go") with Spanish translation
+
 ## [Unreleased] 2026-06-09 (2)
 
 ### Changed

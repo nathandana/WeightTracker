@@ -1,12 +1,46 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  Button, Stack, Heading, Paragraph, Card,
+  Button, ButtonContainer, IconButton, Stack, Heading, Paragraph, Card,
   Grid, Section, CircularProgress, DataTable, Icon,
+  Dialog, ChoiceGroup, StepTracker,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { WeightStepper } from '../components/WeightStepper.jsx';
 import { ProgressChart } from '../components/ProgressChart.jsx';
 import { getProgressStats } from '../utils/calculations.js';
+
+const CHECKIN_STEPS = [
+  {
+    key: 'mood',
+    title: 'How are you feeling?',
+    options: [
+      { value: 'great', label: 'Amazing',   icon: 'sentiment_very_satisfied' },
+      { value: 'good',  label: 'Good',      icon: 'sentiment_satisfied' },
+      { value: 'okay',  label: 'Okay',      icon: 'sentiment_neutral' },
+      { value: 'low',   label: 'Tough Day', icon: 'sentiment_dissatisfied' },
+    ],
+  },
+  {
+    key: 'activity',
+    title: 'How active were you?',
+    options: [
+      { value: 'high',   label: 'Intense',  icon: 'directions_run' },
+      { value: 'medium', label: 'Moderate', icon: 'directions_walk' },
+      { value: 'low',    label: 'Light',    icon: 'self_improvement' },
+      { value: 'none',   label: 'Rest Day', icon: 'hotel' },
+    ],
+  },
+  {
+    key: 'calories',
+    title: 'How did you eat today?',
+    options: [
+      { value: 'under',    label: 'Under goal',    icon: 'thumb_up' },
+      { value: 'on_track', label: 'On track',      icon: 'check_circle' },
+      { value: 'over',     label: 'Slightly over', icon: 'trending_up' },
+      { value: 'way_over', label: 'Way over',      icon: 'warning' },
+    ],
+  },
+];
 
 function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
   return (
@@ -17,12 +51,31 @@ function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
   );
 }
 
-export function CheckIn({ store }) {
+export function CheckIn({ store, onNavigate }) {
   const l = useLabel;
-  const { profile, checkins, currentWeight, addCheckin } = store;
+  const { profile, checkins, currentWeight, todayCheckin, addCheckin } = store;
 
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
+  const [moodOpen, setMoodOpen] = useState(false);
+  const [dialogStep, setDialogStep] = useState(0);
+  const [tempCheckin, setTempCheckin] = useState({});
   const isDirty = useRef(false);
+
+  function openCheckinDialog() {
+    setTempCheckin({ mood: todayCheckin?.mood, activity: todayCheckin?.activity, calories: todayCheckin?.calories });
+    setDialogStep(0);
+    setMoodOpen(true);
+  }
+
+  function handleCheckinSave() {
+    addCheckin({ ...(todayCheckin ?? {}), weight: Number(weight), ...tempCheckin });
+    setMoodOpen(false);
+  }
+
+  function handleDialogClose() {
+    setMoodOpen(false);
+    setDialogStep(0);
+  }
 
   // Auto-save debounced — skip initial render
   useEffect(() => {
@@ -45,18 +98,70 @@ export function CheckIn({ store }) {
 
   return (
     <>
-      <Section padding="sm" contentWidth="sm" surface="raised" align="center" gap="md">
+      <Section padding="sm" contentWidth="xs" surface="none" align="center" gap="md">
+        <Heading align='center' type='display' size="jumbo">Checkin...</Heading>
+
         <WeightStepper
           value={weight}
           onChange={setWeight}
           unit={unit}
         />
 
-        <Button variant="secondary" icon="mood">Mood Check In</Button>
+        <Button variant="secondary" icon="mood" onClick={openCheckinDialog}>Check in...</Button>
       </Section>
 
+      <Dialog
+        open={moodOpen}
+        title={dialogStep < CHECKIN_STEPS.length ? CHECKIN_STEPS[dialogStep].title : "Ready to log?"}
+        onClose={handleDialogClose}
+      >
+        <Stack gap="lg">
+          <StepTracker steps={CHECKIN_STEPS.length} currentStep={Math.min(dialogStep + 1, CHECKIN_STEPS.length)} align="left" />
+
+          {dialogStep < CHECKIN_STEPS.length ? (
+            <ChoiceGroup
+              label=""
+              columns={2}
+              value={tempCheckin[CHECKIN_STEPS[dialogStep].key] ?? null}
+              options={CHECKIN_STEPS[dialogStep].options}
+              onChange={val => {
+                const key = CHECKIN_STEPS[dialogStep].key;
+                setTempCheckin(t => ({ ...t, [key]: val }));
+                setDialogStep(s => s + 1);
+              }}
+            />
+          ) : (
+            <Stack gap="sm">
+              {CHECKIN_STEPS.map(step => {
+                const selected = step.options.find(o => o.value === tempCheckin[step.key]);
+                return (
+                  <Stack key={step.key} direction="row" align="center" justify="between">
+                    <Paragraph color="muted">{step.title.replace('?', '')}</Paragraph>
+                    <Stack direction="row" align="center" gap="xs">
+                      {selected && <Icon name={selected.icon} size="sm" />}
+                      <Paragraph><strong>{selected?.label ?? '—'}</strong></Paragraph>
+                    </Stack>
+                  </Stack>
+                );
+              })}
+            </Stack>
+          )}
+
+          <ButtonContainer justify='between'>
+            {dialogStep > 0 && (
+              <Button icon="arrow_back" variant="secondary" size="md" onClick={() => setDialogStep(s => s - 1)}>Back</Button>
+            )}
+            {dialogStep === CHECKIN_STEPS.length && (
+              <Button variant="success" onClick={handleCheckinSave}>
+                Check In
+              </Button>
+            )}
+          </ButtonContainer>
+        </Stack>
+      </Dialog>
+
       <Section padding="sm" contentWidth="lg" surface="page" gap="lg">
-        {stats && (
+        {/* {stats && (
           <Grid columns={{ xs: 1, sm: 2, md: 4 }} gap="md">
             <Card>
               <Section gap="lg" padding="none" align="center">
@@ -92,10 +197,10 @@ export function CheckIn({ store }) {
                 </Stack>
               </Card>
           </Grid>
-        )}
+        )} */}
 
 
-        <Section padding="sm" surface='raised' gap='lg'>
+        <Section padding="none" surface='page' gap='lg'>
           <Heading size="md">Track Your Progress</Heading>
         <ProgressChart
           data={stats?.weightHistory ?? []}
@@ -106,48 +211,26 @@ export function CheckIn({ store }) {
 
         {checkins.length > 0 && (
           <Stack gap="md">
-            <Heading as="h3">Recent Check-ins</Heading>
+            <Stack direction="row" align="center">
+              <Heading as="h3">Recent Check-ins</Heading>
+              <Button variant="tertiary" size="sm" icon="open_in_new" onClick={() => onNavigate('data')}>
+                View all
+              </Button>
+            </Stack>
             <DataTable
               size="comfortable"
-              pageSize={15}
-              defaultSort={{ key: 'date', direction: 'desc' }}
               columns={[
-                {
-                  key: 'date',
-                  label: 'Date',
-                  sortable: true,
-                  sortAccessor: row => row._rawDate,
-                },
-                {
-                  key: 'weight',
-                  label: `Weight (${unit})`,
-                  sortable: true,
-                },
-                {
-                  key: 'mood',
-                  label: 'Mood',
-                  type: 'badge',
-                  statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' },
-                },
-                {
-                  key: 'activity',
-                  label: 'Activity',
-                  type: 'badge',
-                  statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' },
-                },
-                {
-                  key: 'calories',
-                  label: 'Calories',
-                  type: 'badge',
-                  statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' },
-                },
+                { key: 'date',   label: 'Date',              sortable: false },
+                { key: 'weight', label: `Weight (${unit})`,  sortable: false },
+                { key: 'mood',     label: 'Mood',     type: 'badge', statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' } },
+                { key: 'activity', label: 'Activity', type: 'badge', statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' } },
+                { key: 'calories', label: 'Calories', type: 'badge', statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' } },
               ]}
-              rows={[...checkins].reverse().map((c, i) => ({
+              rows={[...checkins].slice(-5).reverse().map((c, i) => ({
                 id: i,
-                _rawDate: c.date,
                 date: new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
                 weight: c.weight,
-                mood: c.mood ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
+                mood:     c.mood     ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
                 activity: c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
                 calories: c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
               }))}

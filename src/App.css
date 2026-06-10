@@ -1,4 +1,10 @@
 @media (max-width: 1024px) {
+  .a1-top-header {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
   .a1-page-layout__header:has(.a1-side-nav--open) {
     z-index: 1000;
   }

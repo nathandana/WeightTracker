@@ -82,7 +82,9 @@
       "weeklyLossLabel": { "$value": "Est. Weekly Loss", "locale": { "es": "Pérdida Semanal Est." } },
       "daysLabel": { "$value": "Days to Goal", "locale": { "es": "Días para la Meta" } },
       "feasibleNote": { "$value": "This is a healthy, achievable pace.", "locale": { "es": "Este es un ritmo saludable y alcanzable." } },
-      "aggressiveNote": { "$value": "Your goal is ambitious — that's great! Focus on consistency over speed.", "locale": { "es": "Tu meta es ambiciosa — ¡eso es genial! Enfócate en la consistencia sobre la velocidad." } }
+      "aggressiveNote": { "$value": "Your goal is ambitious — that's great! Focus on consistency over speed.", "locale": { "es": "Tu meta es ambiciosa — ¡eso es genial! Enfócate en la consistencia sobre la velocidad." } },
+      "daysToGoLabel": { "$value": "days to go", "locale": { "es": "días restantes" } },
+      "medNote": { "$value": "Medications can significantly accelerate your results. Every pound lost is a win!", "locale": { "es": "Los medicamentos pueden acelerar significativamente tus resultados. ¡Cada libra perdida es una victoria!" } }
     },
     "checkin": {
       "greeting": {

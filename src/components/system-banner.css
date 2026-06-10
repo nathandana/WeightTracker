@@ -1,0 +1,89 @@
+.a1-system-banner {
+  --a1-sysbanner-bg: var(--semantic-color-surface-inverse);
+  --a1-sysbanner-fg: var(--semantic-color-text-inverse);
+  background: var(--a1-sysbanner-bg);
+  color: var(--a1-sysbanner-fg);
+  width: 100%;
+}
+
+.a1-system-banner--info    { --a1-sysbanner-bg: var(--semantic-color-status-info-background); }
+.a1-system-banner--success { --a1-sysbanner-bg: var(--semantic-color-status-success-background); }
+.a1-system-banner--warn    { --a1-sysbanner-bg: var(--semantic-color-status-warn-background); }
+.a1-system-banner--error   { --a1-sysbanner-bg: var(--semantic-color-status-error-background); }
+
+.a1-system-banner__inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--base-spacing-8) var(--base-spacing-12);
+  max-width: var(--component-message-banner-system-max-width);
+  margin-inline: auto;
+  padding-block: var(--base-spacing-12);
+  padding-inline: var(--base-spacing-24);
+}
+
+.a1-system-banner__icon {
+  flex-shrink: 0;
+  display: flex;
+  font-size: var(--component-message-banner-icon-size);
+  line-height: 1;
+  --a1-icon-opsz: var(--component-message-banner-icon-optical-size);
+}
+
+.a1-system-banner__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--base-spacing-8);
+  font-family: var(--component-paragraph-font-family);
+  font-size: var(--semantic-font-size-body-sm);
+  line-height: var(--semantic-font-line-height-body);
+}
+
+.a1-system-banner__title {
+  font-weight: var(--component-message-banner-title-font-weight);
+  color: var(--a1-sysbanner-fg);
+}
+
+.a1-system-banner__body {
+  font-weight: var(--semantic-font-weight-body);
+  color: var(--a1-sysbanner-fg);
+  opacity: 0.85;
+}
+
+.a1-system-banner__action { flex-shrink: 0; }
+
+.a1-system-banner__dismiss {
+  flex-shrink: 0;
+  margin-inline-start: var(--base-spacing-4);
+}
+
+.a1-system-banner .a1-link { color: var(--a1-sysbanner-fg); }
+.a1-system-banner .a1-link:hover { color: color-mix(in srgb, var(--a1-sysbanner-fg) 80%, transparent); }
+.a1-system-banner .a1-link:active { color: color-mix(in srgb, var(--a1-sysbanner-fg) 65%, transparent); }
+
+.a1-system-banner .a1-button--tertiary {
+  --a1-button-foreground:         var(--a1-sysbanner-fg);
+  --a1-button-foreground-hover:   var(--a1-sysbanner-fg);
+  --a1-button-foreground-pressed: var(--a1-sysbanner-fg);
+  --a1-button-background:         transparent;
+  --a1-button-background-hover:   color-mix(in srgb, var(--a1-sysbanner-fg) 12%, transparent);
+  --a1-button-background-pressed: color-mix(in srgb, var(--a1-sysbanner-fg) 20%, transparent);
+  --a1-button-border:             color-mix(in srgb, var(--a1-sysbanner-fg) 40%, transparent);
+  --a1-button-border-hover:       color-mix(in srgb, var(--a1-sysbanner-fg) 60%, transparent);
+  --a1-button-border-pressed:     color-mix(in srgb, var(--a1-sysbanner-fg) 75%, transparent);
+}
+
+.a1-system-banner .a1-icon-button {
+  --a1-icon-button-foreground:         var(--a1-sysbanner-fg);
+  --a1-icon-button-foreground-hover:   var(--a1-sysbanner-fg);
+  --a1-icon-button-foreground-pressed: var(--a1-sysbanner-fg);
+  --a1-icon-button-background:         transparent;
+  --a1-icon-button-background-hover:   color-mix(in srgb, var(--a1-sysbanner-fg) 12%, transparent);
+  --a1-icon-button-background-pressed: color-mix(in srgb, var(--a1-sysbanner-fg) 20%, transparent);
+  --a1-icon-button-border:             transparent;
+  --a1-icon-button-border-hover:       transparent;
+  --a1-icon-button-border-pressed:     transparent;
+}

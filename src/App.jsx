@@ -4,8 +4,9 @@ import {
 } from '@gtivr4/a1-design-system-react';
 import { useStore } from './store/useStore.js';
 import { Onboarding } from './views/Onboarding.jsx';
-import { WelcomeResults } from './views/WelcomeResults.jsx';
 import { CheckIn } from './views/CheckIn.jsx';
+import { DataPage } from './views/DataPage.jsx';
+import { SettingsPage } from './views/SettingsPage.jsx';
 import { SettingsMenu } from './components/SettingsMenu.jsx';
 import { MOCK_SCENARIOS } from './dev/mockScenarios.js';
 import labels from './labels/labels.json';
@@ -46,12 +47,11 @@ const devSelectStyle = {
 
 export default function App() {
   const store = useStore();
-  const [showWelcome, setShowWelcome] = useState(false);
   const [activeScenario, setActiveScenario] = useState('real');
+  const [page, setPage] = useState('checkin');
 
   function handleOnboardingComplete(profile) {
     store.saveProfile(profile);
-    setShowWelcome(true);
   }
 
   function handleScenarioChange(e) {
@@ -67,8 +67,14 @@ export default function App() {
 
   const appName = resolveLabel('app.name', store.locale, 'DownTrack');
 
-  const header = store.profile && !showWelcome ? (
-    <TopHeader logoText={appName} logoHref="#" />
+  const navItems = [
+    { label: 'Check In', href: '#', icon: 'monitor_weight', active: page === 'checkin', onClick: (e) => { e.preventDefault(); setPage('checkin'); } },
+    { label: 'Data',     href: '#', icon: 'bar_chart',      active: page === 'data',    onClick: (e) => { e.preventDefault(); setPage('data'); } },
+    { label: 'Settings', href: '#', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); setPage('settings'); } },
+  ];
+
+  const header = store.profile ? (
+    <TopHeader logoText={appName} logoHref="#" navItems={navItems} />
   ) : null;
 
   const devBar = (
@@ -85,7 +91,7 @@ export default function App() {
   return (
     <LabelsProvider labels={labels} locale={store.locale}>
       {import.meta.env.DEV && devBar}
-      {store.profile && !showWelcome && (
+      {store.profile && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -105,11 +111,11 @@ export default function App() {
       )}
       {!store.profile ? (
         <Onboarding onComplete={handleOnboardingComplete} />
-      ) : showWelcome ? (
-        <WelcomeResults profile={store.profile} onDone={() => setShowWelcome(false)} />
       ) : (
         <PageLayout header={header}>
-          <CheckIn store={store} />
+          {page === 'checkin'  && <CheckIn store={store} onNavigate={setPage} />}
+          {page === 'data'     && <DataPage store={store} onNavigate={setPage} />}
+          {page === 'settings' && <SettingsPage />}
         </PageLayout>
       )}
     </LabelsProvider>
