@@ -8,7 +8,7 @@ import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ACTIVITY_OPTIONS, MED_OPTIONS } from './onboarding/onboardingConfig.js';
 import { formatDate } from '../utils/locale.js';
 
-export function SettingsPage({ store }) {
+export function SettingsPage({ store, onSignOut }) {
   const l = useLabel;
   const { profile, locale, languageSetting, setLanguageSetting, saveProfile, reset } = store;
   const [editOpen, setEditOpen] = useState(false);
@@ -121,6 +121,16 @@ export function SettingsPage({ store }) {
                 </Button>
               </div>
             </Stack>
+            {onSignOut && (
+              <Stack gap="sm">
+                <Heading size="md">{l('settings.account', 'Account')}</Heading>
+                <div>
+                  <Button variant="secondary" icon="logout" onClick={onSignOut}>
+                    {l('settings.signOut', 'Sign Out')}
+                  </Button>
+                </div>
+              </Stack>
+            )}
           </Stack>
         </Card>
       </Grid>

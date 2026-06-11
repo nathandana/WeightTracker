@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased] 2026-06-11
+
+### Added
+- **Supabase Auth** — Email/password sign-up, login, log out, forgot-password reset flow via `src/lib/AuthContext.jsx` (`AuthProvider` + `useAuth` hook)
+- **Supabase Postgres** — User data now persists in the cloud; `src/services/db.js` centralises all CRUD with snake_case ↔ camelCase conversion and local-time-safe date handling
+- **AuthPage** (`src/views/auth/AuthPage.jsx`) — Login, sign-up, and forgot-password screens built with existing DS components (no Supabase prebuilt UI)
+- **Database schema** (`supabase/schema.sql`) — `profiles` and `weight_entries` tables with RLS policies; unique constraint on `(user_id, entry_date)` enables upsert-by-date
+- **localStorage migration banner** — on first login, if pre-auth data exists in `journey-checkin-v1`, a `SystemBanner` offers to import it into Supabase; sets `journey-checkin-migrated` flag on completion
+- **Sign Out button** in `SettingsPage` (Account section) via new `onSignOut` prop
+- **`settings.account` / `settings.signOut`** keys added to `labels.json` (en + es)
+- **`.env.example`** — documents required env vars; real keys live in `.env.local` (gitignored via `*.local`)
+
+### Changed
+- **`src/store/useStore.js`** — completely rewritten; language preference stays localStorage, all other state syncs with Supabase; same public API so no view changes were needed; exports `LEGACY_STORAGE_KEY` for migration detection
+- **`src/App.jsx`** — wraps auth guard (loading spinner → AuthPage → app); passes `onSignOut` to SettingsPage; dev toolbar shows current user email and a sign-out button
+- **`src/main.jsx`** — wrapped in `<AuthProvider>` so `useAuth()` is available everywhere
+- **`@supabase/supabase-js`** added to `dependencies`
+
 ## [0.7.0] 2026-06-11
 
 ### Fixed

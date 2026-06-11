@@ -1,9 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { initialDocumentLocale, normalizeLocale } from '../utils/locale.js';
+import { useAuth } from '../lib/AuthContext.jsx';
+import * as db from '../services/db.js';
 
-const STORAGE_KEY = 'journey-checkin-v1';
+// Language preference stays in localStorage — it's a UI setting, not user data.
 const LOCALE_STORAGE_KEY = 'journey-checkin-locale';
 const AUTO_LANGUAGE = 'auto';
+
+// localStorage key for the old pre-auth data (used only during migration offer)
+export const LEGACY_STORAGE_KEY = 'journey-checkin-v1';
+const MIGRATION_FLAG_KEY = 'journey-checkin-migrated';
 
 function normalizeLanguageSetting(setting) {
   return setting === AUTO_LANGUAGE ? AUTO_LANGUAGE : normalizeLocale(setting);
@@ -15,124 +21,152 @@ function resolveLocale(languageSetting) {
 
 function loadLanguageSetting() {
   try {
-    const storedSetting = localStorage.getItem(LOCALE_STORAGE_KEY);
-    return storedSetting ? normalizeLanguageSetting(storedSetting) : AUTO_LANGUAGE;
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    return stored ? normalizeLanguageSetting(stored) : AUTO_LANGUAGE;
   } catch {
     return AUTO_LANGUAGE;
   }
 }
 
-function load() {
+function persistLanguage(setting) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : {};
-    parsed.languageSetting = loadLanguageSetting();
-    parsed.locale = resolveLocale(parsed.languageSetting);
-    return parsed;
-  } catch {
-    const languageSetting = loadLanguageSetting();
-    return { languageSetting, locale: resolveLocale(languageSetting) };
-  }
-}
-
-function persist(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    localStorage.setItem(LOCALE_STORAGE_KEY, normalizeLanguageSetting(state.languageSetting));
+    localStorage.setItem(LOCALE_STORAGE_KEY, normalizeLanguageSetting(setting));
   } catch {}
 }
 
 const defaults = {
   profile: null,
   checkins: [],
-  languageSetting: loadLanguageSetting(),
-  locale: resolveLocale(loadLanguageSetting()),
 };
 
 export function useStore() {
-  const [state, setState] = useState(() => ({ ...defaults, ...load() }));
+  const { user } = useAuth();
 
-  const update = useCallback((updates) => {
-    setState(prev => {
-      const next = { ...prev, ...updates };
-      persist(next);
-      return next;
-    });
-  }, []);
+  const [state, setState] = useState(() => {
+    const languageSetting = loadLanguageSetting();
+    return { ...defaults, languageSetting, locale: resolveLocale(languageSetting) };
+  });
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Load from Supabase whenever the authenticated user changes.
+  useEffect(() => {
+    if (!user) {
+      setState(prev => ({
+        ...defaults,
+        languageSetting: prev.languageSetting,
+        locale: prev.locale,
+      }));
+      setDataLoading(false);
+      return;
+    }
+
+    setDataLoading(true);
+    Promise.all([db.fetchProfile(user.id), db.fetchCheckins(user.id)])
+      .then(([profile, checkins]) => {
+        setState(prev => ({ ...prev, profile, checkins }));
+        setDataLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load data from Supabase:', err);
+        setDataLoading(false);
+      });
+  }, [user?.id]);
 
   const saveProfile = useCallback((profile) => {
-    setState(prev => {
-      const next = { ...prev, profile };
-      persist(next);
-      return next;
-    });
-  }, []);
+    setState(prev => ({ ...prev, profile }));
+    if (user) db.upsertProfile(user.id, profile).catch(console.error);
+  }, [user]);
 
   const addCheckin = useCallback((entry) => {
     setState(prev => {
       const today = new Date().toDateString();
       const existing = prev.checkins.find(c => new Date(c.date).toDateString() === today) ?? {};
       const filtered = prev.checkins.filter(c => new Date(c.date).toDateString() !== today);
-      const next = {
-        ...prev,
-        checkins: [...filtered, { ...existing, ...entry, date: new Date().toISOString() }],
-      };
-      persist(next);
-      return next;
+      const newEntry = { ...existing, ...entry, date: new Date().toISOString() };
+      if (user) db.upsertCheckin(user.id, newEntry).catch(console.error);
+      return { ...prev, checkins: [...filtered, newEntry] };
     });
-  }, []);
-
-  const setLanguageSetting = useCallback((languageSetting) => {
-    setState(prev => {
-      const nextSetting = normalizeLanguageSetting(languageSetting);
-      const next = {
-        ...prev,
-        languageSetting: nextSetting,
-        locale: resolveLocale(nextSetting),
-      };
-      persist(next);
-      return next;
-    });
-  }, []);
-
-  const setLocale = setLanguageSetting;
-
-  const reset = useCallback(() => {
-    setState(prev => {
-      const languageSetting = normalizeLanguageSetting(prev.languageSetting);
-      const locale = resolveLocale(languageSetting);
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.setItem(LOCALE_STORAGE_KEY, languageSetting);
-      } catch {}
-      return { ...defaults, languageSetting, locale };
-    });
-  }, []);
+  }, [user]);
 
   const saveCheckinForDate = useCallback((entry) => {
-    // entry must include a `date` ISO string
     setState(prev => {
       const dateStr = new Date(entry.date).toDateString();
       const filtered = prev.checkins.filter(c => new Date(c.date).toDateString() !== dateStr);
-      const next = { ...prev, checkins: [...filtered, entry].sort((a, b) => new Date(a.date) - new Date(b.date)) };
-      persist(next);
-      return next;
+      const sorted = [...filtered, entry].sort((a, b) => new Date(a.date) - new Date(b.date));
+      if (user) db.upsertCheckin(user.id, entry).catch(console.error);
+      return { ...prev, checkins: sorted };
+    });
+  }, [user]);
+
+  const setLanguageSetting = useCallback((languageSetting) => {
+    setState(prev => {
+      const next = normalizeLanguageSetting(languageSetting);
+      persistLanguage(next);
+      return { ...prev, languageSetting: next, locale: resolveLocale(next) };
     });
   }, []);
 
+  // reset: wipe all user data from Supabase and clear local state.
+  const reset = useCallback(() => {
+    if (user) {
+      db.deleteAllCheckins(user.id).catch(console.error);
+      db.deleteProfile(user.id).catch(console.error);
+    }
+    setState(prev => ({
+      ...defaults,
+      languageSetting: prev.languageSetting,
+      locale: prev.locale,
+    }));
+  }, [user]);
+
+  // migrateFromLocalStorage: import old pre-auth data into Supabase.
+  const migrateFromLocalStorage = useCallback(async () => {
+    if (!user) return;
+    try {
+      const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (!raw) return;
+      const { profile, checkins = [] } = JSON.parse(raw);
+      if (profile) await db.upsertProfile(user.id, profile);
+      for (const entry of checkins) {
+        await db.upsertCheckin(user.id, entry);
+      }
+      localStorage.setItem(MIGRATION_FLAG_KEY, 'true');
+      // Reload from Supabase so local state reflects merged data.
+      const [newProfile, newCheckins] = await Promise.all([
+        db.fetchProfile(user.id),
+        db.fetchCheckins(user.id),
+      ]);
+      setState(prev => ({ ...prev, profile: newProfile, checkins: newCheckins }));
+    } catch (err) {
+      console.error('Migration failed:', err);
+      throw err;
+    }
+  }, [user]);
+
+  const dismissMigration = useCallback(() => {
+    localStorage.setItem(MIGRATION_FLAG_KEY, 'true');
+  }, []);
+
+  // Dev-mode mock helpers — work on in-memory state only, no Supabase writes.
   const loadMockData = useCallback((mockState) => {
     setState(prev => {
-      const { locale: _mockLocale, languageSetting: _mockLanguageSetting, ...mockStateWithoutLocale } = mockState;
-      const languageSetting = normalizeLanguageSetting(prev.languageSetting);
-      return { ...defaults, ...mockStateWithoutLocale, languageSetting, locale: resolveLocale(languageSetting) };
+      const { locale: _l, languageSetting: _ls, ...rest } = mockState;
+      return { ...prev, ...rest };
     });
   }, []);
 
   const restoreRealData = useCallback(() => {
-    setState({ ...defaults, ...load() });
-  }, []);
+    if (!user) return;
+    setDataLoading(true);
+    Promise.all([db.fetchProfile(user.id), db.fetchCheckins(user.id)])
+      .then(([profile, checkins]) => {
+        setState(prev => ({ ...prev, profile, checkins }));
+        setDataLoading(false);
+      })
+      .catch(() => setDataLoading(false));
+  }, [user]);
 
-  // Derived helpers
+  // Derived helpers (same as before)
   const latestCheckin = state.checkins.length > 0
     ? state.checkins[state.checkins.length - 1]
     : null;
@@ -148,16 +182,18 @@ export function useStore() {
 
   return {
     ...state,
+    dataLoading,
     latestCheckin,
     todayCheckin,
     currentWeight,
-    update,
     saveProfile,
     addCheckin,
     setLanguageSetting,
-    setLocale,
+    setLocale: setLanguageSetting,
     reset,
     saveCheckinForDate,
+    migrateFromLocalStorage,
+    dismissMigration,
     loadMockData,
     restoreRealData,
   };

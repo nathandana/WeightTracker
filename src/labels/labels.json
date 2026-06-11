@@ -127,7 +127,9 @@
       "saveChanges": { "$value": "Save Changes", "locale": { "es": "Guardar Cambios" } },
       "resetTitle": { "$value": "Reset All Data", "locale": { "es": "Restablecer Todo" } },
       "resetConfirm": { "$value": "Yes, Reset Everything", "locale": { "es": "Sí, Restablecer Todo" } },
-      "resetBody": { "$value": "This will permanently delete all your weight data and profile information. This cannot be undone.", "locale": { "es": "Esto eliminará permanentemente todos tus datos de peso e información de perfil. Esta acción no se puede deshacer." } }
+      "resetBody": { "$value": "This will permanently delete all your weight data and profile information. This cannot be undone.", "locale": { "es": "Esto eliminará permanentemente todos tus datos de peso e información de perfil. Esta acción no se puede deshacer." } },
+      "account": { "$value": "Account", "locale": { "es": "Cuenta" } },
+      "signOut": { "$value": "Sign Out", "locale": { "es": "Cerrar Sesión" } }
     },
     "checkin": {
       "greeting": {
