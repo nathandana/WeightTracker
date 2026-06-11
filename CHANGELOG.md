@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] 2026-06-11 (continued)
+
+### Added
+- **User menu in TopHeader** — `actions` prop with `account_circle` icon; dropdown shows name/email header row and Sign Out (sm+ breakpoints)
+- **Account dialog for xs** — 4th "Account" tab in `BottomDrawer` opens a `Dialog` with display name, email, and Sign Out; visible only at xs where TopHeader is hidden
+- **"Already have an account? Sign in"** link below the "Let's get going!" button on Onboarding Step 1; wires back to Auth login via `onSignIn` prop passed through `Onboarding` → `Step1AboutYou`
+
+### Changed
+- **Auth flow** — Onboarding now precedes account creation; `pendingProfile` stored in `localStorage` survives email-confirmation redirects; `AuthPage` shown in signup mode after onboarding, login mode when user taps "Sign in"
+- **Step1AboutYou** — "Goal is higher than start weight" Banner now deferred until both weight fields have been blurred (was showing while user was still typing)
+
 ## [Unreleased] 2026-06-11
 
 ### Added
