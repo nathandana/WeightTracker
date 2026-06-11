@@ -71,8 +71,7 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
     onClose();
   }
 
-  const minDate = profile?.startDate ? new Date(profile.startDate) : undefined;
-  const maxDate = (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+  const maxDate = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
 
   return (
     <Dialog
@@ -93,7 +92,6 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
             selectedDate={date}
             onChange={setDate}
             maxDate={maxDate}
-            minDate={minDate}
             highlightToday
             dimPast={false}
           />

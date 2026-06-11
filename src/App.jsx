@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LabelsProvider, PageLayout, TopHeader, BottomDrawer,
 } from '@gtivr4/a1-design-system-react';
 import { useStore } from './store/useStore.js';
-import { Onboarding } from './views/Onboarding.jsx';
-import { CheckIn } from './views/CheckIn.jsx';
-import { DataPage } from './views/DataPage.jsx';
-import { SettingsPage } from './views/SettingsPage.jsx';
 import { MOCK_SCENARIOS } from './dev/mockScenarios.js';
 import labels from './labels/labels.json';
+
+const Onboarding   = lazy(() => import('./views/Onboarding.jsx').then(m => ({ default: m.Onboarding })));
+const CheckIn      = lazy(() => import('./views/CheckIn.jsx').then(m => ({ default: m.CheckIn })));
+const DataPage     = lazy(() => import('./views/DataPage.jsx').then(m => ({ default: m.DataPage })));
+const SettingsPage = lazy(() => import('./views/SettingsPage.jsx').then(m => ({ default: m.SettingsPage })));
 
 const PAGES = ['checkin', 'data', 'settings'];
 
@@ -151,15 +152,17 @@ export default function App() {
   return (
     <LabelsProvider labels={labels} locale={store.locale}>
       {import.meta.env.DEV && devBar}
-      {!store.profile ? (
-        <Onboarding onComplete={handleOnboardingComplete} />
-      ) : (
-        <PageLayout header={header}>
-          {page === 'checkin'  && <CheckIn store={store} onNavigate={navigate} />}
-          {page === 'data'     && <DataPage store={store} onNavigate={navigate} />}
-          {page === 'settings' && <SettingsPage store={store} />}
-        </PageLayout>
-      )}
+      <Suspense>
+        {!store.profile ? (
+          <Onboarding onComplete={handleOnboardingComplete} />
+        ) : (
+          <PageLayout header={header}>
+            {page === 'checkin'  && <CheckIn store={store} onNavigate={navigate} />}
+            {page === 'data'     && <DataPage store={store} onNavigate={navigate} />}
+            {page === 'settings' && <SettingsPage store={store} />}
+          </PageLayout>
+        )}
+      </Suspense>
       {store.profile && (
         <BottomDrawer items={bottomNavItems} aria-label="Main navigation" className="bottom-nav-ds" />
       )}

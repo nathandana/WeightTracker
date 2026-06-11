@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1] 2026-06-11
+
+### Changed
+- **index.html** — Google Fonts stylesheet loaded non-blocking (`media="print" onload="this.media='all'"`) with `<noscript>` fallback; removes fonts from critical render path
+- **index.html** — Material Symbols Outlined axes narrowed from full variable range (`20..48,100..700,0..1,-50..200`) to fixed single values (`24,400,0,0`); significantly reduces font download size
+- **App.jsx** — all four views (`Onboarding`, `CheckIn`, `DataPage`, `SettingsPage`) converted to `React.lazy` + `Suspense`; reduces initial JS bundle from 720 kB to 242 kB by deferring recharts/d3 (314 kB) until the Data page is visited
+- **PastCheckinDialog.jsx** — removed `minDate` from Calendar; all past dates are now selectable, only future dates disabled via `maxDate`
+
 ## [0.5.0] 2026-06-11
 
 ### Added
