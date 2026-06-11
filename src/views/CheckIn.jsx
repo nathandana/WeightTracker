@@ -6,6 +6,7 @@ import {
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { WeightStepper } from '../components/WeightStepper.jsx';
+import { PastCheckinDialog } from '../components/PastCheckinDialog.jsx';
 import { getProgressStats } from '../utils/calculations.js';
 
 function fmtProfileDate(iso) {
@@ -63,13 +64,14 @@ function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
 
 export function CheckIn({ store, onNavigate }) {
   const l = useLabel;
-  const { profile, checkins, currentWeight, todayCheckin, addCheckin } = store;
+  const { profile, checkins, currentWeight, todayCheckin, addCheckin, saveCheckinForDate } = store;
 
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
   const [moodOpen, setMoodOpen] = useState(false);
   const [dialogStep, setDialogStep] = useState(0);
   const [tempCheckin, setTempCheckin] = useState({});
   const [viewNotes, setViewNotes] = useState(null);
+  const [pastOpen, setPastOpen] = useState(false);
   const isDirty = useRef(false);
 
   function openCheckinDialog() {
@@ -215,7 +217,10 @@ export function CheckIn({ store, onNavigate }) {
       <Section padding="sm" contentWidth="lg" surface="none" gap="md">
         <Stack direction="row" justify="between" align="center">
           <Heading type="display" size={{ xs: 'lg', sm: 'xxl' }}>Check In...</Heading>
-          <Button variant="secondary" icon="bar_chart" onClick={() => onNavigate('data')}>View the data</Button>
+          <Stack direction="row" gap="sm">
+            <Button variant="secondary" size='sm' icon="history" onClick={() => setPastOpen(true)}>Log past</Button>
+            {/* <Button variant="secondary" size='sm' icon="bar_chart" onClick={() => onNavigate('data')}>View the data</Button> */}
+          </Stack>
         </Stack>
       </Section>
 
@@ -240,7 +245,15 @@ export function CheckIn({ store, onNavigate }) {
         <Paragraph>{viewNotes}</Paragraph>
       </Dialog>
 
-      {checkins.length > 0 && stats && (
+      <PastCheckinDialog
+        open={pastOpen}
+        onClose={() => setPastOpen(false)}
+        onSave={saveCheckinForDate}
+        profile={profile}
+        unit={unit}
+      />
+
+      {stats && (
         <Section padding="sm" contentWidth="lg" surface="none" gap="md">
           {/* <Grid columns={{ xs: 2, sm: 4 }} gap="md">
             <StatCard icon="trending_down"         label="Lost"    value={stats.lost}   sub={unit} heroColor={stats.lost > 0 ? 'success' : 'neutral'} />
@@ -263,7 +276,7 @@ export function CheckIn({ store, onNavigate }) {
               </Stack>
             </Card>
             <Card>
-              <Stack align="center" gap="sm">
+              <Stack gap="sm">
                 <Heading as="h4" size="md" type="display" align='center'>
                   {isSummary ? 'Today:' : currentStepDef?.title}
                 </Heading>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  LabelsProvider, PageLayout, TopHeader, Icon,
+  LabelsProvider, PageLayout, TopHeader, BottomDrawer,
 } from '@gtivr4/a1-design-system-react';
 import { useStore } from './store/useStore.js';
 import { Onboarding } from './views/Onboarding.jsx';
@@ -62,17 +62,6 @@ const devSelectStyle = {
   cursor: 'pointer',
 };
 
-const bottomNavStyle = {
-  position: 'fixed',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  height: 56,
-  display: 'flex',
-  background: 'var(--semantic-color-surface-raised)',
-  borderTop: '1px solid var(--semantic-color-border-subtle)',
-  zIndex: 200,
-};
 
 export default function App() {
   const store = useStore();
@@ -132,14 +121,15 @@ export default function App() {
   const appName = resolveLabel('app.name', store.locale, 'DownTrack');
 
   const navItems = [
-    { label: 'Check In', href: '/checkin', icon: 'monitor_weight', active: page === 'checkin', onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
-    { label: 'Data',     href: '/data',    icon: 'bar_chart',      active: page === 'data',    onClick: (e) => { e.preventDefault(); navigate('data'); } },
-    { label: 'Settings', href: '/settings',icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
+    { id: 'checkin',  label: 'Check In', href: '/checkin',  icon: 'monitor_weight', active: page === 'checkin',  onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
+    { id: 'data',     label: 'Data',     href: '/data',     icon: 'bar_chart',      active: page === 'data',     onClick: (e) => { e.preventDefault(); navigate('data'); } },
+    { id: 'settings', label: 'Settings', href: '/settings', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
   ];
 
+  const bottomNavItems = navItems.map(({ href, ...item }) => ({ ...item, onClick: () => navigate(item.id) }));
+
   const header = store.profile ? (
-    <TopHeader logoText={appName} logoHref="/checkin" navItems={navItems} navIconPosition={{ xs: "above", sm: "above" }}
-/>
+    <TopHeader logoText={appName} logoHref="/checkin" navItems={navItems} navIconPosition={{ xs: 'hidden', sm: 'above' }} />
   ) : null;
 
   const devBar = (
@@ -171,36 +161,7 @@ export default function App() {
         </PageLayout>
       )}
       {store.profile && (
-        <nav className="bottom-nav" style={bottomNavStyle} aria-label="Main navigation">
-          {navItems.map(item => (
-            <button
-              key={item.label}
-              onClick={item.onClick}
-              aria-current={item.active ? 'page' : undefined}
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 2,
-                border: 'none',
-                background: 'none',
-                cursor: 'pointer',
-                color: item.active
-                  ? 'var(--semantic-color-action-background)'
-                  : 'var(--semantic-color-text-muted)',
-                fontSize: 10,
-                fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
-                padding: '8px 0',
-                transition: 'color 0.15s',
-              }}
-            >
-              <Icon name={item.icon} size="sm" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
+        <BottomDrawer items={bottomNavItems} aria-label="Main navigation" className="bottom-nav-ds" />
       )}
     </LabelsProvider>
   );

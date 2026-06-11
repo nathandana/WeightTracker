@@ -69,6 +69,17 @@ export function useStore() {
     setState({ ...defaults });
   }, []);
 
+  const saveCheckinForDate = useCallback((entry) => {
+    // entry must include a `date` ISO string
+    setState(prev => {
+      const dateStr = new Date(entry.date).toDateString();
+      const filtered = prev.checkins.filter(c => new Date(c.date).toDateString() !== dateStr);
+      const next = { ...prev, checkins: [...filtered, entry].sort((a, b) => new Date(a.date) - new Date(b.date)) };
+      persist(next);
+      return next;
+    });
+  }, []);
+
   const loadMockData = useCallback((mockState) => {
     setState({ ...defaults, ...mockState });
   }, []);
@@ -101,6 +112,7 @@ export function useStore() {
     addCheckin,
     setLocale,
     reset,
+    saveCheckinForDate,
     loadMockData,
     restoreRealData,
   };

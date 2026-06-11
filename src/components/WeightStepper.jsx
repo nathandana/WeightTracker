@@ -57,7 +57,7 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
   }
 
   return (
-    <Stack direction="row" gap="lg" align='center' wrap>
+    <Stack direction="row" gap="sm" align='center' wrap>
       <IconButton
         icon="remove"
         variant='secondary'
@@ -69,7 +69,7 @@ export function WeightStepper({ value, onChange, unit = 'lbs', min = 50, max = 7
       />
 
       <NumberField
-        className="boldInput"
+        className="boldInput weightInput"
         aria-label={`Weight in ${unit}`}
         value={inputStr}
         onChange={handleInputChange}

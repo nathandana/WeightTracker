@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.0] 2026-06-11
+
+### Added
+- **PastCheckinDialog** (`src/components/PastCheckinDialog.jsx`) — new dialog to log historical weight entries: paginated single-month Calendar for date selection (capped at today, floored at profile start date), bold NumberField for weight, Accordion with optional feeling survey (mood, activity, calories, notes textarea with 500-char limit); buttons in Dialog footer
+- **useStore.js** — `saveCheckinForDate(entry)`: upserts a check-in by date (replaces if same day exists), keeps checkins sorted chronologically
+- **CheckIn.jsx** — "Log past" tertiary button in heading row opens PastCheckinDialog
+
+### Changed
+- **App.jsx** — replaced custom hand-rolled bottom nav with DS `BottomDrawer` component; `bottomNavItems` derived without `href` so BottomDrawer uses `<button onClick>` (prevents full-page reloads); `navItems` gains `id` on each entry
+- **App.css** — xs breakpoint now hides `TopHeader` (`display: none`) and shows BottomDrawer; sm+ hides `.bottom-nav-ds`; TopHeader `navIconPosition` set to `{ xs: 'hidden', sm: 'above' }` so logo-only bar is suppressed entirely on mobile
+- **CheckIn.jsx** — removed `checkins.length > 0` guard on main content section; weight stepper and check-in flow now always visible for any user with a profile (including first-time/zero-checkin state)
+- **CheckIn.jsx** — removed `align="center"` from the inline check-in card Stack so textarea and ButtonContainer stretch full width like ChoiceGroup steps
+- **@gtivr4/a1-design-system-react** — updated `0.8.0` → `0.10.0`
+
+### Fixed
+- **App.css** — CSS container query for `.boldInput`: `container-type: inline-size` and `container-name: bold-input` now correctly placed on `.boldInput` class (not on DS inner `.a1-field__control`); fixes zero-width field regression; `@container` query sets `font-size: 1.5em` at `max-width: 299px`
+
 ## [0.3.0] 2026-06-10
 
 ### Fixed

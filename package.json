@@ -1,6 +1,6 @@
 {
   "name": "journey-checkin",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "postinstall": "sh scripts/patch-design-system.sh"
   },
   "dependencies": {
-    "@gtivr4/a1-design-system-react": "^0.8.0",
+    "@gtivr4/a1-design-system-react": "file:../A1DesignSystem/packages/react",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.1"

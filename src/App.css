@@ -1,26 +1,19 @@
 
-.boldInput .a1-field__control input {
- font-weight: 700;
- font-size: 2em;
-}
-.boldInput .a1-field__control .a1-field__unit {
- font-weight: 300;
- font-size: 1.25em;
- margin-top: .25em;
-}
 
-/* xs breakpoint (≤480px): show both top header and bottom tab bar */
+.boldInput .a1-field__control input { font-weight: 700; font-size: 1.75em; }
+.boldInput .a1-field__control .a1-field__unit { font-weight: 300; font-size: 1.25em; margin-top: .25em; }
+
+.weightInput {width: 16ch;}
+
+/* xs (≤480px): hide TopHeader, pad below BottomDrawer */
 @media (max-width: 480px) {
-  #root {
-    padding-bottom: 56px;
-  }
+  #root { padding-bottom: 56px; }
+  .a1-top-header { display: none; }
 }
 
-/* sm+ breakpoint (≥481px): hide bottom nav, show top header */
+/* sm+ (≥481px): hide BottomDrawer, TopHeader nav takes over */
 @media (min-width: 481px) {
-  .bottom-nav {
-    display: none !important;
-  }
+  .bottom-nav-ds { display: none; }
 }
 
 /* Dark mode — html.a1-theme-fresh (specificity 0,1,1) would otherwise override the
