@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { calculateBMI, toKg, feetInchesToCm } from '../utils/calculations.js';
 import { ProgressChart } from '../components/ProgressChart.jsx';
+import { formatDate } from '../utils/locale.js';
 
 // ─── milestone notices ────────────────────────────────────────────────────────
 
@@ -202,7 +203,7 @@ function BmiTrendChart({ checkins, profile }) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export function DataPage({ store }) {
-  const { checkins, profile } = store;
+  const { checkins, profile, locale } = store;
   const unit = profile?.weightUnit ?? 'lbs';
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(window.location.search).get('tab');
@@ -230,14 +231,14 @@ export function DataPage({ store }) {
     [...checkins].reverse().map((c, i) => ({
       id: i,
       _rawDate: c.date,
-      date:      new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+      date:      formatDate(c.date, locale, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
       weight:    c.weight,
       mood:      c.mood     ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
       activity:  c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
       calories:  c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
       notes: c.notes ? [{ icon: 'sticky_note_2', label: 'View notes', onClick: () => setViewNotesText(c.notes) }] : null,
     })),
-  [checkins]);
+  [checkins, locale]);
 
   return (
     <Section padding="sm" contentWidth="lg" gap="lg">
@@ -280,7 +281,7 @@ export function DataPage({ store }) {
                 <Stack gap="sm">
                   <Heading size="lg" type='display'>Weight Progress</Heading>
                   <Paragraph color="muted" size="sm">Your weight over time vs. your goal</Paragraph>
-                  <ProgressChart data={weightHistory} unit={unit} goalWeight={profile?.goalWeight} />
+                  <ProgressChart data={weightHistory} unit={unit} goalWeight={profile?.goalWeight} locale={locale} />
                 </Stack>
               </Card>
               <Card>

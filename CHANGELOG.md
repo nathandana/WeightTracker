@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0] 2026-06-11
+
+### Fixed
+- **i18n: Language switching now visibly changes UI text** — `SettingsPage.jsx` was using all hardcoded strings; rewrote it to call `l()` throughout (profile items, activity/sex/med display values, all dialog and button labels)
+- **labels.json** — Added 25+ missing translation keys that active code referenced but fell back to English: `settings.*` namespace, `validation.*` namespace, `common.cancel/close/edit/years`, `onboarding.startDate`, `onboarding.changeDate`, `onboarding.targetDate`, `onboarding.quickTimelines`, `onboarding.chooseDate`, `onboarding.otherMed/otherMedPlaceholder`, `onboarding.startDateToday`, `onboarding.goalHigherWarning`, `onboarding.bmiTitle`
+- **onboardingConfig.js** — `MED_OPTIONS` 'None' option now goes through `l('onboarding.medNone')` instead of hardcoded English
+
 ## [0.6.0] 2026-06-11
 
 ### Changed

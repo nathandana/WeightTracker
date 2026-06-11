@@ -8,47 +8,52 @@ import { useLabel } from '@gtivr4/a1-design-system-react';
 import { WeightStepper } from '../components/WeightStepper.jsx';
 import { PastCheckinDialog } from '../components/PastCheckinDialog.jsx';
 import { getProgressStats } from '../utils/calculations.js';
+import { formatDate } from '../utils/locale.js';
 
-function fmtProfileDate(iso) {
+function fmtProfileDate(iso, locale) {
   if (!iso) return '—';
   const d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(iso + 'T12:00:00') : new Date(iso);
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  return formatDate(d, locale, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-const CHECKIN_STEPS = [
+const CHECKIN_STEP_CONFIG = [
   {
     key: 'mood',
-    title: 'How are you feeling?',
+    titleKey: 'survey.mood',
+    titleFallback: 'How are you feeling?',
     options: [
-      { value: 'great', label: 'Amazing',   icon: 'sentiment_very_satisfied' },
-      { value: 'good',  label: 'Good',      icon: 'sentiment_satisfied' },
-      { value: 'okay',  label: 'Okay',      icon: 'sentiment_neutral' },
-      { value: 'low',   label: 'Tough Day', icon: 'sentiment_dissatisfied' },
+      { value: 'great', labelKey: 'survey.moodGreat', labelFallback: 'Amazing',   icon: 'sentiment_very_satisfied' },
+      { value: 'good',  labelKey: 'survey.moodGood',  labelFallback: 'Good',      icon: 'sentiment_satisfied' },
+      { value: 'okay',  labelKey: 'survey.moodOkay',  labelFallback: 'Okay',      icon: 'sentiment_neutral' },
+      { value: 'low',   labelKey: 'survey.moodLow',   labelFallback: 'Tough Day', icon: 'sentiment_dissatisfied' },
     ],
   },
   {
     key: 'activity',
-    title: 'How active were you?',
+    titleKey: 'survey.activityQuestion',
+    titleFallback: 'How active were you?',
     options: [
-      { value: 'high',   label: 'Intense',  icon: 'directions_run' },
-      { value: 'medium', label: 'Moderate', icon: 'directions_walk' },
-      { value: 'low',    label: 'Light',    icon: 'self_improvement' },
-      { value: 'none',   label: 'Rest Day', icon: 'hotel' },
+      { value: 'high',   labelKey: 'survey.activityHigh', labelFallback: 'Intense',  icon: 'directions_run' },
+      { value: 'medium', labelKey: 'survey.activityMed',  labelFallback: 'Moderate', icon: 'directions_walk' },
+      { value: 'low',    labelKey: 'survey.activityLow',  labelFallback: 'Light',    icon: 'self_improvement' },
+      { value: 'none',   labelKey: 'survey.activityNone', labelFallback: 'Rest Day', icon: 'hotel' },
     ],
   },
   {
     key: 'calories',
-    title: 'How did you eat today?',
+    titleKey: 'survey.caloriesQuestion',
+    titleFallback: 'How did you eat today?',
     options: [
-      { value: 'under',    label: 'Under goal',    icon: 'thumb_up' },
-      { value: 'on_track', label: 'On track',      icon: 'check_circle' },
-      { value: 'over',     label: 'Slightly over', icon: 'trending_up' },
-      { value: 'way_over', label: 'Way over',      icon: 'warning' },
+      { value: 'under',    labelKey: 'survey.calUnder',    labelFallback: 'Under goal',    icon: 'thumb_up' },
+      { value: 'on_track', labelKey: 'survey.calOnTrack',  labelFallback: 'On track',      icon: 'check_circle' },
+      { value: 'over',     labelKey: 'survey.calOver',     labelFallback: 'Slightly over', icon: 'trending_up' },
+      { value: 'way_over', labelKey: 'survey.calWayOver',  labelFallback: 'Way over',      icon: 'warning' },
     ],
   },
   {
     key: 'notes',
-    title: 'Any notes for today?',
+    titleKey: 'survey.notesQuestion',
+    titleFallback: 'Any notes for today?',
     type: 'textarea',
   },
 ];
@@ -64,7 +69,15 @@ function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
 
 export function CheckIn({ store, onNavigate }) {
   const l = useLabel;
-  const { profile, checkins, currentWeight, todayCheckin, addCheckin, saveCheckinForDate } = store;
+  const { profile, checkins, currentWeight, todayCheckin, addCheckin, saveCheckinForDate, locale } = store;
+  const checkinSteps = CHECKIN_STEP_CONFIG.map(step => ({
+    ...step,
+    title: l(step.titleKey, step.titleFallback),
+    options: step.options?.map(option => ({
+      ...option,
+      label: l(option.labelKey, option.labelFallback),
+    })),
+  }));
 
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
   const [moodOpen, setMoodOpen] = useState(false);
@@ -87,7 +100,7 @@ export function CheckIn({ store, onNavigate }) {
 
   function handleCheckinSave() {
     addCheckin({ ...(todayCheckin ?? {}), weight: Number(weight), ...tempCheckin });
-    setDialogStep(CHECKIN_STEPS.length);
+    setDialogStep(checkinSteps.length);
   }
 
   function handleCheckinClose() {
@@ -123,55 +136,58 @@ export function CheckIn({ store, onNavigate }) {
     : `${profile.heightFeet}′ ${profile.heightInches}″`;
 
   const activityLabels = {
-    sedentary: 'Sedentary', light: 'Light', moderate: 'Moderate', active: 'Active',
+    sedentary: l('onboarding.activitySedentary', 'Sedentary'),
+    light: l('onboarding.activityLight', 'Light'),
+    moderate: l('onboarding.activityModerate', 'Moderate'),
+    active: l('onboarding.activityActive', 'Active'),
   };
 
   const medsStr = !profile.meds?.length || profile.meds.includes('none')
-    ? 'None'
+    ? l('onboarding.medNone', 'None')
     : profile.meds
         .filter(m => m !== 'none')
-        .map(m => ({ semaglutide: 'Semaglutide', tirzepatide: 'Tirzepatide', other: profile.otherMed || 'Other' }[m] ?? m))
+        .map(m => ({ semaglutide: 'Semaglutide', tirzepatide: 'Tirzepatide', other: profile.otherMed || l('onboarding.medOther', 'Other') }[m] ?? m))
         .join(', ');
 
   const profileItems = [
-    { id: 'startWeight', label: 'Start Weight',   value: `${profile.startWeight} ${unit}` },
-    { id: 'goalWeight',  label: 'Goal Weight',    value: `${profile.goalWeight} ${unit}` },
-    { id: 'height',      label: 'Height',         value: heightStr },
-    { id: 'age',         label: 'Age',            value: `${profile.age} years` },
-    { id: 'sex',         label: 'Biological Sex', value: profile.sex === 'male' ? 'Male' : 'Female' },
-    { id: 'activity',    label: 'Activity Level', value: activityLabels[profile.activityLevel] ?? profile.activityLevel },
-    { id: 'meds',        label: 'Medications',    value: medsStr },
-    { id: 'startDate',   label: 'Start Date',     value: fmtProfileDate(profile.startDate) },
-    { id: 'goalDate',    label: 'Target Date',    value: fmtProfileDate(profile.goalDate) },
+    { id: 'startWeight', label: l('onboarding.startWeight', 'Start Weight'), value: `${profile.startWeight} ${unit}` },
+    { id: 'goalWeight',  label: l('onboarding.goalWeight', 'Goal Weight'),   value: `${profile.goalWeight} ${unit}` },
+    { id: 'height',      label: l('onboarding.height', 'Height'),            value: heightStr },
+    { id: 'age',         label: l('onboarding.age', 'Age'),                  value: `${profile.age} ${l('common.years', 'years')}` },
+    { id: 'sex',         label: l('onboarding.sex', 'Biological Sex'),       value: profile.sex === 'male' ? l('onboarding.sexMale', 'Male') : l('onboarding.sexFemale', 'Female') },
+    { id: 'activity',    label: l('onboarding.activityLevel', 'Activity Level'), value: activityLabels[profile.activityLevel] ?? profile.activityLevel },
+    { id: 'meds',        label: l('profile.meds', 'Medications'),            value: medsStr },
+    { id: 'startDate',   label: l('onboarding.startDate', 'Start Date'),     value: fmtProfileDate(profile.startDate, locale) },
+    { id: 'goalDate',    label: l('onboarding.targetDate', 'Target Date'),   value: fmtProfileDate(profile.goalDate, locale) },
   ];
 
-  const currentStepDef = CHECKIN_STEPS[dialogStep];
+  const currentStepDef = checkinSteps[dialogStep];
   const isTextareaStep = currentStepDef?.type === 'textarea';
-  const isSummary = dialogStep === CHECKIN_STEPS.length;
+  const isSummary = dialogStep === checkinSteps.length;
 
   const summaryItems = [
-    ...CHECKIN_STEPS.filter(s => s.type !== 'textarea').map(step => {
+    ...checkinSteps.filter(s => s.type !== 'textarea').map(step => {
       const selected = step.options.find(o => o.value === tempCheckin[step.key]);
       return { id: step.key, label: step.title.replace('?', '').trim(), value: selected?.label ?? '—' };
     }),
-    { id: 'notes', label: 'Notes', value: tempCheckin.notes || '—' },
+    { id: 'notes', label: l('checkin.notes', 'Notes'), value: tempCheckin.notes || '—' },
   ];
 
   function CheckInFlow() {
     return (
       <Stack gap="md">
         {dialogStep === 0 && (
-          <Paragraph color="muted" size="sm" align='center'>Optionally keep track of your daily details</Paragraph>
+          <Paragraph color="muted" size="sm" align='center'>{l('checkin.dailyDetailsPrompt', 'Optionally keep track of your daily details')}</Paragraph>
         )}
         {!isSummary && (
-          <StepTracker steps={CHECKIN_STEPS.length} currentStep={Math.min(dialogStep + 1, CHECKIN_STEPS.length)} align="center" />
+          <StepTracker steps={checkinSteps.length} currentStep={Math.min(dialogStep + 1, checkinSteps.length)} align="center" />
         )}
         {!isSummary && isTextareaStep && (
           <TextareaField
             label={currentStepDef.title}
             value={tempCheckin.notes ?? ''}
             onChange={ev => setTempCheckin(t => ({ ...t, notes: ev.target.value.slice(0, 500) }))}
-            placeholder="Optional — observations, feelings, or reminders"
+            placeholder={l('checkin.notesPlaceholder', 'Optional — observations, feelings, or reminders')}
             maxLength={500}
             rows="md"
             size="comfortable"
@@ -194,17 +210,17 @@ export function CheckIn({ store, onNavigate }) {
         )}
         <ButtonContainer fillButtons justify="between">
           {!isSummary && dialogStep > 0 && (
-            <Button icon="arrow_back" variant="secondary" size="md" onClick={() => setDialogStep(s => s - 1)}>Back</Button>
+            <Button icon="arrow_back" variant="secondary" size="md" onClick={() => setDialogStep(s => s - 1)}>{l('common.back', 'Back')}</Button>
           )}
           {!isSummary && !isTextareaStep && (
-            <Button variant="secondary" onClick={() => setDialogStep(s => s + 1)}>Next</Button>
+            <Button variant="secondary" onClick={() => setDialogStep(s => s + 1)}>{l('common.next', 'Next')}</Button>
           )}
           {!isSummary && isTextareaStep && (
-            <Button variant="success" onClick={handleCheckinSave}>Check In</Button>
+            <Button variant="success" onClick={handleCheckinSave}>{l('nav.checkin', 'Check In')}</Button>
           )}
           {isSummary && (
             <>
-              <Button variant="tertiary" icon="edit" onClick={() => setDialogStep(0)}>Edit</Button>
+              <Button variant="tertiary" icon="edit" onClick={() => setDialogStep(0)}>{l('common.edit', 'Edit')}</Button>
             </>
           )}
         </ButtonContainer>
@@ -216,9 +232,9 @@ export function CheckIn({ store, onNavigate }) {
     <>
       <Section padding="sm" contentWidth="lg" surface="none" gap="md">
         <Stack direction="row" justify="between" align="center">
-          <Heading as="h1" type="display" size={{ xs: 'lg', sm: 'xxl' }}>Check In...</Heading>
+          <Heading as="h1" type="display" size={{ xs: 'lg', sm: 'xxl' }}>{l('nav.checkin', 'Check In')}...</Heading>
           <Stack direction="row" gap="sm">
-            <Button variant="secondary" size='sm' icon="history" onClick={() => setPastOpen(true)}>Log past</Button>
+            <Button variant="secondary" size='sm' icon="history" onClick={() => setPastOpen(true)}>{l('checkin.logPast', 'Log past')}</Button>
             {/* <Button variant="secondary" size='sm' icon="bar_chart" onClick={() => onNavigate('data')}>View the data</Button> */}
           </Stack>
         </Stack>
@@ -235,13 +251,13 @@ export function CheckIn({ store, onNavigate }) {
 
       <Dialog
         open={moodOpen}
-        title={isSummary ? 'Logged!' : currentStepDef?.title}
+        title={isSummary ? l('checkin.logged', 'Logged!') : currentStepDef?.title}
         onClose={handleCheckinClose}
       >
         {CheckInFlow()}
       </Dialog>
 
-      <Dialog open={viewNotes !== null} title="Day Notes" onClose={() => setViewNotes(null)}>
+      <Dialog open={viewNotes !== null} title={l('checkin.dayNotes', 'Day Notes')} onClose={() => setViewNotes(null)}>
         <Paragraph>{viewNotes}</Paragraph>
       </Dialog>
 
@@ -251,6 +267,7 @@ export function CheckIn({ store, onNavigate }) {
         onSave={saveCheckinForDate}
         profile={profile}
         unit={unit}
+        locale={locale}
       />
 
       {stats && (
@@ -265,20 +282,20 @@ export function CheckIn({ store, onNavigate }) {
             <Card>
               
               <Stack align="center" gap="lg">
-                <Heading as="h2" size="md" type="display">Today's Weight</Heading>
+                <Heading as="h2" size="md" type="display">{l('checkin.weightLabel', "Today's Weight")}</Heading>
 
                         <WeightStepper value={weight} onChange={setWeight} unit={unit} />
 
-                <CircularProgress value={stats.percent} size="lg" aria-label={`${stats.percent}% of goal reached`}>
+                <CircularProgress value={stats.percent} size="lg" aria-label={l('progress.percentReached', `${stats.percent}% of goal reached`).replace('{percent}', stats.percent)}>
                   <Heading as="p" size="lg" type="display">{stats.percent}%</Heading>
                 </CircularProgress>
-                <Paragraph color="muted" size="lg"><strong>{stats.lost}</strong> {unit} lost | <strong>{stats.toGo}</strong> {unit} to go</Paragraph>
+                <Paragraph color="muted" size="lg"><strong>{stats.lost}</strong> {unit} {l('progress.lostLower', 'lost')} | <strong>{stats.toGo}</strong> {unit} {l('progress.toGoLower', 'to go')}</Paragraph>
               </Stack>
             </Card>
             <Card>
               <Stack gap="sm">
                 <Heading as="h2" size="md" type="display" align='center'>
-                  {isSummary ? 'Today:' : currentStepDef?.title}
+                  {isSummary ? l('checkin.todayLabel', 'Today:') : currentStepDef?.title}
                 </Heading>
                 {CheckInFlow()}
               </Stack>

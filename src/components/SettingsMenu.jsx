@@ -10,7 +10,7 @@ const menuContentStyle = {
   padding: '12px 16px',
 };
 
-export function SettingsMenu({ locale, setLocale, onReset }) {
+export function SettingsMenu({ locale, languageSetting = locale, setLocale, setLanguageSetting = setLocale, onReset }) {
   const l = useLabel;
   const [open, setOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -40,11 +40,12 @@ export function SettingsMenu({ locale, setLocale, onReset }) {
             <RadioGroup
             label={l('settings.language', 'Language')}
               options={[
+                { value: 'auto', label: l('profile.langAuto', 'Automatic') },
                 { value: 'en', label: l('profile.langEn', 'English') },
                 { value: 'es', label: l('profile.langEs', 'Español') },
               ]}
-              value={locale}
-              onChange={(v) => { setLocale(v); setOpen(false); }}
+              value={languageSetting}
+              onChange={(v) => { setLanguageSetting(v); setOpen(false); }}
             />
             <Divider></Divider>
           <MenuItem

@@ -4,10 +4,11 @@ import {
   CartesianGrid, Tooltip, ReferenceLine,
 } from 'recharts';
 import { MessageEmptyState } from '@gtivr4/a1-design-system-react';
+import { useLabel } from '@gtivr4/a1-design-system-react';
+import { formatDate as formatLocaleDate } from '../utils/locale.js';
 
-function formatDate(iso) {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+function formatDate(iso, locale) {
+  return formatLocaleDate(iso, locale, { month: 'numeric', day: 'numeric' });
 }
 
 function CustomTooltip({ active, payload, label, unit }) {
@@ -28,17 +29,18 @@ function CustomTooltip({ active, payload, label, unit }) {
   );
 }
 
-export function ProgressChart({ data = [], unit = 'lbs', goalWeight, height = 320 }) {
+export function ProgressChart({ data = [], unit = 'lbs', goalWeight, height = 320, locale = 'en' }) {
+  const l = useLabel;
   const points = useMemo(() =>
-    data.map(d => ({ date: formatDate(d.date), weight: Number(d.weight) })),
-  [data]);
+    data.map(d => ({ date: formatDate(d.date, locale), weight: Number(d.weight) })),
+  [data, locale]);
 
   if (points.length < 2) {
     return (
       <MessageEmptyState
         icon="info"
         scale="section"
-        title="Log at least 2 days to see your weight chart."
+        title={l('progress.chartEmptyMin', 'Log at least 2 days to see your weight chart.')}
       />
     );
   }
@@ -79,7 +81,7 @@ export function ProgressChart({ data = [], unit = 'lbs', goalWeight, height = 32
             strokeDasharray="10 4"
             strokeWidth={3}
             label={{
-              value: 'Goal',
+              value: l('progress.goal', 'Goal'),
               position: 'insideTopRight',
               fill: 'var(--semantic-color-status-success-background)',
               fontSize: 13,

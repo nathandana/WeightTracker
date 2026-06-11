@@ -6,10 +6,11 @@ import {
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ACTIVITY_OPTIONS, MED_OPTIONS } from './onboarding/onboardingConfig.js';
+import { formatDate } from '../utils/locale.js';
 
 export function SettingsPage({ store }) {
   const l = useLabel;
-  const { profile, locale, setLocale, saveProfile, reset } = store;
+  const { profile, locale, languageSetting, setLanguageSetting, saveProfile, reset } = store;
   const [editOpen, setEditOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [form, setForm] = useState(null);
@@ -24,32 +25,39 @@ export function SettingsPage({ store }) {
     : `${profile.heightFeet}′ ${profile.heightInches}″`;
 
   const activityLabels = {
-    sedentary: 'Sedentary', light: 'Light', moderate: 'Moderate', active: 'Active',
+    sedentary: l('onboarding.activitySedentary', 'Sedentary'),
+    light:     l('onboarding.activityLight',     'Lightly Active'),
+    moderate:  l('onboarding.activityModerate',  'Moderately Active'),
+    active:    l('onboarding.activityActive',    'Very Active'),
   };
 
   const medsStr = !profile.meds?.length || profile.meds.includes('none')
-    ? 'None'
+    ? l('onboarding.medNone', 'None')
     : profile.meds
         .filter(m => m !== 'none')
-        .map(m => ({ semaglutide: 'Semaglutide', tirzepatide: 'Tirzepatide', other: profile.otherMed || 'Other' }[m] ?? m))
+        .map(m => ({
+          semaglutide: 'Semaglutide',
+          tirzepatide: 'Tirzepatide',
+          other: profile.otherMed || l('onboarding.medOther', 'Other'),
+        }[m] ?? m))
         .join(', ');
 
   function fmt(iso) {
     if (!iso) return '—';
     const d = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(iso + 'T12:00:00') : new Date(iso);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    return formatDate(d, locale, { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   const profileItems = [
-    { id: 'startWeight', label: 'Start Weight',   value: `${profile.startWeight} ${unit}` },
-    { id: 'goalWeight',  label: 'Goal Weight',    value: `${profile.goalWeight} ${unit}` },
-    { id: 'height',      label: 'Height',         value: heightStr },
-    { id: 'age',         label: 'Age',            value: `${profile.age} years` },
-    { id: 'sex',         label: 'Biological Sex', value: profile.sex === 'male' ? 'Male' : 'Female' },
-    { id: 'activity',    label: 'Activity Level', value: activityLabels[profile.activityLevel] ?? profile.activityLevel },
-    { id: 'meds',        label: 'Medications',    value: medsStr },
-    { id: 'startDate',   label: 'Start Date',     value: fmt(profile.startDate) },
-    { id: 'goalDate',    label: 'Target Date',    value: fmt(profile.goalDate) },
+    { id: 'startWeight', label: l('onboarding.startWeight', 'Starting weight'), value: `${profile.startWeight} ${unit}` },
+    { id: 'goalWeight',  label: l('onboarding.goalWeight',  'Goal weight'),     value: `${profile.goalWeight} ${unit}` },
+    { id: 'height',      label: l('onboarding.height',      'Height'),          value: heightStr },
+    { id: 'age',         label: l('onboarding.age',         'Age'),             value: `${profile.age} ${l('common.years', 'years')}` },
+    { id: 'sex',         label: l('onboarding.sex',         'Biological Sex'),  value: profile.sex === 'male' ? l('onboarding.sexMale', 'Male') : l('onboarding.sexFemale', 'Female') },
+    { id: 'activity',    label: l('onboarding.activityLevel', 'Activity Level'), value: activityLabels[profile.activityLevel] ?? profile.activityLevel },
+    { id: 'meds',        label: l('profile.meds',           'Medications'),     value: medsStr },
+    { id: 'startDate',   label: l('onboarding.startDate',   'Start Date'),      value: fmt(profile.startDate) },
+    { id: 'goalDate',    label: l('onboarding.goalDate',    'Target Date'),     value: fmt(profile.goalDate) },
   ];
 
   function openEdit() {
@@ -73,16 +81,16 @@ export function SettingsPage({ store }) {
 
   return (
     <Section padding="sm" contentWidth="lg" gap="lg">
-      <Heading type="display" size="xxl" as="h1">Settings</Heading>
+      <Heading type="display" size="xxl" as="h1">{l('settings.title', 'Settings')}</Heading>
 
       <Grid columns={{ xs: 1, sm: 2 }} gap="lg">
         <Card>
           <Stack gap="md">
             <Stack direction="row" justify="between" align="center">
-              <Heading size="md">Your Profile</Heading>
-              <Button variant="tertiary" icon="edit" size="sm" onClick={openEdit}>Edit</Button>
+              <Heading size="md">{l('settings.yourProfile', 'Your Profile')}</Heading>
+              <Button variant="tertiary" icon="edit" size="sm" onClick={openEdit}>{l('common.edit', 'Edit')}</Button>
             </Stack>
-            
+
             <DefinitionList items={profileItems} direction="row" labelWidth="fixed" size="sm" />
           </Stack>
         </Card>
@@ -90,25 +98,26 @@ export function SettingsPage({ store }) {
         <Card>
           <Stack gap="lg">
             <Stack gap="sm">
-              <Heading size="md">Language</Heading>
+              <Heading size="md">{l('profile.language', 'Language')}</Heading>
               <RadioGroup
-                label="Language"
+                label={l('profile.language', 'Language')}
                 options={[
-                  { value: 'en', label: 'English' },
-                  { value: 'es', label: 'Español' },
+                  { value: 'auto', label: l('profile.langAuto', 'Automatic') },
+                  { value: 'en', label: l('profile.langEn', 'English') },
+                  { value: 'es', label: l('profile.langEs', 'Español') },
                 ]}
-                value={locale}
-                onChange={setLocale}
+                value={languageSetting}
+                onChange={setLanguageSetting}
               />
             </Stack>
             <Stack gap="sm">
-              <Heading size="md">Data</Heading>
+              <Heading size="md">{l('settings.data', 'Data')}</Heading>
               <Paragraph color="muted" size="sm">
-                Permanently delete all your weight data and profile information.
+                {l('settings.dataDesc', 'Permanently delete all your weight data and profile information.')}
               </Paragraph>
               <div>
                 <Button variant="destructive" icon="delete_forever" onClick={() => setResetOpen(true)}>
-                  Reset All Data
+                  {l('profile.resetData', 'Reset All Data')}
                 </Button>
               </div>
             </Stack>
@@ -118,12 +127,12 @@ export function SettingsPage({ store }) {
 
       <Dialog
         open={editOpen}
-        title="Edit Profile"
+        title={l('profile.editProfile', 'Edit Profile')}
         onClose={() => setEditOpen(false)}
         footer={
           <ButtonContainer align="end">
-            <Button variant="primary" onClick={handleSave}>Save Changes</Button>
-            <Button variant="tertiary" onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button variant="primary" onClick={handleSave}>{l('settings.saveChanges', 'Save Changes')}</Button>
+            <Button variant="tertiary" onClick={() => setEditOpen(false)}>{l('common.cancel', 'Cancel')}</Button>
           </ButtonContainer>
         }
       >
@@ -131,7 +140,7 @@ export function SettingsPage({ store }) {
           <Stack gap="lg">
             <FieldRow>
               <NumberField
-                label="Start Weight"
+                label={l('onboarding.startWeight', 'Starting weight')}
                 value={form.startWeight}
                 unit={unit}
                 onChange={ev => set('startWeight', ev.target.value)}
@@ -139,7 +148,7 @@ export function SettingsPage({ store }) {
                 inputMode="decimal"
               />
               <NumberField
-                label="Goal Weight"
+                label={l('onboarding.goalWeight', 'Goal weight')}
                 value={form.goalWeight}
                 unit={unit}
                 onChange={ev => set('goalWeight', ev.target.value)}
@@ -149,7 +158,7 @@ export function SettingsPage({ store }) {
             </FieldRow>
             {isMetric ? (
               <NumberField
-                label="Height"
+                label={l('onboarding.heightCm', 'Height (cm)')}
                 value={form.height}
                 suffix="cm"
                 onChange={ev => set('height', ev.target.value)}
@@ -159,7 +168,7 @@ export function SettingsPage({ store }) {
             ) : (
               <FieldRow>
                 <NumberField
-                  label="Height (feet)"
+                  label={l('onboarding.heightFeet', 'Feet')}
                   value={form.heightFeet}
                   unit="ft"
                   onChange={ev => set('heightFeet', ev.target.value)}
@@ -167,7 +176,7 @@ export function SettingsPage({ store }) {
                   inputMode="numeric"
                 />
                 <NumberField
-                  label="Height (inches)"
+                  label={l('onboarding.heightInches', 'Inches')}
                   value={form.heightInches}
                   unit="in"
                   onChange={ev => set('heightInches', ev.target.value)}
@@ -177,7 +186,7 @@ export function SettingsPage({ store }) {
               </FieldRow>
             )}
             <NumberField
-              label="Age"
+              label={l('onboarding.age', 'Age')}
               value={form.age}
               unit="years"
               onChange={ev => set('age', ev.target.value)}
@@ -185,17 +194,17 @@ export function SettingsPage({ store }) {
               inputMode="numeric"
             />
             <ChoiceGroup
-              label="Biological Sex"
+              label={l('onboarding.sex', 'Biological Sex')}
               options={[
-                { value: 'female', label: 'Female' },
-                { value: 'male',   label: 'Male' },
+                { value: 'female', label: l('onboarding.sexFemale', 'Female') },
+                { value: 'male',   label: l('onboarding.sexMale',   'Male') },
               ]}
               columns={2}
               value={form.sex}
               onChange={v => set('sex', v)}
             />
             <ChoiceGroup
-              label="Activity Level"
+              label={l('onboarding.activityLevel', 'Activity Level')}
               options={ACTIVITY_OPTIONS(l)}
               columns={2}
               value={form.activityLevel}
@@ -203,7 +212,7 @@ export function SettingsPage({ store }) {
             />
             <Stack gap="md">
               <ChoiceGroup
-                label="Weight Loss Medications"
+                label={l('onboarding.meds', 'Weight Loss Medications')}
                 options={MED_OPTIONS(l)}
                 columns={2}
                 multiple
@@ -218,8 +227,8 @@ export function SettingsPage({ store }) {
               />
               {(form.meds ?? []).includes('other') && (
                 <TextField
-                  label="Medication Name"
-                  placeholder="Enter medication name"
+                  label={l('onboarding.otherMed', 'Medication Name')}
+                  placeholder={l('onboarding.otherMedPlaceholder', 'Enter medication name')}
                   value={form.otherMed ?? ''}
                   onChange={ev => set('otherMed', ev.target.value)}
                 />
@@ -230,19 +239,19 @@ export function SettingsPage({ store }) {
       </Dialog>
 
       <Dialog
-        title="Reset All Data"
+        title={l('settings.resetTitle', 'Reset All Data')}
         status="error"
         open={resetOpen}
         onClose={() => setResetOpen(false)}
         footer={
           <ButtonContainer align="end">
-            <Button variant="destructive" onClick={handleReset}>Yes, Reset Everything</Button>
-            <Button variant="tertiary" onClick={() => setResetOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleReset}>{l('settings.resetConfirm', 'Yes, Reset Everything')}</Button>
+            <Button variant="tertiary" onClick={() => setResetOpen(false)}>{l('common.cancel', 'Cancel')}</Button>
           </ButtonContainer>
         }
       >
         <Paragraph>
-          This will permanently delete all your weight data and profile information. This cannot be undone.
+          {l('settings.resetBody', 'This will permanently delete all your weight data and profile information. This cannot be undone.')}
         </Paragraph>
       </Dialog>
     </Section>

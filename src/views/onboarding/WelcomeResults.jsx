@@ -6,13 +6,14 @@ import {
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { calculateGoalPlan } from '../../utils/calculations.js';
 import { BmiRangeChart } from '../../components/BmiRangeChart.jsx';
+import { formatDate, formatNumber } from '../../utils/locale.js';
 
 function formatGoalDate(goalDate) {
   if (!goalDate) return '—';
   const d = /^\d{4}-\d{2}-\d{2}$/.test(goalDate)
     ? new Date(goalDate + 'T12:00:00')
     : new Date(goalDate);
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return formatDate(d, undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const BMI_HERO = {
@@ -70,9 +71,9 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
 
         <Grid columns={2} gap="lg">
           {[
-            { label: l('onboarding.tdeeLabel', 'Daily Calorie Budget'), value: plan.targetDailyCalories.toLocaleString(), sub: l('common.calDay', 'cal/day'), icon: 'restaurant' },
+            { label: l('onboarding.tdeeLabel', 'Daily Calorie Budget'), value: formatNumber(plan.targetDailyCalories), sub: l('common.calDay', 'cal/day'), icon: 'restaurant' },
             { label: l('onboarding.weeklyLossLabel', 'Est. Weekly Loss'), value: plan.weeklyLoss, sub: profile.weightUnit, icon: 'trending_down' },
-            { label: l('onboarding.deficitLabel', 'Daily Deficit'), value: plan.dailyDeficit.toLocaleString(), sub: l('common.calDay', 'cal/day'), icon: 'bolt' },
+            { label: l('onboarding.deficitLabel', 'Daily Deficit'), value: formatNumber(plan.dailyDeficit), sub: l('common.calDay', 'cal/day'), icon: 'bolt' },
           ].map(({ label, value, sub, icon }) => (
             <Card key={label} bare>
               <Stack direction="column" gap="sm">

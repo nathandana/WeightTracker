@@ -10,6 +10,7 @@ import { Step1AboutYou }  from './onboarding/Step1AboutYou.jsx';
 import { Step2YourBody }  from './onboarding/Step2YourBody.jsx';
 import { Step3YourHabits } from './onboarding/Step3YourHabits.jsx';
 import { Step4YourGoal }  from './onboarding/Step4YourGoal.jsx';
+import { formatDate } from '../utils/locale.js';
 
 const STEPS = [Step1AboutYou, Step2YourBody, Step3YourHabits, Step4YourGoal];
 
@@ -133,7 +134,7 @@ export function Onboarding({ onComplete }) {
   const today          = new Date();
   const startDateObj   = form.startDate ? new Date(form.startDate) : null;
   const startDateLabel = form.startDate
-    ? new Date(form.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    ? formatDate(form.startDate, undefined, { year: 'numeric', month: 'long', day: 'numeric' })
     : l('onboarding.startDateToday', 'Today');
   const goalDateObj    = form.goalDate ? new Date(form.goalDate + 'T12:00:00') : null;
   const minGoalDateStr = (() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().split('T')[0]; })();

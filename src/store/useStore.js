@@ -1,26 +1,52 @@
 import { useState, useCallback } from 'react';
+import { initialDocumentLocale, normalizeLocale } from '../utils/locale.js';
 
 const STORAGE_KEY = 'journey-checkin-v1';
+const LOCALE_STORAGE_KEY = 'journey-checkin-locale';
+const AUTO_LANGUAGE = 'auto';
+
+function normalizeLanguageSetting(setting) {
+  return setting === AUTO_LANGUAGE ? AUTO_LANGUAGE : normalizeLocale(setting);
+}
+
+function resolveLocale(languageSetting) {
+  return languageSetting === AUTO_LANGUAGE ? initialDocumentLocale : normalizeLocale(languageSetting);
+}
+
+function loadLanguageSetting() {
+  try {
+    const storedSetting = localStorage.getItem(LOCALE_STORAGE_KEY);
+    return storedSetting ? normalizeLanguageSetting(storedSetting) : AUTO_LANGUAGE;
+  } catch {
+    return AUTO_LANGUAGE;
+  }
+}
 
 function load() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
+    const parsed = raw ? JSON.parse(raw) : {};
+    parsed.languageSetting = loadLanguageSetting();
+    parsed.locale = resolveLocale(parsed.languageSetting);
+    return parsed;
   } catch {
-    return {};
+    const languageSetting = loadLanguageSetting();
+    return { languageSetting, locale: resolveLocale(languageSetting) };
   }
 }
 
 function persist(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(LOCALE_STORAGE_KEY, normalizeLanguageSetting(state.languageSetting));
   } catch {}
 }
 
 const defaults = {
   profile: null,
   checkins: [],
-  locale: 'en',
+  languageSetting: loadLanguageSetting(),
+  locale: resolveLocale(loadLanguageSetting()),
 };
 
 export function useStore() {
@@ -56,17 +82,31 @@ export function useStore() {
     });
   }, []);
 
-  const setLocale = useCallback((locale) => {
+  const setLanguageSetting = useCallback((languageSetting) => {
     setState(prev => {
-      const next = { ...prev, locale };
+      const nextSetting = normalizeLanguageSetting(languageSetting);
+      const next = {
+        ...prev,
+        languageSetting: nextSetting,
+        locale: resolveLocale(nextSetting),
+      };
       persist(next);
       return next;
     });
   }, []);
 
+  const setLocale = setLanguageSetting;
+
   const reset = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setState({ ...defaults });
+    setState(prev => {
+      const languageSetting = normalizeLanguageSetting(prev.languageSetting);
+      const locale = resolveLocale(languageSetting);
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(LOCALE_STORAGE_KEY, languageSetting);
+      } catch {}
+      return { ...defaults, languageSetting, locale };
+    });
   }, []);
 
   const saveCheckinForDate = useCallback((entry) => {
@@ -81,7 +121,11 @@ export function useStore() {
   }, []);
 
   const loadMockData = useCallback((mockState) => {
-    setState({ ...defaults, ...mockState });
+    setState(prev => {
+      const { locale: _mockLocale, languageSetting: _mockLanguageSetting, ...mockStateWithoutLocale } = mockState;
+      const languageSetting = normalizeLanguageSetting(prev.languageSetting);
+      return { ...defaults, ...mockStateWithoutLocale, languageSetting, locale: resolveLocale(languageSetting) };
+    });
   }, []);
 
   const restoreRealData = useCallback(() => {
@@ -110,6 +154,7 @@ export function useStore() {
     update,
     saveProfile,
     addCheckin,
+    setLanguageSetting,
     setLocale,
     reset,
     saveCheckinForDate,

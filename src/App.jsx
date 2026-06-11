@@ -12,6 +12,11 @@ const DataPage     = lazy(() => import('./views/DataPage.jsx').then(m => ({ defa
 const SettingsPage = lazy(() => import('./views/SettingsPage.jsx').then(m => ({ default: m.SettingsPage })));
 
 const PAGES = ['checkin', 'data', 'settings'];
+const PAGE_TITLE_KEYS = {
+  checkin: ['pageTitles.checkin', 'Check In — DownTrack'],
+  data: ['pageTitles.data', 'Data — DownTrack'],
+  settings: ['pageTitles.settings', 'Settings — DownTrack'],
+};
 
 function pageFromPath(pathname) {
   const p = pathname.replace(/^\//, '') || 'checkin';
@@ -68,10 +73,7 @@ export default function App() {
   const store = useStore();
 
   const [page, setPage] = useState(() => {
-    const p = pageFromPath(window.location.pathname);
-    const titles = { checkin: 'Check In — DownTrack', data: 'Data — DownTrack', settings: 'Settings — DownTrack' };
-    document.title = titles[p] ?? 'DownTrack';
-    return p;
+    return pageFromPath(window.location.pathname);
   });
   const [activeScenario, setActiveScenario] = useState(() =>
     import.meta.env.DEV ? scenarioFromSearch(window.location.search) : 'real'
@@ -102,16 +104,15 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, [store]);
 
-  const PAGE_TITLES = {
-    checkin: 'Check In — DownTrack',
-    data: 'Data — DownTrack',
-    settings: 'Settings — DownTrack',
-  };
+  useEffect(() => {
+    document.documentElement.lang = store.locale;
+    const [titleKey, fallback] = PAGE_TITLE_KEYS[page] ?? ['app.name', 'DownTrack'];
+    document.title = resolveLabel(titleKey, store.locale, fallback);
+  }, [page, store.locale]);
 
   function navigate(newPage) {
     setPage(newPage);
     window.history.pushState(null, '', buildUrl(newPage, activeScenario));
-    document.title = PAGE_TITLES[newPage] ?? 'DownTrack';
   }
 
   function handleOnboardingComplete(profile) {
@@ -134,9 +135,9 @@ export default function App() {
   const appName = resolveLabel('app.name', store.locale, 'DownTrack');
 
   const navItems = [
-    { id: 'checkin',  label: 'Check In', href: '/checkin',  icon: 'monitor_weight', active: page === 'checkin',  onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
-    { id: 'data',     label: 'Data',     href: '/data',     icon: 'bar_chart',      active: page === 'data',     onClick: (e) => { e.preventDefault(); navigate('data'); } },
-    { id: 'settings', label: 'Settings', href: '/settings', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
+    { id: 'checkin',  label: resolveLabel('nav.checkin', store.locale, 'Check In'),  href: '/checkin',  icon: 'monitor_weight', active: page === 'checkin',  onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
+    { id: 'data',     label: resolveLabel('nav.data', store.locale, 'Data'),         href: '/data',     icon: 'bar_chart',      active: page === 'data',     onClick: (e) => { e.preventDefault(); navigate('data'); } },
+    { id: 'settings', label: resolveLabel('nav.settings', store.locale, 'Settings'), href: '/settings', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
   ];
 
   const bottomNavItems = navItems.map(({ href, ...item }) => ({ ...item, onClick: () => navigate(item.id) }));
@@ -176,7 +177,11 @@ export default function App() {
         )}
       </Suspense>
       {store.profile && (
-        <BottomDrawer items={bottomNavItems} aria-label="Main navigation" className="bottom-nav-ds" />
+        <BottomDrawer
+          items={bottomNavItems}
+          aria-label={resolveLabel('nav.main', store.locale, 'Main navigation')}
+          className="bottom-nav-ds"
+        />
       )}
     </LabelsProvider>
   );

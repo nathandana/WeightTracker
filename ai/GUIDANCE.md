@@ -2,6 +2,8 @@
 
 This file is the canonical reference for AI agents (Claude Code, Copilot, etc.) working in this repo. Read it at the start of any session. Update the changelog whenever you make changes.
 
+**Do not `git push` unless the user explicitly says to push.** Commit freely, but treat pushing as a separate, user-triggered step.
+
 **Before pushing any branch:** follow [`ai/PRE_PUSH_CHECKLIST.md`](PRE_PUSH_CHECKLIST.md).
 
 ---

@@ -7,6 +7,7 @@ import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ProgressChart } from '../components/ProgressChart.jsx';
 import { getProgressStats } from '../utils/calculations.js';
 import { getEncouragement } from '../utils/encouragement.js';
+import { formatDate } from '../utils/locale.js';
 
 
 function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
@@ -33,7 +34,7 @@ export function Progress({ store }) {
     if (!stats || !profile) return;
     const unit = profile.weightUnit;
     const goalDate = profile.goalDate
-      ? new Date(profile.goalDate).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+      ? formatDate(profile.goalDate, locale, { month: 'long', year: 'numeric' })
       : 'my goal';
     const text = [
       '🏃 My Journey Progress', '',
@@ -116,6 +117,7 @@ export function Progress({ store }) {
                 data={stats?.weightHistory ?? []}
                 unit={profile.weightUnit}
                 goalWeight={profile.goalWeight}
+                locale={locale}
               />
 
             {checkins.length > 0 && (
@@ -160,7 +162,7 @@ export function Progress({ store }) {
                   rows={[...checkins].reverse().map((c, i) => ({
                     id: i,
                     _rawDate: c.date,
-                    date: new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+                    date: formatDate(c.date, locale, { weekday: 'short', month: 'short', day: 'numeric' }),
                     weight: c.weight,
                     mood: c.mood ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
                     activity: c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,

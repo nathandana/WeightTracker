@@ -1,3 +1,5 @@
+import { formatDate as formatLocaleDate } from '../../utils/locale.js';
+
 export const TOTAL_STEPS = 4;
 export const PROGRESS_TOTAL = 5;
 export const STEP_TITLES = ['About You', 'Your Body', 'Your Habits', 'Your Goal'];
@@ -25,7 +27,7 @@ export const ACTIVITY_OPTIONS = (l) => [
 ];
 
 export const MED_OPTIONS = (l) => [
-  { value: 'none',       label: 'None' },
+  { value: 'none',        label: l('onboarding.medNone', 'None') },
   { value: 'semaglutide', label: 'Semaglutide', subtext: 'Ozempic / Wegovy' },
   { value: 'tirzepatide', label: 'Tirzepatide', subtext: 'Mounjaro / Zepbound' },
   { value: 'other',       label: l('onboarding.medOther', 'Other') },
@@ -49,7 +51,7 @@ export function formatDate(iso) {
   const d = /^\d{4}-\d{2}-\d{2}$/.test(iso)
     ? new Date(iso + 'T12:00:00')
     : new Date(iso);
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  return formatLocaleDate(d, undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export function getTimelineSubtext(months, weightToLose, activityLevel, weightUnit, hasMeds) {

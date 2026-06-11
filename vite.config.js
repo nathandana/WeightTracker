@@ -6,6 +6,11 @@ const LOCAL_DS = '/Users/nathandana/Sites/A1DesignSystem/packages/react/src';
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  build: {
+    // Collapse all CSS into the main index.css so lazy-loaded JS chunks
+    // don't trigger a waterfall of small CSS files on navigation.
+    cssCodeSplit: false,
+  },
   ...(mode === 'development' && {
     resolve: {
       alias: {

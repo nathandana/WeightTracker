@@ -6,6 +6,7 @@ import {
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { calculateGoalPlan } from '../utils/calculations.js';
+import { formatDate, formatNumber } from '../utils/locale.js';
 
 function InfoRow({ label, value }) {
   return (
@@ -22,7 +23,7 @@ function InfoRow({ label, value }) {
 
 export function Profile({ store }) {
   const l = useLabel;
-  const { profile, locale, setLocale, reset } = store;
+  const { profile, locale, languageSetting, setLanguageSetting, reset } = store;
   const [confirmReset, setConfirmReset] = useState(false);
 
   if (!profile) return null;
@@ -37,7 +38,7 @@ export function Profile({ store }) {
   const meds = profile.meds?.map(m => medLabels[m] ?? m).join(', ')
     || l('onboarding.medNone', 'None');
   const goalDateStr = profile.goalDate
-    ? new Date(profile.goalDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    ? formatDate(profile.goalDate, locale, { year: 'numeric', month: 'long', day: 'numeric' })
     : '—';
 
   return (
@@ -69,12 +70,13 @@ export function Profile({ store }) {
             <Heading as="h3" size="sm">{l('profile.language', 'Language')}</Heading>
             <ChoiceGroup
               options={[
+                { value: 'auto', label: l('profile.langAuto', 'Automatic') },
                 { value: 'en', label: l('profile.langEn', 'English') },
                 { value: 'es', label: l('profile.langEs', 'Español') },
               ]}
               columns={1}
-              value={locale}
-              onChange={setLocale}
+              value={languageSetting}
+              onChange={setLanguageSetting}
             />
           </Card>
           <Card icon="person">
@@ -97,7 +99,7 @@ export function Profile({ store }) {
             {plan && (
               <>
                 <InfoRow label={l('profile.bmi', 'BMI')} value={`${plan.bmi?.value} (${l(`bmiCategory.${plan.bmi?.category}`, plan.bmi?.category)})`} />
-                <InfoRow label={l('profile.tdee', 'Daily Calorie Budget')} value={`${plan.targetDailyCalories.toLocaleString()} cal`} />
+                <InfoRow label={l('profile.tdee', 'Daily Calorie Budget')} value={`${formatNumber(plan.targetDailyCalories, locale)} cal`} />
                 <InfoRow label="Weekly Loss Est." value={`${plan.weeklyLoss} ${profile.weightUnit}`} />
               </>
             )}

@@ -3,6 +3,8 @@ import {
   Dialog, Calendar, Stack, Paragraph, NumberField, TextareaField,
   Accordion, ChoiceGroup, Button,
 } from '@gtivr4/a1-design-system-react';
+import { useLabel } from '@gtivr4/a1-design-system-react';
+import { formatDate } from '../utils/locale.js';
 
 const MOOD_OPTIONS = [
   { value: 'great', label: 'Amazing',   icon: 'sentiment_very_satisfied' },
@@ -23,8 +25,8 @@ const CALORIES_OPTIONS = [
   { value: 'way_over', label: 'Way over',      icon: 'warning' },
 ];
 
-function fmt(date) {
-  return date.toLocaleDateString(undefined, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
+function fmt(date, locale) {
+  return formatDate(date, locale, { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 function yesterday() {
@@ -34,7 +36,8 @@ function yesterday() {
   return d;
 }
 
-export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs' }) {
+export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs', locale = 'en' }) {
+  const l = useLabel;
   const [date, setDate] = useState(yesterday);
   const [weightStr, setWeightStr] = useState(String(profile?.startWeight ?? 150));
   const [mood, setMood] = useState(null);
@@ -76,16 +79,16 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
   return (
     <Dialog
       open={open}
-      title="Log Past Weight"
+      title={l('checkin.logPastWeight', 'Log Past Weight')}
       onClose={onClose}
       footer={<>
-        <Button variant="primary" onClick={handleSave} disabled={!canSave}>Save</Button>
-        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button variant="primary" onClick={handleSave} disabled={!canSave}>{l('common.save', 'Save')}</Button>
+        <Button variant="secondary" onClick={onClose}>{l('common.cancel', 'Cancel')}</Button>
       </>}
     >
       <Stack gap="lg">
         <Stack gap="xs">
-          <Paragraph size="sm" color="muted">Selected: <strong>{fmt(date)}</strong></Paragraph>
+          <Paragraph size="sm" color="muted">{l('checkin.selected', 'Selected')}: <strong>{fmt(date, locale)}</strong></Paragraph>
           <Calendar
             selectable
             variant="paginated"
@@ -98,7 +101,7 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
         </Stack>
 
         <NumberField
-          label={`Weight (${unit})`}
+          label={`${l('progress.currentWeight', 'Weight')} (${unit})`}
           value={weightStr}
           onChange={e => setWeightStr(e.target.value)}
           min={50}
@@ -110,34 +113,34 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
           className='boldInput'
         />
 
-        <Accordion label="Daily Details (optional)">
+        <Accordion label={l('checkin.dailyDetailsOptional', 'Daily Details (optional)')}>
           <Stack gap="lg">
             <ChoiceGroup
-              label="How were you feeling?"
+              label={l('survey.mood', 'How were you feeling?')}
               columns={2}
               value={mood}
               options={MOOD_OPTIONS}
               onChange={setMood}
             />
             <ChoiceGroup
-              label="How active were you?"
+              label={l('survey.activity', 'How active were you?')}
               columns={2}
               value={activity}
               options={ACTIVITY_OPTIONS}
               onChange={setActivity}
             />
             <ChoiceGroup
-              label="How did you eat?"
+              label={l('survey.calories', 'How did you eat?')}
               columns={2}
               value={calories}
               options={CALORIES_OPTIONS}
               onChange={setCalories}
             />
             <TextareaField
-              label="Notes"
+              label={l('checkin.notes', 'Notes')}
               value={notes}
               onChange={e => setNotes(e.target.value.slice(0, 500))}
-              placeholder="Optional — observations, feelings, or reminders"
+              placeholder={l('checkin.notesPlaceholder', 'Optional — observations, feelings, or reminders')}
               maxLength={500}
               rows="md"
               size="comfortable"
