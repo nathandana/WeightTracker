@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.1] 2026-06-11
+## [0.6.0] 2026-06-11
 
 ### Changed
 - **index.html** — Google Fonts stylesheet loaded non-blocking (`media="print" onload="this.media='all'"`) with `<noscript>` fallback; removes fonts from critical render path
