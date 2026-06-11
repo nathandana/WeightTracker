@@ -12,7 +12,7 @@
     "postinstall": "sh scripts/patch-design-system.sh"
   },
   "dependencies": {
-    "@gtivr4/a1-design-system-react": "file:../A1DesignSystem/packages/react",
+    "@gtivr4/a1-design-system-react": "^0.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.1"
