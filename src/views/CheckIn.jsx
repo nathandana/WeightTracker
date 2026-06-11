@@ -216,7 +216,7 @@ export function CheckIn({ store, onNavigate }) {
     <>
       <Section padding="sm" contentWidth="lg" surface="none" gap="md">
         <Stack direction="row" justify="between" align="center">
-          <Heading type="display" size={{ xs: 'lg', sm: 'xxl' }}>Check In...</Heading>
+          <Heading as="h1" type="display" size={{ xs: 'lg', sm: 'xxl' }}>Check In...</Heading>
           <Stack direction="row" gap="sm">
             <Button variant="secondary" size='sm' icon="history" onClick={() => setPastOpen(true)}>Log past</Button>
             {/* <Button variant="secondary" size='sm' icon="bar_chart" onClick={() => onNavigate('data')}>View the data</Button> */}
@@ -265,7 +265,7 @@ export function CheckIn({ store, onNavigate }) {
             <Card>
               
               <Stack align="center" gap="lg">
-                <Heading as="h4" size="md" type="display">Today's Weight</Heading>
+                <Heading as="h2" size="md" type="display">Today's Weight</Heading>
 
                         <WeightStepper value={weight} onChange={setWeight} unit={unit} />
 
@@ -277,7 +277,7 @@ export function CheckIn({ store, onNavigate }) {
             </Card>
             <Card>
               <Stack gap="sm">
-                <Heading as="h4" size="md" type="display" align='center'>
+                <Heading as="h2" size="md" type="display" align='center'>
                   {isSummary ? 'Today:' : currentStepDef?.title}
                 </Heading>
                 {CheckInFlow()}

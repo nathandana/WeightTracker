@@ -67,7 +67,12 @@ const devSelectStyle = {
 export default function App() {
   const store = useStore();
 
-  const [page, setPage] = useState(() => pageFromPath(window.location.pathname));
+  const [page, setPage] = useState(() => {
+    const p = pageFromPath(window.location.pathname);
+    const titles = { checkin: 'Check In — DownTrack', data: 'Data — DownTrack', settings: 'Settings — DownTrack' };
+    document.title = titles[p] ?? 'DownTrack';
+    return p;
+  });
   const [activeScenario, setActiveScenario] = useState(() =>
     import.meta.env.DEV ? scenarioFromSearch(window.location.search) : 'real'
   );
@@ -97,9 +102,16 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop);
   }, [store]);
 
+  const PAGE_TITLES = {
+    checkin: 'Check In — DownTrack',
+    data: 'Data — DownTrack',
+    settings: 'Settings — DownTrack',
+  };
+
   function navigate(newPage) {
     setPage(newPage);
     window.history.pushState(null, '', buildUrl(newPage, activeScenario));
+    document.title = PAGE_TITLES[newPage] ?? 'DownTrack';
   }
 
   function handleOnboardingComplete(profile) {

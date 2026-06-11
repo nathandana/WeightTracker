@@ -12,7 +12,7 @@ import { getEncouragement } from '../utils/encouragement.js';
 function StatCard({ icon, label, value, sub, heroColor = 'action' }) {
   return (
     <Card icon={icon} iconDisplay='hero' heroColor={heroColor}>
-      <Heading as="h3" size="sm">{value}{sub ? ` ${sub}` : ''}</Heading>
+      <Heading as="h2" size="sm">{value}{sub ? ` ${sub}` : ''}</Heading>
       <Paragraph color="muted">{label}</Paragraph>
     </Card>
   );
@@ -62,7 +62,7 @@ export function Progress({ store }) {
       
           <Stack direction='row' align='center' wrap justify='between'>
             
-            <Heading type='display' size="xl">{l('progress.title', 'Your Progress')}</Heading>
+            <Heading as="h1" type='display' size="xl">{l('progress.title', 'Your Progress')}</Heading>
                       <Button
                       size="sm"
             variant={copied ? 'success' : 'primary'}
@@ -94,7 +94,7 @@ export function Progress({ store }) {
                     <Stack  key={label} direction='row' gap="sm">
                       <Icon name={icon} size="xl" />
                       <Stack gap="none">
-                        <Heading as="h6" size="xl">{value}</Heading>
+                        <Heading as="p" size="xl">{value}</Heading>
                         <Paragraph color="muted" size="sm"><strong>{label}</strong></Paragraph>
                       </Stack>
                     </Stack>
@@ -120,7 +120,7 @@ export function Progress({ store }) {
 
             {checkins.length > 0 && (
               <Stack gap="md">
-                <Heading as="h3">Recent Check-ins</Heading>
+                <Heading as="h2">Recent Check-ins</Heading>
                 <DataTable
                   size="comfortable"
                   pageSize={15}
