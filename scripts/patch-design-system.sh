@@ -26,9 +26,6 @@ cp "$SRC/components/icon/icon.css"                               "$PKG/component
 # Dialog: status/hero variant (unpublished)
 cp "$SRC/components/dialog/Dialog.jsx"                           "$PKG/components/dialog/Dialog.jsx"
 cp "$SRC/components/dialog/dialog.css"                           "$PKG/components/dialog/dialog.css"
-# TopHeader: endSlot prop (local extension — always from vendor, not local DS)
-cp "$VENDOR/components/top-header/TopHeader.jsx"                 "$PKG/components/top-header/TopHeader.jsx"
-
 # Expand @custom-media queries in side-nav.css — browsers don't support them natively
 SIDENAV="$PKG/components/side-nav/side-nav.css"
 sed -i '' \

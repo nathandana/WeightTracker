@@ -15,26 +15,38 @@ function formatGoalDate(goalDate) {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const BMI_HERO = {
+  underweight: { color: 'warn',    icon: 'monitor_weight' },
+  normal:      { color: 'success', icon: 'favorite' },
+  overweight:  { color: 'warn',    icon: 'monitor_heart' },
+  obese:       { color: 'error',   icon: 'monitor_heart' },
+};
+
+// Status and icon need to be different values, the card icon also need to change
+const BMI_BADGE_STATUS = {
+  underweight: 'warn',
+  normal:      'success',
+  overweight:  'warn',
+  obese:       'error',
+};
+
 export function WelcomeResults({ profile, onDone, onBack, currentStep, totalSteps }) {
   const l = useLabel;
 
   const plan = (() => { try { return calculateGoalPlan(profile); } catch { return null; } })();
 
+  const bmiHero = BMI_HERO[plan?.bmi?.category] ?? { color: 'action', icon: 'monitor_heart' };
+  const bmiStatus = BMI_BADGE_STATUS[plan?.bmi?.category] ?? 'neutral';
+
   return (
     <>
 <Section surface="raised" padding="sm" contentWidth="xs" gap="lg">
-        <Stack gap="sm" align="center">
 
-          <Heading type="display" size="xxl" as="h1">
-            You’ve got a plan!
+          <Heading type="display" size="xxl" as="h1" align='center'>
+            You've got a plan!
           </Heading>
 
-          <Paragraph size="xl">
-            {l('onboarding.step4Sub', "Here's your personalized plan")}
-          </Paragraph>
-        </Stack>
-
-        <Card icon="monitor_heart" iconDisplay="hero" heroColor="error">
+        <Card icon={bmiHero.icon} iconDisplay="hero" heroColor={bmiHero.color}>
           <Heading as="h4" size="lg" align="center">
             {l('onboarding.bmiTitle', 'Your BMI')}
           </Heading>
@@ -46,8 +58,8 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
 
             <MessageBadge
               size="lg"
-              status={plan.bmi?.category === 'normal' ? 'success' : 'error'}
-              icon={plan.bmi?.category === 'normal' ? 'success' : 'error'}
+              status={bmiStatus}
+              icon={bmiStatus}
             >
               {l(`bmiCategory.${plan.bmi?.category}`, plan.bmi?.category)}
             </MessageBadge>
@@ -76,15 +88,13 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
             <Stack direction="column" gap="xs">
               <Heading as="h3" size="sm">{l('onboarding.goalDate', 'Target Date')}</Heading>
               <Heading as="p" size="sm" type="display">{formatGoalDate(profile.goalDate)}</Heading>
-              {/* <Stack direction="row" align="end" gap="none">
-                <Heading as="p" size="lg" type="display">{plan.daysRemaining}</Heading>
-                <Paragraph size="md" color="muted">&nbsp;{l('onboarding.daysToGoLabel', 'days to go')}</Paragraph>
-              </Stack> */}
             </Stack>
           </Card>
         </Grid>
 
+                  <Stack gap="xs">
         <Banner
+        variant='system'
           status={plan.isFeasible ? 'success' : 'warn'}
           icon={plan.isFeasible ? 'favorite' : 'star'}
           title={
@@ -95,10 +105,12 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
         />
 
         <Banner
-          status="info"
+        variant='system'
+          status="neutral"
           icon="medication"
           title={l('onboarding.medNote', 'Medications can significantly accelerate your results. Every pound lost is a win!')}
         />
+        </Stack>
 
                 <ButtonContainer align="end" fillButtons>
           {onBack && (

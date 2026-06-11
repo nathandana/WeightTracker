@@ -40,7 +40,17 @@ export function Step3YourHabits({ form, set, onBack, onContinue, currentStep, to
             multiple
           size='comfortable'
             value={form.meds}
-            onChange={v => set('meds', v)}
+            onChange={v => {
+              const hadNone = form.meds.includes('none');
+              const hasNone = v.includes('none');
+              if (hasNone && !hadNone) {
+                set('meds', ['none']);
+              } else if (hasNone && v.length > 1) {
+                set('meds', v.filter(x => x !== 'none'));
+              } else {
+                set('meds', v);
+              }
+            }}
           />
           {form.meds.includes('other') && (
             <TextField

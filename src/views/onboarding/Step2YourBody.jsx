@@ -17,17 +17,19 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
         <Stack gap="lg" style={{ width: '100%' }}>
             <FieldRow>
               <NumberField
+        className='boldInput'
                 label={l('onboarding.heightFeet', 'Feet')}
                 value={form.heightFeet}
                 onChange={ev => set('heightFeet', ev.target.value)}
                 min={3} max={8} step={1} suffix="ft"
                 inputMode="numeric"
                 size="comfortable"
+
                 error={errors.heightFeet}
-                 style={{ flex: 1 }}
           unit="ft"
               />
               <NumberField
+        className='boldInput'
                 label={l('onboarding.heightInches', 'Inches')}
                 value={form.heightInches}
                 onChange={ev => set('heightInches', ev.target.value)}
@@ -35,11 +37,12 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
                 inputMode="numeric"
                 size="comfortable"
                 error={errors.heightInches}
-                 style={{ flex: 1 }}
+                 
           unit="in"
               />
             </FieldRow>
           <NumberField
+        className='boldInput'
             label={l('onboarding.age', 'Age')}
             value={form.age}
             onChange={ev => set('age', ev.target.value)}
@@ -55,12 +58,12 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
               { value: 'female', label: l('onboarding.sexFemale', 'Female') },
               { value: 'male',   label: l('onboarding.sexMale', 'Male') },
             ]}
+            size='comfortable'
             columns={2}
             value={form.sex}
             onChange={v => set('sex', v)}
           />
         </Stack>
-        <Divider size='md' color='accent'></Divider>
 
         <StepTracker steps={totalSteps} currentStep={currentStep} align="center" />
 

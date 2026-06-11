@@ -45,11 +45,11 @@ export function useStore() {
   const addCheckin = useCallback((entry) => {
     setState(prev => {
       const today = new Date().toDateString();
-      // Replace existing entry for today if present
+      const existing = prev.checkins.find(c => new Date(c.date).toDateString() === today) ?? {};
       const filtered = prev.checkins.filter(c => new Date(c.date).toDateString() !== today);
       const next = {
         ...prev,
-        checkins: [...filtered, { ...entry, date: new Date().toISOString() }],
+        checkins: [...filtered, { ...existing, ...entry, date: new Date().toISOString() }],
       };
       persist(next);
       return next;

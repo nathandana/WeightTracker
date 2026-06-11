@@ -1,5 +1,85 @@
 # Changelog
 
+## [0.3.0] 2026-06-10
+
+### Fixed
+- **CheckIn.jsx** — Summary display now uses styled `Paragraph` components with color coding instead of non-existent Badge component; colors reflect status (success/warn/error/info) based on selection values
+
+### Changed
+- **App.css** — TopHeader now always visible on all breakpoints (removed `@media (max-width: 480px) { .a1-top-header { display: none } }`); bottom nav (56px) still shown on xs alongside TopHeader
+
+## [Unreleased] 2026-06-10 (11)
+
+### Changed
+- **CheckIn.jsx** — check-in flow redesigned:
+  - Added subheading "Optionally keep track of your daily details" on first step
+  - Moved "Check In" button from Summary step to Notes step (Notes is now the final interactive step)
+  - Summary redesigned: replaced `DefinitionList` with large `Badge` components with status colors (e.g., mood/activity "Amazing"/"Intense" → success badges, "Tough Day"/"Slightly over" → warn badges)
+  - Button layout now shows: on choice steps → "Next", on Notes step → "Check In", on Summary → "Check In" (user can review but doesn't need to advance beyond Notes)
+
+## [Unreleased] 2026-06-10 (10)
+
+### Changed
+- **SettingsPage.jsx** — Edit Profile dialog form now uses onboarding configurations: `NumberField`s have `suffix` (units), `inputMode`, `step`, and min/max values matching onboarding (e.g., startWeight min=20/max=700, heights min=3/max=8 feet, etc.); changed layout to use `FieldRow` for weight and height pairs; removed all `size="comfortable"` (using default form sizes); `ChoiceGroup`s for Activity Level and Medications now use `ACTIVITY_OPTIONS(l)` and `MED_OPTIONS(l)` from onboardingConfig (includes subtexts)
+
+## [Unreleased] 2026-06-10 (9)
+
+### Changed
+- **App.jsx** — removed `SettingsMenu` overlay (top-right gear icon); import removed
+- **CheckIn.jsx** — added "Your Profile" card at the top displaying all profile details (start/goal weight, height, age, sex, activity, medications, start/target dates) as a `DefinitionList` (same format as SettingsPage); added helper `fmtProfileDate()` for date formatting
+
+## [Unreleased] 2026-06-10 (8)
+
+### Added
+- **SettingsPage.jsx** — full implementation with 2-card grid layout:
+  - Card 1 ("Your Profile"): `DefinitionList` of all profile details (start/goal weight, height, age, sex, activity, meds, dates) + Edit button that opens a Dialog form with `NumberField`, `RadioGroup`, `ChoiceGroup` (multi for meds with "None" mutual-exclusion logic), and conditional `TextField` for "Other" med; saves via `store.saveProfile`
+  - Card 2: Language `RadioGroup` (English/Español) wired to `store.setLocale`; Data section with destructive "Reset All Data" button that opens a confirmation Dialog calling `store.reset`
+- **App.jsx** — `<SettingsPage store={store} />` now passes store (was `<SettingsPage />` with no props)
+
+## [Unreleased] 2026-06-10 (7)
+
+### Changed
+- **ProgressChart.jsx** — weight line `strokeWidth` 2.5 → 4, dots r 3/5 → 5/7; goal reference line `strokeWidth` 2 → 3, dash pattern `6 3` → `10 4`, label font-size/weight increased for better visibility
+- **DataPage.jsx** — BMI Trend line `strokeWidth` 2.5 → 4, dots r 3/5 → 5/7 to match; Habits chart removed; unused recharts imports (`BarChart`, `Bar`, `Legend`) removed
+
+## [Unreleased] 2026-06-10 (6)
+
+### Added
+- **CheckIn.jsx** — stat cards (Lost, To Go, Streak, Progress) and `ProgressChart` restored above the recent check-ins table; chart data uses `liveCheckins` so it tracks live weight changes
+
+### Fixed
+- **useStore.js** — `addCheckin` now merges with the existing today entry (`{ ...existing, ...entry }`) instead of replacing it; weight-only debounce saves no longer erase notes/mood/activity/calories
+- **CheckIn.jsx** — `liveCheckins` synthetic today entry spreads `todayCheckin` fields so notes/mood/etc stay visible in the table while the weight column shows the live value
+
+## [Unreleased] 2026-06-10 (5)
+
+### Added
+- **App.css** — dark mode fix: `@media (prefers-color-scheme: dark) { html.a1-theme-fresh { ... } }` block added with all design-system dark token overrides; resolves specificity conflict where `html.a1-theme-fresh` (0,1,1) was beating the `:root` dark query (0,1,0); page background uses `#0a1f1a` (dark teal) to preserve the fresh-theme mint character
+
+### Changed
+- **App.jsx** — history-API routing added: page state driven by `window.location.pathname`, `navigate()` uses `pushState`, `popstate` listener syncs back/forward; bottom nav and `TopHeader` both use real hrefs; `logoHref="/checkin"` set
+- **App.jsx** — URL-based dev profiles: `?scenario=<id>` query param read on mount (DEV only), applied via `store.loadMockData()`; dev bar shows active scenario hint; param persists across page navigations
+- **DataPage.jsx** — tab state synced to URL: `?tab=charts` set via `replaceState` on tab switch, read on mount so direct links land on the right tab
+- **DataPage.jsx** — `variant="sytem"` typo fixed → `variant="system"` in all three notice banners
+- **CheckIn.jsx** — DataTable now uses `liveCheckins` (not `checkins`) so weight row updates immediately when + / − is tapped, before the 600 ms debounce fires
+
+## [Unreleased] 2026-06-10 (4)
+
+### Added
+- **CheckIn.jsx** — 4th notes step (`TextareaField`) added to check-in dialog; `DefinitionList` replaces the plain-Stack summary screen; notes shown truncated in table with view-full dialog (`Dialog`)
+- **DataPage.jsx** — notes column and per-row view-notes `Dialog` added to the full data table
+- **App.jsx / App.css** — bottom tab bar on xs (≤480px) replaces top header for mobile navigation; `TopHeader` and `SettingsMenu` overlay hidden on xs; `#root` gets 56px bottom padding to clear the nav bar
+- **Step1AboutYou.jsx** — warning `Banner` shown when goal weight is higher than start weight
+- **WelcomeResults.jsx** — BMI card `heroColor` and icon now reflect BMI category (success/warn/error); `MessageBadge` status likewise updated
+
+### Changed
+- **WeightStepper.jsx** — weight display replaced with editable `NumberField` + `boldInput` class; changes commit on blur, typed values are validated and clamped
+- **Step1AboutYou.jsx** — start-date section updated to match Step4 horizontal layout (`justify="between"`, `variant="tertiary"` button)
+- **Step3YourHabits.jsx** — selecting "None" deselects all other meds; selecting any med deselects "None"
+- **Onboarding.jsx** — form defaults pre-populated: `startWeight: 180`, `goalWeight: 160`, `heightFeet: 5`, `heightInches: 7`
+- **App.css** — removed unused side-nav CSS; TopHeader hide breakpoint corrected from 1024px to 480px (xs only)
+- All stale instructional/TODO comments and commented-out code blocks removed across `CheckIn.jsx`, `WelcomeResults.jsx`, `Step1AboutYou.jsx`, `Step2YourBody.jsx`, `onboardingConfig.js`
+
 ## [Unreleased] 2026-06-10 (3)
 
 ### Changed

@@ -25,6 +25,7 @@ export const ACTIVITY_OPTIONS = (l) => [
 ];
 
 export const MED_OPTIONS = (l) => [
+  { value: 'none',       label: 'None' },
   { value: 'semaglutide', label: 'Semaglutide', subtext: 'Ozempic / Wegovy' },
   { value: 'tirzepatide', label: 'Tirzepatide', subtext: 'Mounjaro / Zepbound' },
   { value: 'other',       label: l('onboarding.medOther', 'Other') },

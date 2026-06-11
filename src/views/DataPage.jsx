@@ -1,13 +1,12 @@
 import { useState, useMemo } from 'react';
 import {
-  Section, Heading, Stack, DataTable, Banner,
-  Tabs, TabList, Tab, TabPanel, Paragraph,
+  Section, Heading, Stack, DataTable, Banner, Card, Grid,
+  Tabs, TabList, Tab, TabPanel, Paragraph, Dialog,
   MessageEmptyState,
 } from '@gtivr4/a1-design-system-react';
 import {
-  ResponsiveContainer, LineChart, Line, BarChart, Bar,
+  ResponsiveContainer, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ReferenceArea,
-  Legend,
 } from 'recharts';
 import { calculateBMI, toKg, feetInchesToCm } from '../utils/calculations.js';
 import { ProgressChart } from '../components/ProgressChart.jsx';
@@ -60,8 +59,9 @@ function computeNotices(checkins, profile) {
           const msg = bmi.category === 'normal'
             ? `BMI ${bmi.value} — you've reached a healthy BMI range! Incredible achievement.`
             : `BMI ${bmi.value} — out of the ${prevBmiCategory} range. Keep going!`;
+
           notices.push({
-            content: <Banner variant="sytem" status="success" title="BMI Milestone" icon="monitor_heart">{msg}</Banner>,
+            content: <Banner variant="system" status="success" title="BMI Milestone" icon="monitor_heart">{msg}</Banner>,
             afterRow: rowIdx,
           });
         }
@@ -83,7 +83,7 @@ function computeNotices(checkins, profile) {
       if (streak >= threshold && !streakHit.has(threshold)) {
         streakHit.add(threshold);
         notices.push({
-          content: <Banner variant="sytem"  status="info" title={title} icon="local_fire_department">{msg}</Banner>,
+          content: <Banner variant="system" status="info" title={title} icon="local_fire_department">{msg}</Banner>,
           afterRow: rowIdx,
         });
       }
@@ -99,7 +99,7 @@ function computeNotices(checkins, profile) {
         if (pct >= threshold && !progressHit.has(threshold)) {
           progressHit.add(threshold);
           notices.push({
-            content: <Banner variant="sytem"  status="success" title={`${threshold}% of your goal!`} icon="flag">{msg}</Banner>,
+            content: <Banner variant="system" status="success" title={`${threshold}% of your goal!`} icon="flag">{msg}</Banner>,
             afterRow: rowIdx,
           });
         }
@@ -184,7 +184,7 @@ function BmiTrendChart({ checkins, profile }) {
           <ReferenceLine y={18.5} stroke="#64b5f6" strokeDasharray="4 2" strokeWidth={1} label={{ value: 'Underweight', position: 'insideTopLeft', fontSize: 10, fill: '#64b5f6' }} />
           <ReferenceLine y={25}   stroke="#66bb6a" strokeDasharray="4 2" strokeWidth={1} label={{ value: 'Overweight',  position: 'insideTopLeft', fontSize: 10, fill: '#66bb6a' }} />
           <ReferenceLine y={30}   stroke="#ef5350" strokeDasharray="4 2" strokeWidth={1} label={{ value: 'Obese',       position: 'insideTopLeft', fontSize: 10, fill: '#ef5350' }} />
-          <Line type="monotone" dataKey="bmi" name="BMI" stroke="var(--semantic-color-action-background)" strokeWidth={2.5} dot={{ r: 3, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }} activeDot={{ r: 5, strokeWidth: 0 }} />
+          <Line type="monotone" dataKey="bmi" name="BMI" stroke="var(--semantic-color-action-background)" strokeWidth={4} dot={{ r: 5, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }} activeDot={{ r: 7, strokeWidth: 0 }} />
         </LineChart>
       </ResponsiveContainer>
       <div style={{ display: 'flex', gap: 16, justifyContent: 'center', paddingTop: 4 }}>
@@ -199,61 +199,24 @@ function BmiTrendChart({ checkins, profile }) {
   );
 }
 
-// ─── habits chart ─────────────────────────────────────────────────────────────
-
-const MOOD_SCORE    = { great: 4, good: 3, okay: 2, low: 1 };
-const ACTIVITY_SCORE = { high: 4, medium: 3, low: 2, none: 1 };
-const CALORIE_SCORE  = { under: 4, on_track: 3, over: 2, way_over: 1 };
-
-function HabitsChart({ checkins }) {
-  const points = useMemo(() =>
-    [...checkins]
-      .filter(c => c.mood || c.activity || c.calories)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .map(c => ({
-        date:     fmtDate(c.date),
-        mood:     c.mood     ? MOOD_SCORE[c.mood]       : null,
-        activity: c.activity ? ACTIVITY_SCORE[c.activity] : null,
-        calories: c.calories ? CALORIE_SCORE[c.calories]  : null,
-      })),
-  [checkins]);
-
-  if (points.length < 2) {
-    return <MessageEmptyState icon="info" scale="section" title="Log mood, activity, and calories to see habit trends." />;
-  }
-
-  const labelMap = {
-    mood:     (v) => ({ 4: 'Amazing', 3: 'Good', 2: 'Okay', 1: 'Tough Day' }[v] ?? v),
-    activity: (v) => ({ 4: 'Intense', 3: 'Moderate', 2: 'Light', 1: 'Rest Day' }[v] ?? v),
-    calories: (v) => ({ 4: 'Under goal', 3: 'On track', 2: 'Slightly over', 1: 'Way over' }[v] ?? v),
-  };
-
-  function formatter(name, val) {
-    return `${name.charAt(0).toUpperCase() + name.slice(1)}: ${labelMap[name]?.(val) ?? val}`;
-  }
-
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="4 4" stroke="var(--semantic-color-border-default)" vertical={false} />
-        <XAxis dataKey="date" tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 12 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
-        <YAxis domain={[0.5, 4.5]} ticks={[1,2,3,4]} tick={{ fill: 'var(--semantic-color-text-muted)', fontSize: 11 }} tickLine={false} axisLine={false} width={20} tickFormatter={() => ''} />
-        <Tooltip content={<ChartTooltip formatter={formatter} />} />
-        <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-        <Line type="monotone" dataKey="mood"     name="Mood"     stroke="#9c6de0" strokeWidth={2} dot={{ r: 3, strokeWidth: 0 }} connectNulls activeDot={{ r: 5, strokeWidth: 0 }} />
-        <Line type="monotone" dataKey="activity" name="Activity" stroke="#29b6f6" strokeWidth={2} dot={{ r: 3, strokeWidth: 0 }} connectNulls activeDot={{ r: 5, strokeWidth: 0 }} />
-        <Line type="monotone" dataKey="calories" name="Calories" stroke="#66bb6a" strokeWidth={2} dot={{ r: 3, strokeWidth: 0 }} connectNulls activeDot={{ r: 5, strokeWidth: 0 }} />
-      </LineChart>
-    </ResponsiveContainer>
-  );
-}
-
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export function DataPage({ store }) {
   const { checkins, profile } = store;
   const unit = profile?.weightUnit ?? 'lbs';
-  const [tab, setTab] = useState('data');
+  const [tab, setTab] = useState(() => {
+    const t = new URLSearchParams(window.location.search).get('tab');
+    return t === 'charts' ? 'charts' : 'data';
+  });
+  const [viewNotesText, setViewNotesText] = useState(null);
+
+  function handleTabChange(newTab) {
+    setTab(newTab);
+    const sp = new URLSearchParams(window.location.search);
+    newTab === 'data' ? sp.delete('tab') : sp.set('tab', newTab);
+    const search = sp.toString() ? `?${sp}` : '';
+    window.history.replaceState(null, '', `${window.location.pathname}${search}`);
+  }
 
   const notices = useMemo(() => computeNotices(checkins, profile), [checkins, profile]);
 
@@ -267,22 +230,27 @@ export function DataPage({ store }) {
     [...checkins].reverse().map((c, i) => ({
       id: i,
       _rawDate: c.date,
-      date:     new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
-      weight:   c.weight,
-      mood:     c.mood     ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
-      activity: c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
-      calories: c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
+      date:      new Date(c.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+      weight:    c.weight,
+      mood:      c.mood     ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
+      activity:  c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
+      calories:  c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
+      notes: c.notes ? [{ icon: 'sticky_note_2', label: 'View notes', onClick: () => setViewNotesText(c.notes) }] : null,
     })),
   [checkins]);
 
   return (
-    <Section padding="md" contentWidth="lg" gap="lg">
-      <Heading type="display" size="jumbo" as="h1" align="center">All the deets</Heading>
+    <Section padding="sm" contentWidth="lg" gap="lg">
+      <Heading type="display" size="xxl" as="h1">All the deets</Heading>
+
+      <Dialog open={viewNotesText !== null} title="Day Notes" onClose={() => setViewNotesText(null)}>
+        <Paragraph>{viewNotesText}</Paragraph>
+      </Dialog>
 
       {checkins.length === 0 ? (
         <Heading size="md" color="muted">No check-ins yet.</Heading>
       ) : (
-        <Tabs value={tab} onChange={setTab} variant="line">
+        <Tabs value={tab} onChange={handleTabChange} variant="line">
           <TabList>
             <Tab value="data"   icon="table_chart">Data</Tab>
             <Tab value="charts" icon="show_chart">Charts</Tab>
@@ -294,11 +262,12 @@ export function DataPage({ store }) {
               pageSize={20}
               defaultSort={{ key: 'date', direction: 'desc' }}
               columns={[
-                { key: 'date',     label: 'Date',             sortable: true, sortAccessor: row => row._rawDate },
-                { key: 'weight',   label: `Weight (${unit})`, sortable: true },
-                { key: 'mood',     label: 'Mood',     type: 'badge', statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' } },
-                { key: 'activity', label: 'Activity', type: 'badge', statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' } },
-                { key: 'calories', label: 'Calories', type: 'badge', statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' } },
+                { key: 'date',      label: 'Date',             sortable: true, sortAccessor: row => row._rawDate },
+                { key: 'weight',    label: `Weight (${unit})`, sortable: true },
+                { key: 'mood',      label: 'Mood',     type: 'badge', statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' } },
+                { key: 'activity',  label: 'Activity', type: 'badge', statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' } },
+                { key: 'calories',  label: 'Calories', type: 'badge', statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' } },
+                { key: 'notes', label: 'Notes', type: 'actions' },
               ]}
               rows={rows}
               notices={notices}
@@ -306,25 +275,22 @@ export function DataPage({ store }) {
           </TabPanel>
 
           <TabPanel value="charts">
-            <Stack gap="xl" style={{ paddingBlockStart: 'var(--base-spacing-md)' }}>
-              <Stack gap="sm">
-                <Heading size="md">Weight Progress</Heading>
-                <Paragraph color="muted" size="sm">Your weight over time vs. your goal</Paragraph>
-                <ProgressChart data={weightHistory} unit={unit} goalWeight={profile?.goalWeight} />
-              </Stack>
-
-              <Stack gap="sm">
-                <Heading size="md">BMI Trend</Heading>
-                <Paragraph color="muted" size="sm">How your BMI has shifted across health categories</Paragraph>
-                {profile && <BmiTrendChart checkins={checkins} profile={profile} />}
-              </Stack>
-
-              <Stack gap="sm">
-                <Heading size="md">Habits</Heading>
-                <Paragraph color="muted" size="sm">Mood, activity, and calorie trends over time (4 = best, 1 = worst)</Paragraph>
-                <HabitsChart checkins={checkins} />
-              </Stack>
-            </Stack>
+            <Grid columns={{ xs: 1, sm: 2 }} gap="md">
+              <Card>
+                <Stack gap="sm">
+                  <Heading size="lg" type='display'>Weight Progress</Heading>
+                  <Paragraph color="muted" size="sm">Your weight over time vs. your goal</Paragraph>
+                  <ProgressChart data={weightHistory} unit={unit} goalWeight={profile?.goalWeight} />
+                </Stack>
+              </Card>
+              <Card>
+                <Stack gap="sm">
+                  <Heading size="lg" type='display'>BMI Trend</Heading>
+                  <Paragraph color="muted" size="sm">How your BMI has shifted across health categories</Paragraph>
+                  {profile && <BmiTrendChart checkins={checkins} profile={profile} />}
+                </Stack>
+              </Card>
+            </Grid>
           </TabPanel>
         </Tabs>
       )}

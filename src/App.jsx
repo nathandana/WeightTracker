@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  LabelsProvider, PageLayout, TopHeader,
+  LabelsProvider, PageLayout, TopHeader, Icon,
 } from '@gtivr4/a1-design-system-react';
 import { useStore } from './store/useStore.js';
 import { Onboarding } from './views/Onboarding.jsx';
 import { CheckIn } from './views/CheckIn.jsx';
 import { DataPage } from './views/DataPage.jsx';
 import { SettingsPage } from './views/SettingsPage.jsx';
-import { SettingsMenu } from './components/SettingsMenu.jsx';
 import { MOCK_SCENARIOS } from './dev/mockScenarios.js';
 import labels from './labels/labels.json';
+
+const PAGES = ['checkin', 'data', 'settings'];
+
+function pageFromPath(pathname) {
+  const p = pathname.replace(/^\//, '') || 'checkin';
+  return PAGES.includes(p) ? p : 'checkin';
+}
+
+function scenarioFromSearch(search) {
+  return new URLSearchParams(search).get('scenario') || 'real';
+}
+
+function buildUrl(page, scenarioId) {
+  const sp = new URLSearchParams();
+  if (import.meta.env.DEV && scenarioId && scenarioId !== 'real') sp.set('scenario', scenarioId);
+  const search = sp.toString() ? `?${sp}` : '';
+  return `/${page}${search}`;
+}
 
 function resolveLabel(key, locale, fallback) {
   const parts = key.split('.');
@@ -45,13 +62,59 @@ const devSelectStyle = {
   cursor: 'pointer',
 };
 
+const bottomNavStyle = {
+  position: 'fixed',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  height: 56,
+  display: 'flex',
+  background: 'var(--semantic-color-surface-raised)',
+  borderTop: '1px solid var(--semantic-color-border-subtle)',
+  zIndex: 200,
+};
+
 export default function App() {
   const store = useStore();
-  const [activeScenario, setActiveScenario] = useState('real');
-  const [page, setPage] = useState('checkin');
+
+  const [page, setPage] = useState(() => pageFromPath(window.location.pathname));
+  const [activeScenario, setActiveScenario] = useState(() =>
+    import.meta.env.DEV ? scenarioFromSearch(window.location.search) : 'real'
+  );
+
+  // Apply URL-specified scenario once on mount (dev only)
+  useEffect(() => {
+    if (!import.meta.env.DEV || activeScenario === 'real') return;
+    const scenario = MOCK_SCENARIOS.find(s => s.id === activeScenario);
+    if (scenario?.state) store.loadMockData(scenario.state);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync state on browser back/forward
+  useEffect(() => {
+    function onPop() {
+      setPage(pageFromPath(window.location.pathname));
+      if (!import.meta.env.DEV) return;
+      const id = scenarioFromSearch(window.location.search);
+      setActiveScenario(id);
+      if (id === 'real') {
+        store.restoreRealData();
+      } else {
+        const s = MOCK_SCENARIOS.find(x => x.id === id);
+        if (s?.state) store.loadMockData(s.state);
+      }
+    }
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [store]);
+
+  function navigate(newPage) {
+    setPage(newPage);
+    window.history.pushState(null, '', buildUrl(newPage, activeScenario));
+  }
 
   function handleOnboardingComplete(profile) {
     store.saveProfile(profile);
+    navigate('checkin');
   }
 
   function handleScenarioChange(e) {
@@ -63,18 +126,20 @@ export default function App() {
       const scenario = MOCK_SCENARIOS.find(s => s.id === id);
       if (scenario?.state) store.loadMockData(scenario.state);
     }
+    window.history.replaceState(null, '', buildUrl(page, id));
   }
 
   const appName = resolveLabel('app.name', store.locale, 'DownTrack');
 
   const navItems = [
-    { label: 'Check In', href: '#', icon: 'monitor_weight', active: page === 'checkin', onClick: (e) => { e.preventDefault(); setPage('checkin'); } },
-    { label: 'Data',     href: '#', icon: 'bar_chart',      active: page === 'data',    onClick: (e) => { e.preventDefault(); setPage('data'); } },
-    { label: 'Settings', href: '#', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); setPage('settings'); } },
+    { label: 'Check In', href: '/checkin', icon: 'monitor_weight', active: page === 'checkin', onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
+    { label: 'Data',     href: '/data',    icon: 'bar_chart',      active: page === 'data',    onClick: (e) => { e.preventDefault(); navigate('data'); } },
+    { label: 'Settings', href: '/settings',icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
   ];
 
   const header = store.profile ? (
-    <TopHeader logoText={appName} logoHref="#" navItems={navItems} />
+    <TopHeader logoText={appName} logoHref="/checkin" navItems={navItems} navIconPosition={{ xs: "above", sm: "above" }}
+/>
   ) : null;
 
   const devBar = (
@@ -85,38 +150,57 @@ export default function App() {
           <option key={s.id} value={s.id}>{s.label}</option>
         ))}
       </select>
+      {activeScenario !== 'real' && (
+        <span style={{ color: 'var(--semantic-color-text-muted)', fontSize: 11 }}>
+          — <code>?scenario={activeScenario}</code>
+        </span>
+      )}
     </div>
   );
 
   return (
     <LabelsProvider labels={labels} locale={store.locale}>
       {import.meta.env.DEV && devBar}
-      {store.profile && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          height: 'var(--component-top-header-height)',
-          display: 'flex',
-          alignItems: 'center',
-          paddingInlineEnd: '12px',
-          zIndex: 'calc(var(--component-top-header-z-index) + 1)',
-        }}>
-          <SettingsMenu
-            locale={store.locale}
-            setLocale={store.setLocale}
-            onReset={store.reset}
-          />
-        </div>
-      )}
       {!store.profile ? (
         <Onboarding onComplete={handleOnboardingComplete} />
       ) : (
         <PageLayout header={header}>
-          {page === 'checkin'  && <CheckIn store={store} onNavigate={setPage} />}
-          {page === 'data'     && <DataPage store={store} onNavigate={setPage} />}
-          {page === 'settings' && <SettingsPage />}
+          {page === 'checkin'  && <CheckIn store={store} onNavigate={navigate} />}
+          {page === 'data'     && <DataPage store={store} onNavigate={navigate} />}
+          {page === 'settings' && <SettingsPage store={store} />}
         </PageLayout>
+      )}
+      {store.profile && (
+        <nav className="bottom-nav" style={bottomNavStyle} aria-label="Main navigation">
+          {navItems.map(item => (
+            <button
+              key={item.label}
+              onClick={item.onClick}
+              aria-current={item.active ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                color: item.active
+                  ? 'var(--semantic-color-action-background)'
+                  : 'var(--semantic-color-text-muted)',
+                fontSize: 10,
+                fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
+                padding: '8px 0',
+                transition: 'color 0.15s',
+              }}
+            >
+              <Icon name={item.icon} size="sm" />
+              {item.label}
+            </button>
+          ))}
+        </nav>
       )}
     </LabelsProvider>
   );

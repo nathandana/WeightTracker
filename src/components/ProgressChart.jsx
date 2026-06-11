@@ -28,7 +28,7 @@ function CustomTooltip({ active, payload, label, unit }) {
   );
 }
 
-export function ProgressChart({ data = [], unit = 'lbs', goalWeight }) {
+export function ProgressChart({ data = [], unit = 'lbs', goalWeight, height = 320 }) {
   const points = useMemo(() =>
     data.map(d => ({ date: formatDate(d.date), weight: Number(d.weight) })),
   [data]);
@@ -49,7 +49,7 @@ export function ProgressChart({ data = [], unit = 'lbs', goalWeight }) {
   const maxW = Math.ceil(Math.max(...allWeights) + 2);
 
   return (
-    <ResponsiveContainer width="100%" height={320}>
+    <ResponsiveContainer width="100%" height={height}>
       <LineChart data={points} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
         <CartesianGrid
           strokeDasharray="4 4"
@@ -75,15 +75,15 @@ export function ProgressChart({ data = [], unit = 'lbs', goalWeight }) {
         {goalWeight != null && (
           <ReferenceLine
             y={Number(goalWeight)}
-            stroke="var(--semantic-color-status-success-text)"
-            strokeDasharray="6 3"
-            strokeWidth={2}
+            stroke="var(--semantic-color-status-success-background)"
+            strokeDasharray="10 4"
+            strokeWidth={3}
             label={{
               value: 'Goal',
               position: 'insideTopRight',
-              fill: 'var(--semantic-color-status-success-text)',
-              fontSize: 11,
-              fontWeight: 600,
+              fill: 'var(--semantic-color-status-success-background)',
+              fontSize: 13,
+              fontWeight: 700,
             }}
           />
         )}
@@ -91,9 +91,9 @@ export function ProgressChart({ data = [], unit = 'lbs', goalWeight }) {
           type="monotone"
           dataKey="weight"
           stroke="var(--semantic-color-action-background)"
-          strokeWidth={2.5}
-          dot={{ r: 3, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }}
-          activeDot={{ r: 5, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }}
+          strokeWidth={4}
+          dot={{ r: 5, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }}
+          activeDot={{ r: 7, fill: 'var(--semantic-color-action-background)', strokeWidth: 0 }}
         />
       </LineChart>
     </ResponsiveContainer>
