@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Section, Card, Stack, Heading, Paragraph,
+  Card, Stack, Heading, Paragraph,
   TextField, Button, ButtonContainer, Banner,
 } from '@gtivr4/a1-design-system-react';
 import { useAuth } from '../../lib/AuthContext.jsx';
@@ -16,21 +16,26 @@ const linkStyle = {
   fontFamily: 'inherit',
 };
 
-export function AuthPage() {
+const containerStyle = {
+  minHeight: '100dvh',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '24px 16px',
+};
+
+// initialMode: 'login' | 'signup'
+export function AuthPage({ initialMode = 'login' }) {
   const { signIn, signUp, resetPassword } = useAuth();
-  const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'forgot' | 'check_email'
+  const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  function clear() {
+  function switchTo(next) {
     setError(null);
     setPassword('');
-  }
-
-  function switchTo(next) {
-    clear();
     setMode(next);
   }
 
@@ -41,6 +46,7 @@ export function AuthPage() {
     const err = await signIn(email, password);
     if (err) setError(err.message);
     setBusy(false);
+    // On success, onAuthStateChange fires → App.jsx re-renders automatically
   }
 
   async function handleSignUp(e) {
@@ -69,23 +75,15 @@ export function AuthPage() {
     setBusy(false);
   }
 
-  const containerStyle = {
-    minHeight: '100dvh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '24px 16px',
-  };
-
   if (mode === 'check_email') {
     return (
       <div style={containerStyle}>
-        <div style={{ width: '100%', maxWidth: 400 }}>
+        <div style={{ width: '100%', maxWidth: 440 }}>
           <Card>
             <Stack gap="lg" align="center">
               <Heading type="display" size="xl">Check your email</Heading>
               <Paragraph color="muted" align="center">
-                We sent a link to <strong>{email}</strong>. Open it to continue.
+                We sent a link to <strong>{email}</strong>. Open it to continue — then come back here.
               </Paragraph>
               <button style={linkStyle} onClick={() => switchTo('login')}>
                 Back to log in
@@ -100,7 +98,7 @@ export function AuthPage() {
   if (mode === 'forgot') {
     return (
       <div style={containerStyle}>
-        <div style={{ width: '100%', maxWidth: 400 }}>
+        <div style={{ width: '100%', maxWidth: 440 }}>
           <Card>
             <form onSubmit={handleForgot}>
               <Stack gap="lg">
@@ -114,6 +112,7 @@ export function AuthPage() {
                 <TextField
                   label="Email"
                   type="email"
+                  size="comfortable"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
@@ -141,14 +140,14 @@ export function AuthPage() {
 
   return (
     <div style={containerStyle}>
-      <div style={{ width: '100%', maxWidth: 400 }}>
+      <div style={{ width: '100%', maxWidth: 440 }}>
         <Card>
           <form onSubmit={isLogin ? handleLogin : handleSignUp}>
             <Stack gap="lg">
               <Stack gap="xs">
                 <Heading type="display" size="xxl" align="center">DownTrack</Heading>
                 <Paragraph color="muted" size="sm" align="center">
-                  {isLogin ? 'Log in to your account' : 'Create a free account'}
+                  {isLogin ? 'Log in to your account' : 'Create an account to save your progress'}
                 </Paragraph>
               </Stack>
 
@@ -158,6 +157,7 @@ export function AuthPage() {
                 <TextField
                   label="Email"
                   type="email"
+                  size="comfortable"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
@@ -166,6 +166,7 @@ export function AuthPage() {
                 <TextField
                   label="Password"
                   type="password"
+                  size="comfortable"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
@@ -183,7 +184,7 @@ export function AuthPage() {
 
               <ButtonContainer fillButtons>
                 <Button type="submit" variant="primary" disabled={busy}>
-                  {busy ? '…' : isLogin ? 'Log in' : 'Create account'}
+                  {busy ? '…' : isLogin ? 'Log in' : 'Create account & save'}
                 </Button>
               </ButtonContainer>
 

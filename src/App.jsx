@@ -1,12 +1,13 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import {
-  LabelsProvider, PageLayout, TopHeader, BottomDrawer, Stack, Button,
+  LabelsProvider, PageLayout, TopHeader, BottomDrawer,
+  Stack, Button, Dialog, Paragraph,
 } from '@gtivr4/a1-design-system-react';
-import { SystemBanner } from './components/SystemBanner.jsx';
 import { useStore, LEGACY_STORAGE_KEY } from './store/useStore.js';
 import { useAuth } from './lib/AuthContext.jsx';
 import { supabaseConfigured } from './lib/supabase.js';
 import { MOCK_SCENARIOS } from './dev/mockScenarios.js';
+import { SystemBanner } from './components/SystemBanner.jsx';
 import labels from './labels/labels.json';
 
 const Onboarding   = lazy(() => import('./views/Onboarding.jsx').then(m => ({ default: m.Onboarding })));
@@ -21,6 +22,7 @@ const PAGE_TITLE_KEYS = {
   data: ['pageTitles.data', 'Data — DownTrack'],
   settings: ['pageTitles.settings', 'Settings — DownTrack'],
 };
+const PENDING_SETUP_KEY = 'journey-checkin-pending-setup';
 
 function pageFromPath(pathname) {
   const p = pathname.replace(/^\//, '') || 'checkin';
@@ -50,89 +52,72 @@ function resolveLabel(key, locale, fallback) {
   return node.$value ?? fallback;
 }
 
-// ─── Loading screen ───────────────────────────────────────────────────────────
+function loadPendingProfile() {
+  try {
+    const raw = localStorage.getItem(PENDING_SETUP_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function savePendingProfile(profile) {
+  try { localStorage.setItem(PENDING_SETUP_KEY, JSON.stringify(profile)); } catch {}
+}
+
+function clearPendingProfile() {
+  try { localStorage.removeItem(PENDING_SETUP_KEY); } catch {}
+}
+
+function hasMigratableData() {
+  try {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    return !!(raw && JSON.parse(raw)?.profile);
+  } catch { return false; }
+}
+
+function migrationAlreadyHandled() {
+  return localStorage.getItem('journey-checkin-migrated') === 'true';
+}
+
+// ─── Loading / error screens ─────────────────────────────────────────────────
 
 const loadingStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100dvh',
-  color: 'var(--semantic-color-text-muted)',
-  fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
-  fontSize: 14,
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  minHeight: '100dvh', color: 'var(--semantic-color-text-muted)',
+  fontFamily: 'var(--component-paragraph-font-family, sans-serif)', fontSize: 14,
 };
 
 function LoadingScreen() {
   return <div style={loadingStyle} aria-busy="true">Loading…</div>;
 }
 
-// ─── Config error screen ──────────────────────────────────────────────────────
-
-const configErrorStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '100dvh',
-  padding: 32,
-  textAlign: 'center',
-  fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
-  color: 'var(--semantic-color-text-default)',
-};
-
 function ConfigErrorScreen() {
   return (
-    <div style={configErrorStyle}>
-      <div>
-        <strong>Supabase not configured</strong>
-        <p style={{ color: 'var(--semantic-color-text-muted)', marginTop: 8, fontSize: 14 }}>
-          Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to your{' '}
-          <code>.env.local</code> file and restart the dev server.
-        </p>
-      </div>
+    <div style={{ ...loadingStyle, flexDirection: 'column', gap: 8, textAlign: 'center', padding: 32 }}>
+      <strong style={{ color: 'var(--semantic-color-text-default)' }}>Supabase not configured</strong>
+      <p style={{ margin: 0, fontSize: 14 }}>
+        Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to{' '}
+        <code>.env.local</code> and restart.
+      </p>
     </div>
   );
 }
 
-// ─── Dev toolbar ──────────────────────────────────────────────────────────────
+// ─── Dev toolbar ─────────────────────────────────────────────────────────────
 
 const devBarStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  padding: '6px 16px',
+  display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px',
   background: 'color-mix(in srgb, var(--semantic-color-status-warn-background) 60%, transparent)',
   borderBottom: '1px solid var(--semantic-color-border-subtle)',
-  fontSize: 12,
-  fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
+  fontSize: 12, fontFamily: 'var(--component-paragraph-font-family, sans-serif)',
   color: 'var(--semantic-color-text-default)',
 };
 
 const devSelectStyle = {
-  fontSize: 12,
-  padding: '2px 6px',
-  borderRadius: 4,
+  fontSize: 12, padding: '2px 6px', borderRadius: 4,
   border: '1px solid var(--semantic-color-border-default)',
   background: 'var(--semantic-color-surface-default)',
-  color: 'var(--semantic-color-text-default)',
-  cursor: 'pointer',
+  color: 'var(--semantic-color-text-default)', cursor: 'pointer',
 };
-
-// ─── Migration banner ─────────────────────────────────────────────────────────
-
-function hasMigratableData() {
-  try {
-    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    return !!(parsed?.profile);
-  } catch {
-    return false;
-  }
-}
-
-function migrationAlreadyHandled() {
-  return localStorage.getItem('journey-checkin-migrated') === 'true';
-}
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
@@ -144,25 +129,43 @@ export default function App() {
   const [activeScenario, setActiveScenario] = useState(() =>
     import.meta.env.DEV ? scenarioFromSearch(window.location.search) : 'real'
   );
+
+  // pendingProfile persists through email-confirmation reloads.
+  const [pendingProfile, setPendingProfile] = useState(loadPendingProfile);
+  // wantsLogin: pre-auth user clicked "Sign in" from within onboarding.
+  const [wantsLogin, setWantsLogin] = useState(false);
+
+  // accountOpen: xs "Account" dialog from BottomDrawer
+  const [accountOpen, setAccountOpen] = useState(false);
+
   const [migrationBusy, setMigrationBusy] = useState(false);
   const [migrationError, setMigrationError] = useState(null);
   const [showMigration, setShowMigration] = useState(false);
 
-  // Show migration banner once after login if old data exists.
+  // Save pending profile when the user becomes authenticated.
+  useEffect(() => {
+    if (user && !store.dataLoading && !store.profile && pendingProfile) {
+      store.saveProfile(pendingProfile);
+      clearPendingProfile();
+      setPendingProfile(null);
+    }
+  }, [user, store.dataLoading, store.profile, pendingProfile]);
+
+  // Show migration banner after login if old localStorage data exists.
   useEffect(() => {
     if (user && !store.dataLoading) {
       setShowMigration(hasMigratableData() && !migrationAlreadyHandled());
     }
   }, [user, store.dataLoading]);
 
-  // Apply URL-specified scenario once on mount (dev only).
+  // Apply URL scenario on mount (dev only).
   useEffect(() => {
     if (!import.meta.env.DEV || activeScenario === 'real') return;
     const scenario = MOCK_SCENARIOS.find(s => s.id === activeScenario);
     if (scenario?.state) store.loadMockData(scenario.state);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync state on browser back/forward.
+  // Sync page on browser back/forward.
   useEffect(() => {
     function onPop() {
       setPage(pageFromPath(window.location.pathname));
@@ -191,8 +194,13 @@ export default function App() {
   }
 
   function handleOnboardingComplete(profile) {
-    store.saveProfile(profile);
-    navigate('checkin');
+    if (user) {
+      store.saveProfile(profile);
+      navigate('checkin');
+    } else {
+      savePendingProfile(profile);
+      setPendingProfile(profile);
+    }
   }
 
   function handleScenarioChange(e) {
@@ -226,22 +234,57 @@ export default function App() {
   // ─── Guards ─────────────────────────────────────────────────────────────────
 
   if (!supabaseConfigured) return <ConfigErrorScreen />;
+  if (authLoading) return <LoadingScreen />;
 
-  if (authLoading || store.dataLoading) return <LoadingScreen />;
+  // ─── Unauthenticated: auth page ───────────────────────────────────────────────
 
-  if (!user) {
+  const showAuth = !user && (!!pendingProfile || wantsLogin);
+
+  if (showAuth) {
     return (
       <LabelsProvider labels={labels} locale="en">
         <Suspense fallback={<LoadingScreen />}>
-          <AuthPage />
+          <AuthPage initialMode={pendingProfile ? 'signup' : 'login'} />
         </Suspense>
       </LabelsProvider>
     );
   }
 
-  // ─── Authenticated app ───────────────────────────────────────────────────────
+  // ─── Unauthenticated: onboarding ─────────────────────────────────────────────
+
+  if (!user) {
+    return (
+      <LabelsProvider labels={labels} locale="en">
+        <Suspense fallback={<LoadingScreen />}>
+          <Onboarding
+            onComplete={handleOnboardingComplete}
+            onSignIn={() => setWantsLogin(true)}
+          />
+        </Suspense>
+      </LabelsProvider>
+    );
+  }
+
+  // ─── Authenticated but data still loading ────────────────────────────────────
+
+  if (store.dataLoading) return <LoadingScreen />;
+
+  // ─── Authenticated, no profile → onboarding (e.g. profile was reset) ─────────
+
+  if (!store.profile) {
+    return (
+      <LabelsProvider labels={labels} locale={store.locale}>
+        <Suspense fallback={<LoadingScreen />}>
+          <Onboarding onComplete={handleOnboardingComplete} />
+        </Suspense>
+      </LabelsProvider>
+    );
+  }
+
+  // ─── Authenticated + profile: main app ───────────────────────────────────────
 
   const appName = resolveLabel('app.name', store.locale, 'DownTrack');
+  const displayName = store.profile?.name || user.email;
 
   const navItems = [
     { id: 'checkin',  label: resolveLabel('nav.checkin',  store.locale, 'Check In'),  href: '/checkin',  icon: 'monitor_weight', active: page === 'checkin',  onClick: (e) => { e.preventDefault(); navigate('checkin'); } },
@@ -249,11 +292,32 @@ export default function App() {
     { id: 'settings', label: resolveLabel('nav.settings', store.locale, 'Settings'),  href: '/settings', icon: 'settings',       active: page === 'settings', onClick: (e) => { e.preventDefault(); navigate('settings'); } },
   ];
 
-  const bottomNavItems = navItems.map(({ href, ...item }) => ({ ...item, onClick: () => navigate(item.id) }));
+  // User menu shown in the TopHeader end slot (sm+).
+  const headerActions = [{
+    id: 'user',
+    icon: 'account_circle',
+    label: resolveLabel('settings.account', store.locale, 'Account'),
+    items: [
+      { isHeader: true, label: displayName, description: user.email !== displayName ? user.email : undefined },
+      { icon: 'logout', label: resolveLabel('settings.signOut', store.locale, 'Sign Out'), onClick: signOut },
+    ],
+  }];
 
-  const header = store.profile ? (
-    <TopHeader logoText={appName} logoHref="/checkin" navItems={navItems} navIconPosition={{ xs: 'hidden', sm: 'above' }} />
-  ) : null;
+  // BottomDrawer includes an "Account" tab that opens a dialog on xs.
+  const bottomNavItems = [
+    ...navItems.map(({ href, ...item }) => ({ ...item, onClick: () => navigate(item.id) })),
+    { id: 'account', label: resolveLabel('settings.account', store.locale, 'Account'), icon: 'account_circle', onClick: () => setAccountOpen(true) },
+  ];
+
+  const header = (
+    <TopHeader
+      logoText={appName}
+      logoHref="/checkin"
+      navItems={navItems}
+      actions={headerActions}
+      navIconPosition={{ xs: 'hidden', sm: 'above' }}
+    />
+  );
 
   const devBar = (
     <div style={devBarStyle}>
@@ -271,7 +335,7 @@ export default function App() {
       <span style={{ marginLeft: 'auto', color: 'var(--semantic-color-text-muted)', fontSize: 11 }}>
         {user.email}
       </span>
-      <button style={{ ...devSelectStyle, cursor: 'pointer' }} onClick={signOut}>Sign out</button>
+      <button style={devSelectStyle} onClick={signOut}>Sign out</button>
     </div>
   );
 
@@ -300,24 +364,40 @@ export default function App() {
       )}
 
       <Suspense fallback={<LoadingScreen />}>
-        {!store.profile ? (
-          <Onboarding onComplete={handleOnboardingComplete} />
-        ) : (
-          <PageLayout header={header}>
-            {page === 'checkin'  && <CheckIn store={store} onNavigate={navigate} />}
-            {page === 'data'     && <DataPage store={store} onNavigate={navigate} />}
-            {page === 'settings' && <SettingsPage store={store} onSignOut={signOut} />}
-          </PageLayout>
-        )}
+        <PageLayout header={header}>
+          {page === 'checkin'  && <CheckIn store={store} onNavigate={navigate} />}
+          {page === 'data'     && <DataPage store={store} onNavigate={navigate} />}
+          {page === 'settings' && <SettingsPage store={store} onSignOut={signOut} />}
+        </PageLayout>
       </Suspense>
 
-      {store.profile && (
-        <BottomDrawer
-          items={bottomNavItems}
-          aria-label={resolveLabel('nav.main', store.locale, 'Main navigation')}
-          className="bottom-nav-ds"
-        />
-      )}
+      <BottomDrawer
+        items={bottomNavItems}
+        aria-label={resolveLabel('nav.main', store.locale, 'Main navigation')}
+        className="bottom-nav-ds"
+      />
+
+      {/* Account dialog — shown when user taps Account in the xs BottomDrawer */}
+      <Dialog
+        open={accountOpen}
+        title={displayName}
+        onClose={() => setAccountOpen(false)}
+      >
+        <Stack gap="md">
+          {user.email !== displayName && (
+            <Paragraph color="muted" size="sm">{user.email}</Paragraph>
+          )}
+          <div>
+            <Button
+              variant="secondary"
+              icon="logout"
+              onClick={() => { setAccountOpen(false); signOut(); }}
+            >
+              {resolveLabel('settings.signOut', store.locale, 'Sign Out')}
+            </Button>
+          </div>
+        </Stack>
+      </Dialog>
     </LabelsProvider>
   );
 }

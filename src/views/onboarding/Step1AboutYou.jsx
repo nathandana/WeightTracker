@@ -1,18 +1,30 @@
+import { useState } from 'react';
 import {
   Stack, Button, ButtonContainer, FieldRow, NumberField, Calendar,
   Heading, Paragraph, Section, StepTracker, Banner,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 
+const signInLinkStyle = {
+  background: 'none', border: 'none', padding: '0 0 0 4px',
+  color: 'var(--semantic-color-action-background)',
+  cursor: 'pointer', fontSize: 'inherit', textDecoration: 'underline',
+  fontFamily: 'inherit',
+};
+
 export function Step1AboutYou({
   form, set, errors,
   showStartDatePicker, setShowStartDatePicker,
   today, startDateObj, startDateLabel,
   onContinue, currentStep, totalSteps,
+  onSignIn,
 }) {
   const l = useLabel;
+  // Only show the gain-vs-loss warning after the user has tabbed out of both fields.
+  const [blurred, setBlurred] = useState({ startWeight: false, goalWeight: false });
 
   const goalAboveStart = form.goalWeight && form.startWeight && Number(form.goalWeight) > Number(form.startWeight);
+  const showGainAlert = goalAboveStart && blurred.startWeight && blurred.goalWeight;
 
   return (
     <Section padding="md" contentWidth="xs" align="center" gap="xl">
@@ -25,6 +37,7 @@ export function Step1AboutYou({
           label={l('onboarding.startWeight', 'Current Weight')}
           value={form.startWeight}
           onChange={ev => set('startWeight', ev.target.value)}
+          onBlur={() => setBlurred(b => ({ ...b, startWeight: true }))}
           min={20} max={700} step={0.5}
           suffix={form.weightUnit}
           inputMode="decimal"
@@ -37,6 +50,7 @@ export function Step1AboutYou({
           label={l('onboarding.goalWeight', 'Goal Weight')}
           value={form.goalWeight}
           onChange={ev => set('goalWeight', ev.target.value)}
+          onBlur={() => setBlurred(b => ({ ...b, goalWeight: true }))}
           min={50} max={700} step={0.5}
           suffix={form.weightUnit}
           inputMode="decimal"
@@ -46,7 +60,7 @@ export function Step1AboutYou({
         />
       </FieldRow>
 
-      {goalAboveStart && (
+      {showGainAlert && (
         <Banner
           variant="system"
           status="warn"
@@ -98,6 +112,14 @@ export function Step1AboutYou({
             Let's get going!
           </Button>
         </ButtonContainer>
+        {onSignIn && (
+          <Paragraph size="sm" align="center" color="muted">
+            Already have an account?
+            <button style={signInLinkStyle} type="button" onClick={onSignIn}>
+              Sign in
+            </button>
+          </Paragraph>
+        )}
       </Stack>
     </Section>
   );

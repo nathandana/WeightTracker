@@ -14,7 +14,7 @@ import { formatDate } from '../utils/locale.js';
 
 const STEPS = [Step1AboutYou, Step2YourBody, Step3YourHabits, Step4YourGoal];
 
-export function Onboarding({ onComplete }) {
+export function Onboarding({ onComplete, onSignIn }) {
   const l = useLabel;
 
   const [step, setStep] = useState(1);
@@ -163,6 +163,7 @@ export function Onboarding({ onComplete }) {
       onContinue={step < STEPS.length ? handleContinue : handleFinishAttempt}
       currentStep={step}
       totalSteps={PROGRESS_TOTAL}
+      onSignIn={step === 1 ? onSignIn : undefined}
     />
   );
 }
