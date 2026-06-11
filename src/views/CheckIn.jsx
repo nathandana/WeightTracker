@@ -126,7 +126,15 @@ export function CheckIn({ store, onNavigate }) {
   ];
   const stats = getProgressStats(profile, liveCheckins);
 
-  if (!profile) return null;
+  if (!profile) return (
+    <Section padding="sm" contentWidth="sm" gap="lg">
+      <Heading as="h1" type="display" size="xxl">{l('nav.checkin', 'Check In')}</Heading>
+      <Paragraph color="muted">{l('checkin.noProfile', 'Head to Settings to finish setting up your profile.')}</Paragraph>
+      <div>
+        <Button variant="primary" onClick={() => onNavigate('settings')}>{l('nav.settings', 'Settings')}</Button>
+      </div>
+    </Section>
+  );
 
   const unit = profile.weightUnit;
   const isMetric = profile.heightUnit === 'cm';

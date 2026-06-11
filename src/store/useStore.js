@@ -47,6 +47,10 @@ export function useStore() {
     return { ...defaults, languageSetting, locale: resolveLocale(languageSetting) };
   });
   const [dataLoading, setDataLoading] = useState(true);
+  // settled: true only after we've completed at least one fetch for the current user.
+  // Prevents a stale dataLoading=false from showing Onboarding during the one-render
+  // gap between user appearing and the fetch useEffect firing.
+  const [settled, setSettled] = useState(false);
 
   // Load from Supabase whenever the authenticated user changes.
   useEffect(() => {
@@ -57,18 +61,22 @@ export function useStore() {
         locale: prev.locale,
       }));
       setDataLoading(false);
+      setSettled(false);
       return;
     }
 
     setDataLoading(true);
+    setSettled(false);
     Promise.all([db.fetchProfile(user.id), db.fetchCheckins(user.id)])
       .then(([profile, checkins]) => {
         setState(prev => ({ ...prev, profile, checkins }));
         setDataLoading(false);
+        setSettled(true);
       })
       .catch(err => {
         console.error('Failed to load data from Supabase:', err);
         setDataLoading(false);
+        setSettled(true);
       });
   }, [user?.id]);
 
@@ -147,26 +155,7 @@ export function useStore() {
     localStorage.setItem(MIGRATION_FLAG_KEY, 'true');
   }, []);
 
-  // Dev-mode mock helpers — work on in-memory state only, no Supabase writes.
-  const loadMockData = useCallback((mockState) => {
-    setState(prev => {
-      const { locale: _l, languageSetting: _ls, ...rest } = mockState;
-      return { ...prev, ...rest };
-    });
-  }, []);
-
-  const restoreRealData = useCallback(() => {
-    if (!user) return;
-    setDataLoading(true);
-    Promise.all([db.fetchProfile(user.id), db.fetchCheckins(user.id)])
-      .then(([profile, checkins]) => {
-        setState(prev => ({ ...prev, profile, checkins }));
-        setDataLoading(false);
-      })
-      .catch(() => setDataLoading(false));
-  }, [user]);
-
-  // Derived helpers (same as before)
+  // Derived helpers
   const latestCheckin = state.checkins.length > 0
     ? state.checkins[state.checkins.length - 1]
     : null;
@@ -183,6 +172,7 @@ export function useStore() {
   return {
     ...state,
     dataLoading,
+    settled,
     latestCheckin,
     todayCheckin,
     currentWeight,
@@ -194,7 +184,5 @@ export function useStore() {
     saveCheckinForDate,
     migrateFromLocalStorage,
     dismissMigration,
-    loadMockData,
-    restoreRealData,
   };
 }

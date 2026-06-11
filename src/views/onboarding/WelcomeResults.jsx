@@ -1,7 +1,7 @@
 import {
   Stack, Button, ButtonContainer, Heading, Paragraph,
-  Card, Icon, MessageBadge, Section, Grid, Banner,
-  IconButton,
+  Card, MessageBadge, Section, Grid, Banner,
+  IconButton, StickyActions,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { calculateGoalPlan } from '../../utils/calculations.js';
@@ -23,7 +23,6 @@ const BMI_HERO = {
   obese:       { color: 'error',   icon: 'monitor_heart' },
 };
 
-// Status and icon need to be different values, the card icon also need to change
 const BMI_BADGE_STATUS = {
   underweight: 'warn',
   normal:      'success',
@@ -41,31 +40,29 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
 
   return (
     <>
-<Section surface="raised" padding="sm" contentWidth="xs" gap="lg">
-
-          <Heading type="display" size="xxl" as="h1" align='center'>
-            You've got a plan!
-          </Heading>
+      <Section
+        surface="raised"
+        padding="sm"
+        contentWidth="xs"
+        gap="lg"
+        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
+      >
+        <Heading type="display" size="xxl" as="h1" align='center'>
+          You've got a plan!
+        </Heading>
 
         <Card icon={bmiHero.icon} iconDisplay="hero" heroColor={bmiHero.color}>
           <Heading as="h4" size="lg" align="center">
             {l('onboarding.bmiTitle', 'Your BMI')}
           </Heading>
-
           <Stack direction="row" align="center" justify="center" wrap>
             <Heading as="h3" type="display" size="xJumbo" align="center">
               {plan.bmi?.value}
             </Heading>
-
-            <MessageBadge
-              size="lg"
-              status={bmiStatus}
-              icon={bmiStatus}
-            >
+            <MessageBadge size="lg" status={bmiStatus} icon={bmiStatus}>
               {l(`bmiCategory.${plan.bmi?.category}`, plan.bmi?.category)}
             </MessageBadge>
           </Stack>
-
           <BmiRangeChart bmi={plan.bmi} />
         </Card>
 
@@ -74,7 +71,7 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
             { label: l('onboarding.tdeeLabel', 'Daily Calorie Budget'), value: formatNumber(plan.targetDailyCalories), sub: l('common.calDay', 'cal/day'), icon: 'restaurant' },
             { label: l('onboarding.weeklyLossLabel', 'Est. Weekly Loss'), value: plan.weeklyLoss, sub: profile.weightUnit, icon: 'trending_down' },
             { label: l('onboarding.deficitLabel', 'Daily Deficit'), value: formatNumber(plan.dailyDeficit), sub: l('common.calDay', 'cal/day'), icon: 'bolt' },
-          ].map(({ label, value, sub, icon }) => (
+          ].map(({ label, value, sub }) => (
             <Card key={label} bare>
               <Stack direction="column" gap="sm">
                 <Heading as="h3" size="sm">{label}</Heading>
@@ -93,38 +90,36 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
           </Card>
         </Grid>
 
-                  <Stack gap="xs">
-        <Banner
-        variant='system'
-          status={plan.isFeasible ? 'success' : 'warn'}
-          icon={plan.isFeasible ? 'favorite' : 'star'}
-          title={
-            plan.isFeasible
-              ? l('onboarding.feasibleNote', 'This is a healthy, achievable pace.')
-              : l('onboarding.aggressiveNote', "Your goal is ambitious — that's great! Focus on consistency over speed.")
-          }
-        />
-
-        <Banner
-        variant='system'
-          status="neutral"
-          icon="medication"
-          title={l('onboarding.medNote', 'Medications can significantly accelerate your results. Every pound lost is a win!')}
-        />
+        <Stack gap="xs">
+          <Banner
+            variant='system'
+            status={plan.isFeasible ? 'success' : 'warn'}
+            icon={plan.isFeasible ? 'favorite' : 'star'}
+            title={
+              plan.isFeasible
+                ? l('onboarding.feasibleNote', 'This is a healthy, achievable pace.')
+                : l('onboarding.aggressiveNote', "Your goal is ambitious — that's great! Focus on consistency over speed.")
+            }
+          />
+          <Banner
+            variant='system'
+            status="neutral"
+            icon="medication"
+            title={l('onboarding.medNote', 'Medications can significantly accelerate your results. Every pound lost is a win!')}
+          />
         </Stack>
+      </Section>
 
-                <ButtonContainer align="end" fillButtons>
+      <StickyActions contentWidth="xs">
+        <ButtonContainer fillButtons size="lg">
           {onBack && (
-            <IconButton variant="secondary" icon="arrow_back" size="lg" onClick={onBack}>
-              {l('common.back', 'Back')}
-            </IconButton>
+            <IconButton variant="secondary" icon="arrow_back" label="Back" size="lg" onClick={onBack} />
           )}
           <Button variant="primary" size="lg" onClick={onDone}>
             Go to tracker
           </Button>
         </ButtonContainer>
-
-      </Section>
+      </StickyActions>
     </>
   );
 }

@@ -129,7 +129,13 @@
       "resetConfirm": { "$value": "Yes, Reset Everything", "locale": { "es": "Sí, Restablecer Todo" } },
       "resetBody": { "$value": "This will permanently delete all your weight data and profile information. This cannot be undone.", "locale": { "es": "Esto eliminará permanentemente todos tus datos de peso e información de perfil. Esta acción no se puede deshacer." } },
       "account": { "$value": "Account", "locale": { "es": "Cuenta" } },
-      "signOut": { "$value": "Sign Out", "locale": { "es": "Cerrar Sesión" } }
+      "email": { "$value": "Email", "locale": { "es": "Correo Electrónico" } },
+      "signOut": { "$value": "Sign Out", "locale": { "es": "Cerrar Sesión" } },
+      "deleteAccount": { "$value": "Delete Account", "locale": { "es": "Eliminar Cuenta" } },
+      "deleteAccountTitle": { "$value": "Delete Account", "locale": { "es": "Eliminar Cuenta" } },
+      "deleteAccountBody": { "$value": "This permanently deletes your account and all your data. This cannot be undone.", "locale": { "es": "Esto elimina permanentemente tu cuenta y todos tus datos. Esta acción no se puede deshacer." } },
+      "deleteAccountConfirm": { "$value": "Yes, Delete My Account", "locale": { "es": "Sí, Eliminar Mi Cuenta" } },
+      "deletingAccount": { "$value": "Deleting…", "locale": { "es": "Eliminando…" } }
     },
     "checkin": {
       "greeting": {
@@ -142,6 +148,7 @@
       "lastEntry": { "$value": "Last logged", "locale": { "es": "Último registro" } },
       "logWeight": { "$value": "Log Weight", "locale": { "es": "Registrar Peso" } },
       "logPast": { "$value": "Log past", "locale": { "es": "Registrar anterior" } },
+      "noProfile": { "$value": "Head to Settings to finish setting up your profile.", "locale": { "es": "Ve a Configuración para terminar de configurar tu perfil." } },
       "takeSurvey": { "$value": "Add a quick check-in", "locale": { "es": "Agregar un chequeo rápido" } },
       "skipSurvey": { "$value": "I'm all done for today", "locale": { "es": "Ya terminé por hoy" } },
       "alreadyLogged": { "$value": "You've already logged today!", "locale": { "es": "¡Ya registraste hoy!" } },

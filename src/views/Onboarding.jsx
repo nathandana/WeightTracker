@@ -29,7 +29,7 @@ export function Onboarding({ onComplete, onSignIn }) {
     heightFeet: 5,
     heightInches: 7,
     height: '',
-    age: '',
+    age: 40,
     sex: 'female',
     activityLevel: 'moderate',
     dailyCalories: '1750',

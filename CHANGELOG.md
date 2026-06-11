@@ -1,5 +1,37 @@
 # Changelog
 
+## [Unreleased] 2026-06-11 (session 4)
+
+### Added
+- **Age default** — onboarding `age` field now defaults to `40` instead of empty
+- **StickyActions in onboarding** — all five onboarding screens (Steps 1–4 + WelcomeResults) now pin their `StepTracker` + `ButtonContainer` to the bottom of the viewport via the new `StickyActions` DS component; `Section` content gets bottom padding so the last item isn't hidden behind the bar
+- **Loading spinner** — `LoadingScreen` now shows an indeterminate `CircularProgress` (lg) instead of plain "Loading…" text
+
+### Changed
+- **App.jsx routing rewritten as an explicit `view` state machine** (`loading` / `onboarding` / `login` / `signup` / `app`) — fixes the race where signing in flashed Onboarding for one render. Rules: an authenticated user always lands on the app; the *only* path back to onboarding is an explicit in-app data reset (`reonboard` flag set by `handleResetData`). Sign-out returns to onboarding step 1.
+- **useStore.js** — added a `settled` flag (true only after the first Supabase fetch completes for the current user) so routing never reacts to a stale `dataLoading=false`
+- **SettingsPage.jsx** — "Reset All Data" now calls the App-provided `onResetData` (resets store **and** triggers re-onboarding) instead of `store.reset()` directly
+- **CheckIn.jsx** — restored a "Head to Settings to finish setting up your profile" fallback for the edge case of an authenticated user with no profile
+
+### Fixed
+- **Cloud saves were silently failing** — the `profiles` and `weight_entries` tables had never been created in Supabase (only `delete_user()` had been run), so every fire-and-forget save errored to the console and `fetchProfile` returned null. Created the tables and their RLS policies; verified insert/upsert/read end-to-end against the live DB.
+- **`weight_entries` RLS** — table had RLS enabled with **zero policies**, denying all writes (error 42501). Added the four `select/insert/update/delete` policies.
+- **Upsert RLS** — both `profiles` and `weight_entries` update policies now include a `with check` clause (required for `INSERT … ON CONFLICT DO UPDATE` upserts to pass RLS)
+- **schema.sql is now idempotent** — `drop policy/trigger if exists` before each create, so the script is safe to re-run
+
+## [Unreleased] 2026-06-11 (session 3)
+
+### Added
+- **SettingsPage Account card** — dedicated card showing display name + email (via `DefinitionList`), Sign Out button, and Delete Account button with a confirmation `Dialog` (error status, loading + error states)
+- **Delete account flow** — `deleteAccount()` in `AuthContext` calls `supabase.rpc('delete_user')` then signs out; `SECURITY DEFINER` stored procedure in `supabase/schema.sql` performs the deletion server-side with cascade
+- **Labels** — `settings.email`, `settings.deleteAccount`, `settings.deleteAccountTitle`, `settings.deleteAccountBody`, `settings.deleteAccountConfirm`, `settings.deletingAccount` added to `labels.json` (en + es)
+
+### Changed
+- **App.jsx** — authenticated users with no profile (e.g. after "Reset All Data") now see Onboarding again instead of an empty main app; no forced login at that point
+- **CheckIn.jsx** — removed the "Set up your profile in Settings to get started" fallback screen; routing now handles the no-profile case at the App level
+- **useStore.js** — removed dev-only `loadMockData` and `restoreRealData` methods (unused after dev bar removal)
+- **SettingsPage.jsx** — removed the `{onSignOut && ...}` Account section from the Data card; Account is now its own card; imports `useAuth` directly for `user.email` and `deleteAccount`
+
 ## [Unreleased] 2026-06-11 (continued)
 
 ### Added

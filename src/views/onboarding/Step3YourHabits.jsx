@@ -1,6 +1,6 @@
 import {
   Stack, Button, ButtonContainer, IconButton, ChoiceGroup, TextField,
-  Heading, Section, StepTracker, Divider,
+  Heading, Section, StepTracker, StickyActions,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { ACTIVITY_OPTIONS, CALORIE_OPTIONS, MED_OPTIONS } from './onboardingConfig.js';
@@ -9,71 +9,78 @@ export function Step3YourHabits({ form, set, onBack, onContinue, currentStep, to
   const l = useLabel;
 
   return (
-    <Section padding="md" contentWidth="xs" align="center" gap="lg">
-      <Heading type="display" size="jumbo" as="h1" align="center">
-        How do you move?
-      </Heading>
-      <Stack gap="lg" style={{ width: '100%' }}>
-        <ChoiceGroup
-          label={l('onboarding.activityLevel', 'Activity Level')}
-          options={ACTIVITY_OPTIONS(l)}
-          columns={2}
-          value={form.activityLevel}
-          size='comfortable'
-          onChange={v => set('activityLevel', v)}
-        />
-        <ChoiceGroup
-          label={l('onboarding.dailyCalories', 'Estimated Daily Calories')}
-          hint={l('onboarding.dailyCalHint', 'Your typical daily food intake')}
-          options={CALORIE_OPTIONS}
-          columns={2}
-          value={form.dailyCalories}
-          size='comfortable'
-          onChange={v => set('dailyCalories', v)}
-        />
-        <Stack gap="md">
+    <>
+      <Section
+        padding="md"
+        contentWidth="xs"
+        align="center"
+        gap="lg"
+        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
+      >
+        <Heading type="display" size="jumbo" as="h1" align="center">
+          How do you move?
+        </Heading>
+        <Stack gap="lg" style={{ width: '100%' }}>
           <ChoiceGroup
-            label={l('onboarding.meds', 'Weight Loss Medications')}
-            hint={l('onboarding.medsHint', "Select any you're currently taking")}
-            options={MED_OPTIONS(l)}
+            label={l('onboarding.activityLevel', 'Activity Level')}
+            options={ACTIVITY_OPTIONS(l)}
             columns={2}
-            multiple
-          size='comfortable'
-            value={form.meds}
-            onChange={v => {
-              const hadNone = form.meds.includes('none');
-              const hasNone = v.includes('none');
-              if (hasNone && !hadNone) {
-                set('meds', ['none']);
-              } else if (hasNone && v.length > 1) {
-                set('meds', v.filter(x => x !== 'none'));
-              } else {
-                set('meds', v);
-              }
-            }}
+            value={form.activityLevel}
+            size='comfortable'
+            onChange={v => set('activityLevel', v)}
           />
-          {form.meds.includes('other') && (
-            <TextField
-              label={l('onboarding.otherMed', 'Medication Name')}
-              placeholder={l('onboarding.otherMedPlaceholder', 'Enter medication name')}
-              value={form.otherMed}
-              size="comfortable"
-              onChange={ev => set('otherMed', ev.target.value)}
+          <ChoiceGroup
+            label={l('onboarding.dailyCalories', 'Estimated Daily Calories')}
+            hint={l('onboarding.dailyCalHint', 'Your typical daily food intake')}
+            options={CALORIE_OPTIONS}
+            columns={2}
+            value={form.dailyCalories}
+            size='comfortable'
+            onChange={v => set('dailyCalories', v)}
+          />
+          <Stack gap="md">
+            <ChoiceGroup
+              label={l('onboarding.meds', 'Weight Loss Medications')}
+              hint={l('onboarding.medsHint', "Select any you're currently taking")}
+              options={MED_OPTIONS(l)}
+              columns={2}
+              multiple
+              size='comfortable'
+              value={form.meds}
+              onChange={v => {
+                const hadNone = form.meds.includes('none');
+                const hasNone = v.includes('none');
+                if (hasNone && !hadNone) {
+                  set('meds', ['none']);
+                } else if (hasNone && v.length > 1) {
+                  set('meds', v.filter(x => x !== 'none'));
+                } else {
+                  set('meds', v);
+                }
+              }}
             />
-          )}
+            {form.meds.includes('other') && (
+              <TextField
+                label={l('onboarding.otherMed', 'Medication Name')}
+                placeholder={l('onboarding.otherMedPlaceholder', 'Enter medication name')}
+                value={form.otherMed}
+                size="comfortable"
+                onChange={ev => set('otherMed', ev.target.value)}
+              />
+            )}
+          </Stack>
         </Stack>
-      </Stack>
+      </Section>
 
-      <Divider size="md" color="accent" />
-
-      <StepTracker steps={totalSteps} currentStep={currentStep} align="center" />
-
-      <ButtonContainer size="lg" fillButtons>
-        <IconButton icon="arrow_back" variant="secondary" size="lg" onClick={onBack} />
-        <Button variant="primary" onClick={onContinue} style={{ flex: '1 1 auto', minWidth: 0 }}>
-          Next... your goal
-        </Button>
-      </ButtonContainer>
-    </Section>
+      <StickyActions contentWidth="xs">
+        <StepTracker steps={totalSteps} currentStep={currentStep} align="center" />
+        <ButtonContainer size="lg" fillButtons>
+          <IconButton icon="arrow_back" label="Back" variant="secondary" size="lg" onClick={onBack} />
+          <Button variant="primary" onClick={onContinue}>
+            Next... your goal
+          </Button>
+        </ButtonContainer>
+      </StickyActions>
+    </>
   );
 }

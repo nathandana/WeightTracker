@@ -5,14 +5,20 @@ import {
   NumberField, RadioGroup, ChoiceGroup, TextField, FieldRow,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
+import { useAuth } from '../lib/AuthContext.jsx';
 import { ACTIVITY_OPTIONS, MED_OPTIONS } from './onboarding/onboardingConfig.js';
 import { formatDate } from '../utils/locale.js';
 
-export function SettingsPage({ store, onSignOut }) {
+export function SettingsPage({ store, onSignOut, onResetData }) {
   const l = useLabel;
+  const { user, deleteAccount } = useAuth();
   const { profile, locale, languageSetting, setLanguageSetting, saveProfile, reset } = store;
+
   const [editOpen, setEditOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
   const [form, setForm] = useState(null);
 
   if (!profile) return null;
@@ -60,6 +66,11 @@ export function SettingsPage({ store, onSignOut }) {
     { id: 'goalDate',    label: l('onboarding.goalDate',    'Target Date'),     value: fmt(profile.goalDate) },
   ];
 
+  const accountItems = [
+    ...(profile.name ? [{ id: 'name', label: l('onboarding.name', 'Name'), value: profile.name }] : []),
+    { id: 'email', label: l('settings.email', 'Email'), value: user?.email ?? '—' },
+  ];
+
   function openEdit() {
     setForm({ ...profile });
     setEditOpen(true);
@@ -76,7 +87,20 @@ export function SettingsPage({ store, onSignOut }) {
 
   function handleReset() {
     setResetOpen(false);
-    reset();
+    if (onResetData) onResetData();
+    else reset();
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteBusy(true);
+    setDeleteError(null);
+    try {
+      await deleteAccount();
+      // Auth state change fires → App re-renders to onboarding
+    } catch (err) {
+      setDeleteError(err?.message ?? 'Something went wrong. Please try again.');
+      setDeleteBusy(false);
+    }
   }
 
   return (
@@ -84,17 +108,18 @@ export function SettingsPage({ store, onSignOut }) {
       <Heading type="display" size="xxl" as="h1">{l('settings.title', 'Settings')}</Heading>
 
       <Grid columns={{ xs: 1, sm: 2 }} gap="lg">
+        {/* Profile card */}
         <Card>
           <Stack gap="md">
             <Stack direction="row" justify="between" align="center">
               <Heading size="md">{l('settings.yourProfile', 'Your Profile')}</Heading>
               <Button variant="tertiary" icon="edit" size="sm" onClick={openEdit}>{l('common.edit', 'Edit')}</Button>
             </Stack>
-
             <DefinitionList items={profileItems} direction="row" labelWidth="fixed" size="sm" />
           </Stack>
         </Card>
 
+        {/* Language + Data card */}
         <Card>
           <Stack gap="lg">
             <Stack gap="sm">
@@ -121,20 +146,29 @@ export function SettingsPage({ store, onSignOut }) {
                 </Button>
               </div>
             </Stack>
-            {onSignOut && (
-              <Stack gap="sm">
-                <Heading size="md">{l('settings.account', 'Account')}</Heading>
-                <div>
-                  <Button variant="secondary" icon="logout" onClick={onSignOut}>
-                    {l('settings.signOut', 'Sign Out')}
-                  </Button>
-                </div>
-              </Stack>
-            )}
+          </Stack>
+        </Card>
+
+        {/* Account card */}
+        <Card>
+          <Stack gap="md">
+            <Heading size="md">{l('settings.account', 'Account')}</Heading>
+            <DefinitionList items={accountItems} direction="row" labelWidth="fixed" size="sm" />
+            <Stack direction="row" gap="sm" wrap>
+              {onSignOut && (
+                <Button variant="secondary" icon="logout" onClick={onSignOut}>
+                  {l('settings.signOut', 'Sign Out')}
+                </Button>
+              )}
+              <Button variant="destructive" icon="person_remove" onClick={() => setDeleteOpen(true)}>
+                {l('settings.deleteAccount', 'Delete Account')}
+              </Button>
+            </Stack>
           </Stack>
         </Card>
       </Grid>
 
+      {/* Edit profile dialog */}
       <Dialog
         open={editOpen}
         title={l('profile.editProfile', 'Edit Profile')}
@@ -248,6 +282,7 @@ export function SettingsPage({ store, onSignOut }) {
         )}
       </Dialog>
 
+      {/* Reset data dialog */}
       <Dialog
         title={l('settings.resetTitle', 'Reset All Data')}
         status="error"
@@ -260,9 +295,30 @@ export function SettingsPage({ store, onSignOut }) {
           </ButtonContainer>
         }
       >
-        <Paragraph>
-          {l('settings.resetBody', 'This will permanently delete all your weight data and profile information. This cannot be undone.')}
-        </Paragraph>
+        <Paragraph>{l('settings.resetBody', 'This will permanently delete all your weight data and profile information. This cannot be undone.')}</Paragraph>
+      </Dialog>
+
+      {/* Delete account dialog */}
+      <Dialog
+        title={l('settings.deleteAccountTitle', 'Delete Account')}
+        status="error"
+        open={deleteOpen}
+        onClose={() => { if (!deleteBusy) { setDeleteOpen(false); setDeleteError(null); } }}
+        footer={
+          <ButtonContainer align="end">
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleteBusy}>
+              {deleteBusy ? l('settings.deletingAccount', 'Deleting…') : l('settings.deleteAccountConfirm', 'Yes, Delete My Account')}
+            </Button>
+            <Button variant="tertiary" onClick={() => { setDeleteOpen(false); setDeleteError(null); }} disabled={deleteBusy}>
+              {l('common.cancel', 'Cancel')}
+            </Button>
+          </ButtonContainer>
+        }
+      >
+        <Stack gap="md">
+          <Paragraph>{l('settings.deleteAccountBody', 'This permanently deletes your account and all your data. This cannot be undone.')}</Paragraph>
+          {deleteError && <Paragraph color="error" size="sm">{deleteError}</Paragraph>}
+        </Stack>
       </Dialog>
     </Section>
   );

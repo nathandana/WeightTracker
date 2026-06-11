@@ -46,8 +46,16 @@ export function AuthProvider({ children }) {
     return error;
   }
 
+  // Calls a Supabase stored procedure (security definer) that deletes the
+  // calling user from auth.users, which cascades to all their data.
+  async function deleteAccount() {
+    const { error } = await supabase.rpc('delete_user');
+    if (error) throw error;
+    await supabase.auth.signOut();
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut, resetPassword, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
