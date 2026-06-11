@@ -145,7 +145,7 @@ export default function App() {
   const devBar = (
     <div style={devBarStyle}>
       <span>🧪 Dev</span>
-      <select style={devSelectStyle} value={activeScenario} onChange={handleScenarioChange}>
+      <select style={devSelectStyle} aria-label="Test scenario" value={activeScenario} onChange={handleScenarioChange}>
         {MOCK_SCENARIOS.map(s => (
           <option key={s.id} value={s.id}>{s.label}</option>
         ))}

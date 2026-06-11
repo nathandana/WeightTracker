@@ -159,10 +159,10 @@ export function CheckIn({ store, onNavigate }) {
     return (
       <Stack gap="md">
         {dialogStep === 0 && (
-          <Paragraph color="muted" size="sm">Optionally keep track of your daily details</Paragraph>
+          <Paragraph color="muted" size="sm" align='center'>Optionally keep track of your daily details</Paragraph>
         )}
         {!isSummary && (
-          <StepTracker steps={CHECKIN_STEPS.length} currentStep={Math.min(dialogStep + 1, CHECKIN_STEPS.length)} align="left" />
+          <StepTracker steps={CHECKIN_STEPS.length} currentStep={Math.min(dialogStep + 1, CHECKIN_STEPS.length)} align="center" />
         )}
         {!isSummary && isTextareaStep && (
           <TextareaField
@@ -263,8 +263,8 @@ export function CheckIn({ store, onNavigate }) {
               </Stack>
             </Card>
             <Card>
-              <Stack gap="sm">
-                <Heading as="h4" size="md" type="display">
+              <Stack align="center" gap="sm">
+                <Heading as="h4" size="md" type="display" align='center'>
                   {isSummary ? 'Today:' : currentStepDef?.title}
                 </Heading>
                 {CheckInFlow()}
