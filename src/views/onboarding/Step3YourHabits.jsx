@@ -10,15 +10,9 @@ export function Step3YourHabits({ form, set, onBack, onContinue, currentStep, to
 
   return (
     <>
-      <Section
-        padding="md"
-        contentWidth="xs"
-        align="center"
-        gap="lg"
-        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
-      >
+      <Section padding="xs" contentWidth="xs" gap="lg">
         <Heading type="display" size="jumbo" as="h1" align="center">
-          How do you move?
+          {l('onboarding.s3Heading', 'How do you move?')}
         </Heading>
         <Stack gap="lg" style={{ width: '100%' }}>
           <ChoiceGroup
@@ -77,7 +71,7 @@ export function Step3YourHabits({ form, set, onBack, onContinue, currentStep, to
         <ButtonContainer size="lg" fillButtons>
           <IconButton icon="arrow_back" label="Back" variant="secondary" size="lg" onClick={onBack} />
           <Button variant="primary" onClick={onContinue}>
-            Next... your goal
+            {l('onboarding.nextGoal', 'Next... your goal')}
           </Button>
         </ButtonContainer>
       </StickyActions>

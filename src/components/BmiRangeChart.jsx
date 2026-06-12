@@ -1,6 +1,7 @@
 import {
   BarChart, Bar, XAxis, YAxis, ReferenceLine, ResponsiveContainer,
 } from 'recharts';
+import { useLabel } from '@gtivr4/a1-design-system-react';
 
 const BMI_MIN = 15;
 const BMI_MAX = 45;
@@ -17,6 +18,7 @@ const bmiData = [{
 const LABEL_STYLE = { fontSize: 10, color: 'var(--semantic-color-text-muted, #888)' };
 
 export function BmiRangeChart({ bmi }) {
+  const l = useLabel;
   if (!bmi?.value) return null;
   const pos = Math.min(BMI_RANGE - 0.5, Math.max(0.5, bmi.value - BMI_MIN));
 
@@ -51,10 +53,10 @@ export function BmiRangeChart({ bmi }) {
         </BarChart>
       </ResponsiveContainer>
       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 8px 0' }}>
-        <span style={LABEL_STYLE}>Underweight</span>
-        <span style={LABEL_STYLE}>Healthy</span>
-        <span style={LABEL_STYLE}>Overweight</span>
-        <span style={LABEL_STYLE}>Obese</span>
+        <span style={LABEL_STYLE}>{l('bmiRange.underweight', 'Underweight')}</span>
+        <span style={LABEL_STYLE}>{l('bmiRange.healthy', 'Healthy')}</span>
+        <span style={LABEL_STYLE}>{l('bmiRange.overweight', 'Overweight')}</span>
+        <span style={LABEL_STYLE}>{l('bmiRange.obese', 'Obese')}</span>
       </div>
     </div>
   );

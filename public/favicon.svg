@@ -1,0 +1,37 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DownTracker simplified geometric icon</title>
+  <desc id="desc">Rounded square teal and sea green geometric app icon with an abstract downward-right direction shape.</desc>
+  <defs>
+    <linearGradient id="bg" x1="128" y1="128" x2="896" y2="896" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7bcfbd"/>
+      <stop offset="0.48" stop-color="#18aaa7"/>
+      <stop offset="1" stop-color="#00777a"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="320" y1="280" x2="720" y2="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff9dc"/>
+      <stop offset="1" stop-color="#f4edca"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <rect x="96" y="96" width="832" height="832" rx="140" ry="140"/>
+    </clipPath>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#063b3f" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <rect x="96" y="96" width="832" height="832" rx="140" ry="140" fill="url(#bg)" filter="url(#shadow)"/>
+
+  <g clip-path="url(#clip)">
+    <polygon points="96,96 928,96 700,320 96,220" fill="#89d8c5" opacity="0.9"/>
+    <polygon points="96,220 560,610 96,520" fill="#49bfb5" opacity="0.9"/>
+    <polygon points="96,520 560,610 390,928 96,928" fill="#007a80" opacity="0.82"/>
+    <polygon points="560,610 928,400 928,928 390,928" fill="#008f8d" opacity="0.72"/>
+    <polygon points="700,320 928,96 928,400" fill="#20aaa6" opacity="0.92"/>
+    <polygon points="560,610 928,400 928,620 720,770" fill="#00686d" opacity="0.85"/>
+
+    <!-- Abstract directional mark -->
+    <polygon points="230,285 690,640 800,530 760,752 455,795 585,675" fill="url(#cream)"/>
+    <polygon points="230,285 585,675 455,795" fill="#fff6d4" opacity="0.96"/>
+    <polygon points="690,640 800,530 760,752" fill="#f6efd0" opacity="0.98"/>
+  </g>
+</svg>

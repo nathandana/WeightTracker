@@ -1,16 +1,9 @@
 import { useState } from 'react';
 import {
   Stack, Button, ButtonContainer, FieldRow, NumberField, Calendar,
-  Heading, Paragraph, Section, StepTracker, Banner, StickyActions,
+  Heading, Paragraph, Section, StepTracker, Banner, StickyActions, Link,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
-
-const signInLinkStyle = {
-  background: 'none', border: 'none', padding: '0 0 0 4px',
-  color: 'var(--semantic-color-action-background)',
-  cursor: 'pointer', fontSize: 'inherit', textDecoration: 'underline',
-  fontFamily: 'inherit',
-};
 
 export function Step1AboutYou({
   form, set, errors,
@@ -27,17 +20,21 @@ export function Step1AboutYou({
 
   return (
     <>
-      <Section
-        padding="md"
-        contentWidth="xs"
-        align="center"
-        gap="xl"
-        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
-      >
-        <Heading type="display" size="jumbo" as="h1" align="center">
-          Set your start
-        </Heading>
-        <FieldRow style={{ width: '100%' }}>
+      <Section padding="xs" contentWidth="xs" gap="lg">
+        <Stack gap="xs">
+          <Heading type="display" size="jumbo" as="h1" align="center">
+            {l('onboarding.s1Heading', 'Set your start')}
+          </Heading>
+          {onSignIn && (
+            <Paragraph size="lg" align="center" color="muted">
+              {l('onboarding.alreadyHaveAccount', 'Already have an account?')}{' '}
+              <Link href="#" weight='bold' onClick={(e) => { e.preventDefault(); onSignIn(); }}>
+                {l('onboarding.signIn', 'Sign in')}
+              </Link>
+            </Paragraph>
+          )}
+        </Stack>
+        <FieldRow>
           <NumberField
             className='boldInput'
             label={l('onboarding.startWeight', 'Current Weight')}
@@ -75,16 +72,13 @@ export function Step1AboutYou({
           />
         )}
 
-        <Stack gap="md" style={{ width: '100%' }}>
-          <Stack direction="row" align="center" justify="between">
-            <Stack gap="none">
+          <Stack direction="row" align='baseline' wrap gap="sm">
               <Heading size="xs" color="muted">
                 {l('onboarding.startDate', 'Start Date')}
               </Heading>
-              <Paragraph size="lg">{startDateLabel}</Paragraph>
-            </Stack>
+              <Heading size="md">{startDateLabel}</Heading>
             <Button
-              variant="tertiary"
+              variant="secondary"
               size="sm"
               icon={showStartDatePicker ? 'close' : 'calendar_today'}
               onClick={() => setShowStartDatePicker(v => !v)}
@@ -109,24 +103,15 @@ export function Step1AboutYou({
               }}
             />
           )}
-        </Stack>
       </Section>
 
       <StickyActions contentWidth="xs">
         <StepTracker steps={totalSteps} currentStep={currentStep} align="center" />
         <ButtonContainer size="lg" fillButtons>
           <Button variant="primary" onClick={onContinue}>
-            Let's get going!
+            {l('onboarding.letsGo', "Let's get going!")}
           </Button>
         </ButtonContainer>
-        {onSignIn && (
-          <Paragraph size="sm" align="center" color="muted">
-            Already have an account?
-            <button style={signInLinkStyle} type="button" onClick={onSignIn}>
-              Sign in
-            </button>
-          </Paragraph>
-        )}
       </StickyActions>
     </>
   );

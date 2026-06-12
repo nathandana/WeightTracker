@@ -79,10 +79,20 @@ export function CheckIn({ store, onNavigate }) {
     })),
   }));
 
+  // The day's survey counts as "done" only when a mood/activity/calories/notes
+  // answer exists — the weight value auto-saves on its own and doesn't count.
+  const surveyAnswered = (c) => !!(c && (c.mood || c.activity || c.calories || c.notes?.trim()));
+
   const [weight, setWeight] = useState(currentWeight ?? profile?.startWeight ?? 150);
   const [moodOpen, setMoodOpen] = useState(false);
-  const [dialogStep, setDialogStep] = useState(0);
-  const [tempCheckin, setTempCheckin] = useState({});
+  // If today's survey is already filled in, open straight to the summary step.
+  const [dialogStep, setDialogStep] = useState(() => surveyAnswered(todayCheckin) ? checkinSteps.length : 0);
+  const [tempCheckin, setTempCheckin] = useState(() => ({
+    mood: todayCheckin?.mood,
+    activity: todayCheckin?.activity,
+    calories: todayCheckin?.calories,
+    notes: todayCheckin?.notes ?? '',
+  }));
   const [viewNotes, setViewNotes] = useState(null);
   const [pastOpen, setPastOpen] = useState(false);
   const isDirty = useRef(false);

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.9.0] 2026-06-12
+
+### Added
+- **Favicon** — SVG geometric DownTrack mark at `public/favicon.svg`, wired into `index.html` with a `theme-color` (the site previously had no favicon)
+- **i18n coverage for Onboarding & DataPage** — every rendered user-facing string now goes through the label system (en + es):
+  - Onboarding step headings, "Next…" buttons, "Let's get going!", sign-in prompt, "Create your account" (new `onboarding.*` keys; component copy had diverged from the stale existing keys)
+  - DataPage page title, empty state, tab labels, DataTable column headers + badge values (reusing `survey.*` keys), chart titles/subtitles, notes dialog
+- **AuthPage / Onboarding now render in the active locale** — their `LabelsProvider` was hardcoded to `locale="en"`; switched to `store.locale` so translations actually appear
+
+### Changed
+- Bumped app version to 0.9.0
+- "How are you feeling?" card opens to the summary step when the day's survey is already filled in (gated on survey answers, not the auto-saved weight)
+- Onboarding create-account screen now has a working Back path; onboarding routes are individual URLs with browser back/forward support
+- AuthPage uses `Section` + DS `Link` components instead of raw wrapper divs and styled `<button>`s
+
+### Notes
+- A11y: 26 axe checks pass with zero critical/serious violations. 2 SettingsPage edit-dialog tests remain failing as pre-existing fixture debt (they seed legacy localStorage and can't reach `/settings` under Supabase auth) — not a real violation.
+- `src/views/Profile.jsx` and `src/views/Progress.jsx` contain untranslated strings but are dead code (not imported anywhere).
+- iOS `apple-touch-icon` PNG still needed (no SVG rasterizer available locally to generate it).
+
 ## [Unreleased] 2026-06-11 (session 4)
 
 ### Added

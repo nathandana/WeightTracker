@@ -4,6 +4,7 @@ import {
   Tabs, TabList, Tab, TabPanel, Paragraph, Dialog,
   MessageEmptyState,
 } from '@gtivr4/a1-design-system-react';
+import { useLabel } from '@gtivr4/a1-design-system-react';
 import {
   ResponsiveContainer, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ReferenceArea,
@@ -203,8 +204,30 @@ function BmiTrendChart({ checkins, profile }) {
 // ─── main page ────────────────────────────────────────────────────────────────
 
 export function DataPage({ store }) {
+  const l = useLabel;
   const { checkins, profile, locale } = store;
   const unit = profile?.weightUnit ?? 'lbs';
+
+  // Display strings for the survey badges. Built via the label system so they
+  // translate; the DataTable statusMap below is keyed by these same values.
+  const MOOD = {
+    great: `😊 ${l('survey.moodGreat', 'Amazing')}`,
+    good:  `🙂 ${l('survey.moodGood', 'Good')}`,
+    okay:  `😐 ${l('survey.moodOkay', 'Okay')}`,
+    low:   `😞 ${l('survey.moodLow', 'Tough Day')}`,
+  };
+  const ACTIVITY = {
+    high:   l('survey.activityHigh', 'Intense'),
+    medium: l('survey.activityMed', 'Moderate'),
+    low:    l('survey.activityLow', 'Light'),
+    none:   l('survey.activityNone', 'Rest Day'),
+  };
+  const CALORIES = {
+    under:    l('survey.calUnder', 'Under goal'),
+    on_track: l('survey.calOnTrack', 'On track'),
+    over:     l('survey.calOver', 'Slightly over'),
+    way_over: l('survey.calWayOver', 'Way over'),
+  };
   const [tab, setTab] = useState(() => {
     const t = new URLSearchParams(window.location.search).get('tab');
     return t === 'charts' ? 'charts' : 'data';
@@ -233,28 +256,28 @@ export function DataPage({ store }) {
       _rawDate: c.date,
       date:      formatDate(c.date, locale, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
       weight:    c.weight,
-      mood:      c.mood     ? { great: '😊 Amazing', good: '🙂 Good', okay: '😐 Okay', low: '😞 Tough Day' }[c.mood] : null,
-      activity:  c.activity ? { high: 'Intense', medium: 'Moderate', low: 'Light', none: 'Rest Day' }[c.activity] : null,
-      calories:  c.calories ? { under: 'Under goal', on_track: 'On track', over: 'Slightly over', way_over: 'Way over' }[c.calories] : null,
-      notes: c.notes ? [{ icon: 'sticky_note_2', label: 'View notes', onClick: () => setViewNotesText(c.notes) }] : null,
+      mood:      c.mood     ? MOOD[c.mood] : null,
+      activity:  c.activity ? ACTIVITY[c.activity] : null,
+      calories:  c.calories ? CALORIES[c.calories] : null,
+      notes: c.notes ? [{ icon: 'sticky_note_2', label: l('data.viewNotes', 'View notes'), onClick: () => setViewNotesText(c.notes) }] : null,
     })),
-  [checkins, locale]);
+  [checkins, locale]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Section padding="sm" contentWidth="lg" gap="lg">
-      <Heading type="display" size="xxl" as="h1">All the deets</Heading>
+      <Heading type="display" size="xxl" as="h1">{l('data.title', 'All the deets')}</Heading>
 
-      <Dialog open={viewNotesText !== null} title="Day Notes" onClose={() => setViewNotesText(null)}>
+      <Dialog open={viewNotesText !== null} title={l('data.dayNotes', 'Day Notes')} onClose={() => setViewNotesText(null)}>
         <Paragraph>{viewNotesText}</Paragraph>
       </Dialog>
 
       {checkins.length === 0 ? (
-        <Heading size="md" color="muted">No check-ins yet.</Heading>
+        <Heading size="md" color="muted">{l('data.noCheckins', 'No check-ins yet.')}</Heading>
       ) : (
         <Tabs value={tab} onChange={handleTabChange} variant="line">
           <TabList>
-            <Tab value="data"   icon="table_chart">Data</Tab>
-            <Tab value="charts" icon="show_chart">Charts</Tab>
+            <Tab value="data"   icon="table_chart">{l('data.tabData', 'Data')}</Tab>
+            <Tab value="charts" icon="show_chart">{l('data.tabCharts', 'Charts')}</Tab>
           </TabList>
 
           <TabPanel value="data">
@@ -263,12 +286,12 @@ export function DataPage({ store }) {
               pageSize={20}
               defaultSort={{ key: 'date', direction: 'desc' }}
               columns={[
-                { key: 'date',      label: 'Date',             sortable: true, sortAccessor: row => row._rawDate },
-                { key: 'weight',    label: `Weight (${unit})`, sortable: true },
-                { key: 'mood',      label: 'Mood',     type: 'badge', statusMap: { 'Amazing': 'success', 'Good': 'success', 'Okay': 'neutral', 'Tough Day': 'warn' } },
-                { key: 'activity',  label: 'Activity', type: 'badge', statusMap: { Intense: 'success', Moderate: 'info', Light: 'neutral', 'Rest Day': 'neutral' } },
-                { key: 'calories',  label: 'Calories', type: 'badge', statusMap: { 'Under goal': 'success', 'On track': 'info', 'Slightly over': 'warn', 'Way over': 'error' } },
-                { key: 'notes', label: 'Notes', type: 'actions' },
+                { key: 'date',      label: l('data.colDate', 'Date'),               sortable: true, sortAccessor: row => row._rawDate },
+                { key: 'weight',    label: `${l('data.colWeight', 'Weight')} (${unit})`, sortable: true },
+                { key: 'mood',      label: l('data.colMood', 'Mood'),     type: 'badge', statusMap: { [MOOD.great]: 'success', [MOOD.good]: 'success', [MOOD.okay]: 'neutral', [MOOD.low]: 'warn' } },
+                { key: 'activity',  label: l('data.colActivity', 'Activity'), type: 'badge', statusMap: { [ACTIVITY.high]: 'success', [ACTIVITY.medium]: 'info', [ACTIVITY.low]: 'neutral', [ACTIVITY.none]: 'neutral' } },
+                { key: 'calories',  label: l('data.colCalories', 'Calories'), type: 'badge', statusMap: { [CALORIES.under]: 'success', [CALORIES.on_track]: 'info', [CALORIES.over]: 'warn', [CALORIES.way_over]: 'error' } },
+                { key: 'notes', label: l('data.colNotes', 'Notes'), type: 'actions' },
               ]}
               rows={rows}
               notices={notices}
@@ -279,15 +302,15 @@ export function DataPage({ store }) {
             <Grid columns={{ xs: 1, sm: 2 }} gap="md">
               <Card>
                 <Stack gap="sm">
-                  <Heading size="lg" type='display'>Weight Progress</Heading>
-                  <Paragraph color="muted" size="sm">Your weight over time vs. your goal</Paragraph>
+                  <Heading size="lg" type='display'>{l('data.weightProgress', 'Weight Progress')}</Heading>
+                  <Paragraph color="muted" size="sm">{l('data.weightProgressSub', 'Your weight over time vs. your goal')}</Paragraph>
                   <ProgressChart data={weightHistory} unit={unit} goalWeight={profile?.goalWeight} locale={locale} />
                 </Stack>
               </Card>
               <Card>
                 <Stack gap="sm">
-                  <Heading size="lg" type='display'>BMI Trend</Heading>
-                  <Paragraph color="muted" size="sm">How your BMI has shifted across health categories</Paragraph>
+                  <Heading size="lg" type='display'>{l('data.bmiTrend', 'BMI Trend')}</Heading>
+                  <Paragraph color="muted" size="sm">{l('data.bmiTrendSub', 'How your BMI has shifted across health categories')}</Paragraph>
                   {profile && <BmiTrendChart checkins={checkins} profile={profile} />}
                 </Stack>
               </Card>

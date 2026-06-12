@@ -98,6 +98,19 @@
       "quickTimelines": { "$value": "Quick timelines", "locale": { "es": "Plazos rápidos" } },
       "chooseDate": { "$value": "Choose", "locale": { "es": "Elegir" } },
       "goalHigherWarning": { "$value": "Your goal is higher than your start weight. This app is optimised for weight loss.", "locale": { "es": "Tu meta es más alta que tu peso inicial. Esta app está optimizada para bajar de peso." } },
+      "s1Heading": { "$value": "Set your start", "locale": { "es": "Define tu inicio" } },
+      "s2Heading": { "$value": "A few quick details", "locale": { "es": "Algunos datos rápidos" } },
+      "s3Heading": { "$value": "How do you move?", "locale": { "es": "¿Cómo te mueves?" } },
+      "s4Heading": { "$value": "Pick your pace", "locale": { "es": "Elige tu ritmo" } },
+      "planHeading": { "$value": "You've got a plan!", "locale": { "es": "¡Tienes un plan!" } },
+      "letsGo": { "$value": "Let's get going!", "locale": { "es": "¡Comencemos!" } },
+      "nextActivity": { "$value": "Next... your activity", "locale": { "es": "Siguiente... tu actividad" } },
+      "nextGoal": { "$value": "Next... your goal", "locale": { "es": "Siguiente... tu meta" } },
+      "nextPlan": { "$value": "Next... the plan", "locale": { "es": "Siguiente... el plan" } },
+      "goToTracker": { "$value": "Go to tracker", "locale": { "es": "Ir al panel" } },
+      "createYourAccount": { "$value": "Create your account", "locale": { "es": "Crea tu cuenta" } },
+      "alreadyHaveAccount": { "$value": "Already have an account?", "locale": { "es": "¿Ya tienes una cuenta?" } },
+      "signIn": { "$value": "Sign in", "locale": { "es": "Iniciar sesión" } },
       "startJourney": { "$value": "Start My Journey!", "locale": { "es": "¡Comenzar Mi Viaje!" } },
       "bmiLabel": { "$value": "Your BMI", "locale": { "es": "Tu IMC" } },
       "bmiTitle": { "$value": "Your BMI", "locale": { "es": "Tu IMC" } },
@@ -136,6 +149,43 @@
       "deleteAccountBody": { "$value": "This permanently deletes your account and all your data. This cannot be undone.", "locale": { "es": "Esto elimina permanentemente tu cuenta y todos tus datos. Esta acción no se puede deshacer." } },
       "deleteAccountConfirm": { "$value": "Yes, Delete My Account", "locale": { "es": "Sí, Eliminar Mi Cuenta" } },
       "deletingAccount": { "$value": "Deleting…", "locale": { "es": "Eliminando…" } }
+    },
+    "auth": {
+      "loginSubtitle": { "$value": "Log in to your account", "locale": { "es": "Inicia sesión en tu cuenta" } },
+      "signupSubtitle": { "$value": "Create an account to save your progress", "locale": { "es": "Crea una cuenta para guardar tu progreso" } },
+      "email": { "$value": "Email", "locale": { "es": "Correo electrónico" } },
+      "password": { "$value": "Password", "locale": { "es": "Contraseña" } },
+      "forgotPassword": { "$value": "Forgot password?", "locale": { "es": "¿Olvidaste tu contraseña?" } },
+      "login": { "$value": "Log in", "locale": { "es": "Iniciar sesión" } },
+      "createAccount": { "$value": "Create account", "locale": { "es": "Crear cuenta" } },
+      "noAccount": { "$value": "Don't have an account?", "locale": { "es": "¿No tienes una cuenta?" } },
+      "haveAccount": { "$value": "Already have an account?", "locale": { "es": "¿Ya tienes una cuenta?" } },
+      "signUp": { "$value": "Sign up", "locale": { "es": "Regístrate" } },
+      "checkEmailTitle": { "$value": "Check your email", "locale": { "es": "Revisa tu correo" } },
+      "checkEmailBody": { "$value": "We sent a link to {email}. Open it to continue — then come back here.", "locale": { "es": "Enviamos un enlace a {email}. Ábrelo para continuar y luego vuelve aquí." } },
+      "backToLogin": { "$value": "Back to log in", "locale": { "es": "Volver a iniciar sesión" } },
+      "resetTitle": { "$value": "Reset password", "locale": { "es": "Restablecer contraseña" } },
+      "resetSubtitle": { "$value": "Enter your email and we'll send a reset link.", "locale": { "es": "Ingresa tu correo y te enviaremos un enlace para restablecerla." } },
+      "sendReset": { "$value": "Send reset link", "locale": { "es": "Enviar enlace" } },
+      "sending": { "$value": "Sending…", "locale": { "es": "Enviando…" } }
+    },
+    "data": {
+      "title": { "$value": "All the deets", "locale": { "es": "Todos los detalles" } },
+      "dayNotes": { "$value": "Day Notes", "locale": { "es": "Notas del Día" } },
+      "noCheckins": { "$value": "No check-ins yet.", "locale": { "es": "Aún no hay registros." } },
+      "tabData": { "$value": "Data", "locale": { "es": "Datos" } },
+      "tabCharts": { "$value": "Charts", "locale": { "es": "Gráficas" } },
+      "colDate": { "$value": "Date", "locale": { "es": "Fecha" } },
+      "colWeight": { "$value": "Weight", "locale": { "es": "Peso" } },
+      "colMood": { "$value": "Mood", "locale": { "es": "Ánimo" } },
+      "colActivity": { "$value": "Activity", "locale": { "es": "Actividad" } },
+      "colCalories": { "$value": "Calories", "locale": { "es": "Calorías" } },
+      "colNotes": { "$value": "Notes", "locale": { "es": "Notas" } },
+      "viewNotes": { "$value": "View notes", "locale": { "es": "Ver notas" } },
+      "weightProgress": { "$value": "Weight Progress", "locale": { "es": "Progreso de Peso" } },
+      "weightProgressSub": { "$value": "Your weight over time vs. your goal", "locale": { "es": "Tu peso a lo largo del tiempo vs. tu meta" } },
+      "bmiTrend": { "$value": "BMI Trend", "locale": { "es": "Tendencia del IMC" } },
+      "bmiTrendSub": { "$value": "How your BMI has shifted across health categories", "locale": { "es": "Cómo ha cambiado tu IMC entre categorías de salud" } }
     },
     "checkin": {
       "greeting": {
@@ -257,6 +307,12 @@
     "bmiCategory": {
       "underweight": { "$value": "Underweight", "locale": { "es": "Bajo peso" } },
       "normal": { "$value": "Healthy Weight", "locale": { "es": "Peso saludable" } },
+      "overweight": { "$value": "Overweight", "locale": { "es": "Sobrepeso" } },
+      "obese": { "$value": "Obese", "locale": { "es": "Obesidad" } }
+    },
+    "bmiRange": {
+      "underweight": { "$value": "Underweight", "locale": { "es": "Bajo peso" } },
+      "healthy": { "$value": "Healthy", "locale": { "es": "Saludable" } },
       "overweight": { "$value": "Overweight", "locale": { "es": "Sobrepeso" } },
       "obese": { "$value": "Obese", "locale": { "es": "Obesidad" } }
     }

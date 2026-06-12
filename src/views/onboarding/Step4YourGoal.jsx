@@ -15,15 +15,9 @@ export function Step4YourGoal({
 
   return (
     <>
-      <Section
-        padding="md"
-        contentWidth="xs"
-        align="center"
-        gap="lg"
-        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
-      >
+      <Section padding="xs" contentWidth="xs" gap="lg">
         <Heading type="display" size="jumbo" as="h1" align="center">
-          Pick your pace
+          {l('onboarding.s4Heading', 'Pick your pace')}
         </Heading>
         <Stack gap="lg" style={{ width: '100%' }}>
           <Paragraph color="muted">
@@ -100,7 +94,7 @@ export function Step4YourGoal({
         <ButtonContainer size="lg" fillButtons>
           <IconButton icon="arrow_back" label="Back" variant="secondary" size="lg" onClick={onBack} />
           <Button variant="primary" onClick={onContinue}>
-            Next... the plan
+            {l('onboarding.nextPlan', 'Next... the plan')}
           </Button>
         </ButtonContainer>
       </StickyActions>

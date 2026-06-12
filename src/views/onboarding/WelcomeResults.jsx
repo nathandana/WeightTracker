@@ -30,6 +30,15 @@ const BMI_BADGE_STATUS = {
   obese:       'error',
 };
 
+// Badge icon must be a real Material Symbols glyph (and distinct from the
+// status string, which is not a valid icon name).
+const BMI_BADGE_ICON = {
+  underweight: 'trending_down',
+  normal:      'check_circle',
+  overweight:  'trending_up',
+  obese:       'warning',
+};
+
 export function WelcomeResults({ profile, onDone, onBack, currentStep, totalSteps }) {
   const l = useLabel;
 
@@ -37,18 +46,13 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
 
   const bmiHero = BMI_HERO[plan?.bmi?.category] ?? { color: 'action', icon: 'monitor_heart' };
   const bmiStatus = BMI_BADGE_STATUS[plan?.bmi?.category] ?? 'neutral';
+  const bmiBadgeIcon = BMI_BADGE_ICON[plan?.bmi?.category] ?? 'info';
 
   return (
     <>
-      <Section
-        surface="raised"
-        padding="sm"
-        contentWidth="xs"
-        gap="lg"
-        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
-      >
+      <Section padding="xs" contentWidth="xs" gap="lg">
         <Heading type="display" size="xxl" as="h1" align='center'>
-          You've got a plan!
+          {l('onboarding.planHeading', "You've got a plan!")}
         </Heading>
 
         <Card icon={bmiHero.icon} iconDisplay="hero" heroColor={bmiHero.color}>
@@ -59,7 +63,7 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
             <Heading as="h3" type="display" size="xJumbo" align="center">
               {plan.bmi?.value}
             </Heading>
-            <MessageBadge size="lg" status={bmiStatus} icon={bmiStatus}>
+            <MessageBadge size="lg" status={bmiStatus} icon={bmiBadgeIcon}>
               {l(`bmiCategory.${plan.bmi?.category}`, plan.bmi?.category)}
             </MessageBadge>
           </Stack>
@@ -116,7 +120,7 @@ export function WelcomeResults({ profile, onDone, onBack, currentStep, totalStep
             <IconButton variant="secondary" icon="arrow_back" label="Back" size="lg" onClick={onBack} />
           )}
           <Button variant="primary" size="lg" onClick={onDone}>
-            Go to tracker
+            {l('onboarding.createYourAccount', 'Create your account')}
           </Button>
         </ButtonContainer>
       </StickyActions>

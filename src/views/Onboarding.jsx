@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 import { lbsToKg, kgToLbs, feetInchesToCm, cmToFeetInches } from '../utils/calculations.js';
 import { WelcomeResults } from './onboarding/WelcomeResults.jsx';
@@ -14,34 +14,80 @@ import { formatDate } from '../utils/locale.js';
 
 const STEPS = [Step1AboutYou, Step2YourBody, Step3YourHabits, Step4YourGoal];
 
-export function Onboarding({ onComplete, onSignIn }) {
+// Each onboarding step is its own URL so browser back/forward works.
+// Index 5 ("plan") is the WelcomeResults summary.
+const ONBOARDING_BASE = '/onboarding';
+const STEP_SLUGS = ['about', 'body', 'habits', 'goal', 'plan'];
+
+function stepFromPath() {
+  const match = window.location.pathname.match(/^\/onboarding\/([a-z]+)/);
+  const idx = match ? STEP_SLUGS.indexOf(match[1]) : -1;
+  return idx >= 0 ? idx + 1 : 1;
+}
+
+function stepUrl(step) {
+  return `${ONBOARDING_BASE}/${STEP_SLUGS[step - 1]}`;
+}
+
+const DEFAULT_FORM = {
+  name: '',
+  weightUnit: 'lbs',
+  heightUnit: 'imperial',
+  startWeight: 180,
+  heightFeet: 5,
+  heightInches: 7,
+  height: '',
+  age: 40,
+  sex: 'female',
+  activityLevel: 'moderate',
+  dailyCalories: '1750',
+  meds: [],
+  otherMed: '',
+  goalWeight: 160,
+  goalDate: '',
+  startDate: null,
+};
+
+export function Onboarding({ onComplete, onSignIn, initialProfile }) {
   const l = useLabel;
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(stepFromPath);
   const [attempted, setAttempted] = useState(false);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showGoalDatePicker, setShowGoalDatePicker] = useState(false);
-  const [form, setForm] = useState({
-    name: '',
-    weightUnit: 'lbs',
-    heightUnit: 'imperial',
-    startWeight: 180,
-    heightFeet: 5,
-    heightInches: 7,
-    height: '',
-    age: 40,
-    sex: 'female',
-    activityLevel: 'moderate',
-    dailyCalories: '1750',
-    meds: [],
-    otherMed: '',
-    goalWeight: 160,
-    goalDate: '',
-    startDate: null,
-  });
+  // Seed from a persisted pending profile (e.g. when stepping back from the
+  // create-account screen) so the user's entries are restored.
+  const [form, setForm] = useState(() => ({ ...DEFAULT_FORM, ...(initialProfile ?? {}) }));
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const units = form.weightUnit === 'kg' ? 'metric' : 'imperial';
+
+  // Ensure the URL reflects the current step on mount (replace, not push, so we
+  // don't leave a junk entry behind whatever route the user arrived from).
+  useEffect(() => {
+    if (window.location.pathname !== stepUrl(step)) {
+      window.history.replaceState(null, '', stepUrl(step));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync the step to the URL when the user hits the browser back/forward buttons.
+  useEffect(() => {
+    function onPop() {
+      setStep(stepFromPath());
+      setAttempted(false);
+      setShowStartDatePicker(false);
+      setShowGoalDatePicker(false);
+    }
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Forward navigation: push a new history entry so Back returns to this step.
+  function goToStep(next) {
+    setAttempted(false);
+    setStep(next);
+    window.history.pushState(null, '', stepUrl(next));
+  }
 
   function handleUnitChange(newSystem) {
     if (newSystem === 'metric') {
@@ -79,26 +125,24 @@ export function Onboarding({ onComplete, onSignIn }) {
 
   function handleContinue() {
     if (isStepValid()) {
-      setAttempted(false);
       if (step === 3 && !form.goalDate) {
         const suggested = computeSuggestedPreset(form);
         set('goalDate', presetDate(suggested.months));
       }
-      setStep(s => s + 1);
+      goToStep(step + 1);
     } else {
       setAttempted(true);
     }
   }
 
+  // Use the browser's history so the back stack stays consistent; popstate syncs step.
   function handleBack() {
-    setAttempted(false);
-    setStep(s => s - 1);
+    window.history.back();
   }
 
   function handleFinishAttempt() {
     if (isStepValid()) {
-      setAttempted(false);
-      setStep(5);
+      goToStep(5);
     } else {
       setAttempted(true);
     }
@@ -124,7 +168,7 @@ export function Onboarding({ onComplete, onSignIn }) {
       <WelcomeResults
         profile={builtProfile}
         onDone={() => onComplete(builtProfile)}
-        onBack={() => setStep(4)}
+        onBack={() => window.history.back()}
         currentStep={5}
         totalSteps={PROGRESS_TOTAL}
       />

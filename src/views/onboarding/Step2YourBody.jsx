@@ -1,6 +1,7 @@
 import {
   Button, ButtonContainer, IconButton, NumberField, ChoiceGroup,
   FieldRow, Heading, Section, StepTracker, StickyActions,
+  Stack,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
 
@@ -9,17 +10,12 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
 
   return (
     <>
-      <Section
-        padding="md"
-        contentWidth="xs"
-        align="center"
-        gap="lg"
-        style={{ paddingBlockEnd: 'calc(var(--base-spacing-64) + var(--base-spacing-96))' }}
-      >
+      <Section padding="xs" contentWidth="xs" gap="lg">
         <Heading type="display" size="jumbo" as="h1" align="center">
-          A few quick details
+          {l('onboarding.s2Heading', 'A few quick details')}
         </Heading>
-        <FieldRow style={{ width: '100%' }}>
+        <Stack dir='column'>
+        <FieldRow>
           <NumberField
             className='boldInput'
             label={l('onboarding.heightFeet', 'Feet')}
@@ -43,6 +39,7 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
             unit="in"
           />
         </FieldRow>
+        </Stack>
         <NumberField
           className='boldInput'
           label={l('onboarding.age', 'Age')}
@@ -72,7 +69,7 @@ export function Step2YourBody({ form, set, errors, units, onBack, onContinue, cu
         <ButtonContainer size="lg" fillButtons>
           <IconButton icon="arrow_back" label="Back" variant="secondary" size="lg" onClick={onBack} />
           <Button variant="primary" onClick={onContinue}>
-            Next... your activity
+            {l('onboarding.nextActivity', 'Next... your activity')}
           </Button>
         </ButtonContainer>
       </StickyActions>

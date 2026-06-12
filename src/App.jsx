@@ -1,7 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   LabelsProvider, PageLayout, TopHeader, BottomDrawer,
-  Stack, Button, Dialog, Paragraph, CircularProgress,
+  Stack, Button, Paragraph, CircularProgress,
+  Menu, MenuSection, MenuItem,
 } from '@gtivr4/a1-design-system-react';
 import { useStore, LEGACY_STORAGE_KEY } from './store/useStore.js';
 import { useAuth } from './lib/AuthContext.jsx';
@@ -137,10 +138,13 @@ export default function App() {
       return;
     }
 
-    // Unauthenticated — stay on auth screens if user is mid-flow.
-    if (view === 'login' || view === 'signup') return;
-    if (pendingProfile) { setView('signup'); return; }
-    setView('onboarding');
+    // Unauthenticated — the auth/onboarding views are sticky once set. Transitions
+    // happen via explicit handlers (onSignIn → login, onComplete → signup,
+    // onBack → onboarding), so the effect must not bounce them around.
+    if (view === 'login' || view === 'signup' || view === 'onboarding') return;
+    // First resolution out of 'loading' (or after sign-out): pick up a persisted
+    // pending profile so an email-confirmation reload returns to signup.
+    setView(pendingProfile ? 'signup' : 'onboarding');
   }, [authLoading, user, store.dataLoading, store.settled, store.profile, pendingProfile, reonboard, view]);
 
   // ─── Pending profile → Supabase ─────────────────────────────────────────────
@@ -198,6 +202,12 @@ export default function App() {
     setReonboard(true);
   }
 
+  // Back from the auth screen (create-account / sign-in) → return to onboarding.
+  // pendingProfile is kept so the onboarding form is restored where they left off.
+  function handleAuthBack() {
+    setView('onboarding');
+  }
+
   async function handleMigrate() {
     setMigrationBusy(true);
     setMigrationError(null);
@@ -222,20 +232,21 @@ export default function App() {
   if (view === 'loading') return <LoadingScreen />;
 
   if (view === 'onboarding') return (
-    <LabelsProvider labels={labels} locale="en">
+    <LabelsProvider labels={labels} locale={store.locale}>
       <Suspense fallback={<LoadingScreen />}>
         <Onboarding
           onComplete={handleOnboardingComplete}
           onSignIn={!user ? () => setView('login') : undefined}
+          initialProfile={pendingProfile}
         />
       </Suspense>
     </LabelsProvider>
   );
 
   if (view === 'login' || view === 'signup') return (
-    <LabelsProvider labels={labels} locale="en">
+    <LabelsProvider labels={labels} locale={store.locale}>
       <Suspense fallback={<LoadingScreen />}>
-        <AuthPage initialMode={view === 'signup' ? 'signup' : 'login'} />
+        <AuthPage initialMode={view === 'signup' ? 'signup' : 'login'} onBack={handleAuthBack} />
       </Suspense>
     </LabelsProvider>
   );
@@ -314,26 +325,29 @@ export default function App() {
         className="bottom-nav-ds"
       />
 
-      <Dialog
+      <Menu
         open={accountOpen}
-        title={displayName}
         onClose={() => setAccountOpen(false)}
+        aria-label={resolveLabel('settings.account', store.locale, 'Account')}
       >
-        <Stack gap="md">
+        <MenuSection label={displayName}>
           {user.email !== displayName && (
-            <Paragraph color="muted" size="sm">{user.email}</Paragraph>
-          )}
-          <div>
-            <Button
-              variant="secondary"
-              icon="logout"
-              onClick={() => { setAccountOpen(false); signOut(); }}
+            <Paragraph
+              size="sm"
+              color="muted"
+              style={{ padding: '0 var(--base-spacing-8) var(--base-spacing-4)' }}
             >
-              {resolveLabel('settings.signOut', store.locale, 'Sign Out')}
-            </Button>
-          </div>
-        </Stack>
-      </Dialog>
+              {user.email}
+            </Paragraph>
+          )}
+          <MenuItem
+            icon="logout"
+            onClick={() => { setAccountOpen(false); signOut(); }}
+          >
+            {resolveLabel('settings.signOut', store.locale, 'Sign Out')}
+          </MenuItem>
+        </MenuSection>
+      </Menu>
     </LabelsProvider>
   );
 }

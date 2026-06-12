@@ -1,31 +1,14 @@
 import { useState } from 'react';
 import {
-  Card, Stack, Heading, Paragraph,
-  TextField, Button, ButtonContainer, Banner,
+  Card, Stack, Heading, Paragraph, Section,
+  TextField, Button, ButtonContainer, Banner, Link,
 } from '@gtivr4/a1-design-system-react';
+import { useLabel } from '@gtivr4/a1-design-system-react';
 import { useAuth } from '../../lib/AuthContext.jsx';
 
-const linkStyle = {
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  color: 'var(--semantic-color-action-background)',
-  cursor: 'pointer',
-  fontSize: 'inherit',
-  textDecoration: 'underline',
-  fontFamily: 'inherit',
-};
-
-const containerStyle = {
-  minHeight: '100dvh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: '24px 16px',
-};
-
 // initialMode: 'login' | 'signup'
-export function AuthPage({ initialMode = 'login' }) {
+export function AuthPage({ initialMode = 'login', onBack }) {
+  const l = useLabel;
   const { signIn, signUp, resetPassword } = useAuth();
   const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
@@ -77,131 +60,137 @@ export function AuthPage({ initialMode = 'login' }) {
 
   if (mode === 'check_email') {
     return (
-      <div style={containerStyle}>
-        <div style={{ width: '100%', maxWidth: 440 }}>
-          <Card>
-            <Stack gap="lg" align="center">
-              <Heading type="display" size="xl">Check your email</Heading>
-              <Paragraph color="muted" align="center">
-                We sent a link to <strong>{email}</strong>. Open it to continue — then come back here.
-              </Paragraph>
-              <button style={linkStyle} onClick={() => switchTo('login')}>
-                Back to log in
-              </button>
-            </Stack>
-          </Card>
-        </div>
-      </div>
+      <Section contentWidth="xs" padding="md" height="hero">
+        <Card>
+          <Stack gap="lg" align="center">
+            <Heading type="display" size="xl">{l('auth.checkEmailTitle', 'Check your email')}</Heading>
+            <Paragraph color="muted" align="center">
+              {(() => {
+                const [before, after] = l('auth.checkEmailBody', 'We sent a link to {email}. Open it to continue — then come back here.').split('{email}');
+                return <>{before}<strong>{email}</strong>{after}</>;
+              })()}
+            </Paragraph>
+            <Link href="#" onClick={(e) => { e.preventDefault(); switchTo('login'); }}>
+              {l('auth.backToLogin', 'Back to log in')}
+            </Link>
+          </Stack>
+        </Card>
+      </Section>
     );
   }
 
   if (mode === 'forgot') {
     return (
-      <div style={containerStyle}>
-        <div style={{ width: '100%', maxWidth: 440 }}>
-          <Card>
-            <form onSubmit={handleForgot}>
-              <Stack gap="lg">
-                <Stack gap="xs">
-                  <Heading type="display" size="xl">Reset password</Heading>
-                  <Paragraph color="muted" size="sm">
-                    Enter your email and we'll send a reset link.
-                  </Paragraph>
-                </Stack>
-                {error && <Banner status="error">{error}</Banner>}
-                <TextField
-                  label="Email"
-                  type="email"
-                  size="comfortable"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
-                <ButtonContainer fillButtons>
-                  <Button type="submit" variant="primary" disabled={busy}>
-                    {busy ? 'Sending…' : 'Send reset link'}
-                  </Button>
-                </ButtonContainer>
-                <Paragraph size="sm" align="center">
-                  <button style={linkStyle} type="button" onClick={() => switchTo('login')}>
-                    Back to log in
-                  </button>
+      <Section contentWidth="xs" padding="md" height="hero">
+        <Card>
+          <form onSubmit={handleForgot}>
+            <Stack gap="lg">
+              <Stack gap="xs">
+                <Heading type="display" size="xl">{l('auth.resetTitle', 'Reset password')}</Heading>
+                <Paragraph color="muted" size="sm">
+                  {l('auth.resetSubtitle', "Enter your email and we'll send a reset link.")}
                 </Paragraph>
               </Stack>
-            </form>
-          </Card>
-        </div>
-      </div>
+              {error && <Banner status="error">{error}</Banner>}
+              <TextField
+                label={l('auth.email', 'Email')}
+                type="email"
+                size="comfortable"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+              <ButtonContainer fillButtons>
+                <Button type="submit" variant="primary" disabled={busy}>
+                  {busy ? l('auth.sending', 'Sending…') : l('auth.sendReset', 'Send reset link')}
+                </Button>
+              </ButtonContainer>
+              <Paragraph size="sm" align="center">
+                <Link href="#" onClick={(e) => { e.preventDefault(); switchTo('login'); }}>
+                  {l('auth.backToLogin', 'Back to log in')}
+                </Link>
+              </Paragraph>
+            </Stack>
+          </form>
+        </Card>
+      </Section>
     );
   }
 
   const isLogin = mode === 'login';
 
   return (
-    <div style={containerStyle}>
-      <div style={{ width: '100%', maxWidth: 440 }}>
-        <Card>
-          <form onSubmit={isLogin ? handleLogin : handleSignUp}>
-            <Stack gap="lg">
-              <Stack gap="xs">
-                <Heading type="display" size="xxl" align="center">DownTrack</Heading>
-                <Paragraph color="muted" size="sm" align="center">
-                  {isLogin ? 'Log in to your account' : 'Create an account to save your progress'}
-                </Paragraph>
-              </Stack>
-
-              {error && <Banner status="error">{error}</Banner>}
-
-              <Stack gap="md">
-                <TextField
-                  label="Email"
-                  type="email"
-                  size="comfortable"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  autoComplete={isLogin ? 'email' : 'username'}
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  size="comfortable"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  autoComplete={isLogin ? 'current-password' : 'new-password'}
-                />
-              </Stack>
-
-              {isLogin && (
-                <Paragraph size="sm">
-                  <button style={linkStyle} type="button" onClick={() => switchTo('forgot')}>
-                    Forgot password?
-                  </button>
-                </Paragraph>
-              )}
-
-              <ButtonContainer fillButtons>
-                <Button type="submit" variant="primary" disabled={busy}>
-                  {busy ? '…' : isLogin ? 'Log in' : 'Create account & save'}
-                </Button>
-              </ButtonContainer>
-
-              <Paragraph size="sm" align="center">
-                {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                <button
-                  style={linkStyle}
-                  type="button"
-                  onClick={() => switchTo(isLogin ? 'signup' : 'login')}
-                >
-                  {isLogin ? 'Sign up' : 'Log in'}
-                </button>
+    <Section contentWidth="xs" padding="md" height="hero">
+      <Card>
+        <form onSubmit={isLogin ? handleLogin : handleSignUp}>
+          <Stack gap="lg">
+            {onBack && (
+              <Button
+                variant="tertiary"
+                icon="arrow_back"
+                size="sm"
+                onClick={onBack}
+                style={{ alignSelf: 'flex-start' }}
+              >
+                {l('common.back', 'Back')}
+              </Button>
+            )}
+            <Stack gap="xs">
+              <Heading type="display" size="xl" align="center">DownTrack</Heading>
+              <Paragraph color="muted" size="sm" align="center">
+                {isLogin
+                  ? l('auth.loginSubtitle', 'Log in to your account')
+                  : l('auth.signupSubtitle', 'Create an account to save your progress')}
               </Paragraph>
             </Stack>
-          </form>
-        </Card>
-      </div>
-    </div>
+
+            {error && <Banner status="error">{error}</Banner>}
+
+            <Stack gap="md">
+              <TextField
+                label={l('auth.email', 'Email')}
+                type="email"
+                size="comfortable"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                autoComplete={isLogin ? 'email' : 'username'}
+              />
+              <TextField
+                label={l('auth.password', 'Password')}
+                type="password"
+                size="comfortable"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+              />
+            </Stack>
+
+            {isLogin && (
+              <Paragraph size="sm">
+                <Link href="#" onClick={(e) => { e.preventDefault(); switchTo('forgot'); }}>
+                  {l('auth.forgotPassword', 'Forgot password?')}
+                </Link>
+              </Paragraph>
+            )}
+
+            <ButtonContainer fillButtons>
+              <Button type="submit" size="lg" variant="primary" disabled={busy}>
+                {busy ? '…' : isLogin ? l('auth.login', 'Log in') : l('auth.createAccount', 'Create account')}
+              </Button>
+            </ButtonContainer>
+
+            <Paragraph size="md" align="center">
+              {isLogin ? `${l('auth.noAccount', "Don't have an account?")} ` : `${l('auth.haveAccount', 'Already have an account?')} `}
+              <Link href="#" onClick={(e) => { e.preventDefault(); switchTo(isLogin ? 'signup' : 'login'); }}>
+                {isLogin ? l('auth.signUp', 'Sign up') : l('auth.login', 'Log in')}
+              </Link>
+            </Paragraph>
+          </Stack>
+        </form>
+      </Card>
+    </Section>
   );
 }

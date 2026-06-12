@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog, Calendar, Stack, Paragraph, NumberField, TextareaField,
+  Dialog, Calendar, Stack, Paragraph, Heading, TextareaField,
   Accordion, ChoiceGroup, Button,
 } from '@gtivr4/a1-design-system-react';
 import { useLabel } from '@gtivr4/a1-design-system-react';
+import { WeightStepper } from './WeightStepper.jsx';
 import { formatDate } from '../utils/locale.js';
 
 const MOOD_OPTIONS = [
@@ -39,7 +40,7 @@ function yesterday() {
 export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs', locale = 'en' }) {
   const l = useLabel;
   const [date, setDate] = useState(yesterday);
-  const [weightStr, setWeightStr] = useState(String(profile?.startWeight ?? 150));
+  const [weight, setWeight] = useState(profile?.startWeight ?? 150);
   const [mood, setMood] = useState(null);
   const [activity, setActivity] = useState(null);
   const [calories, setCalories] = useState(null);
@@ -49,14 +50,14 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
   useEffect(() => {
     if (!open) return;
     setDate(yesterday());
-    setWeightStr(String(profile?.startWeight ?? 150));
+    setWeight(profile?.startWeight ?? 150);
     setMood(null);
     setActivity(null);
     setCalories(null);
     setNotes('');
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const parsedWeight = parseFloat(weightStr);
+  const parsedWeight = Number(weight);
   const canSave = !Number.isNaN(parsedWeight) && parsedWeight > 0;
 
   function handleSave() {
@@ -100,18 +101,10 @@ export function PastCheckinDialog({ open, onClose, onSave, profile, unit = 'lbs'
           />
         </Stack>
 
-        <NumberField
-          label={`${l('progress.currentWeight', 'Weight')} (${unit})`}
-          value={weightStr}
-          onChange={e => setWeightStr(e.target.value)}
-          min={50}
-          max={700}
-          step={0.5}
-          unit={unit}
-          inputMode="decimal"
-          size="comfortable"
-          className='boldInput'
-        />
+        <Stack gap="sm" align="center">
+          <Heading size="xs" color="muted">{`${l('progress.currentWeight', 'Weight')} (${unit})`}</Heading>
+          <WeightStepper value={weight} onChange={setWeight} unit={unit} />
+        </Stack>
 
         <Accordion label={l('checkin.dailyDetailsOptional', 'Daily Details (optional)')}>
           <Stack gap="lg">
